@@ -8,8 +8,9 @@ require "Core/Router.php";
 
 $router = new Router();
 
-$router->add('', ["controller" => "home", "method" => "index"]);
-$router->add('/post/add', ["controller" => "home", "method" => "index"]);
+$router->add('', "home", "index");
+$router->add('/post/add', "post", "add");
+$router->add('/post/set', "post");
 
 if($router->match($_SERVER['REQUEST_URI'])) print_r($router->getParams());
-else echo "<pre>";print_r($router->getRoutes());
+print_r($router->getParameters());
