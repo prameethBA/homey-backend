@@ -1,5 +1,7 @@
 <?php
 
+namespace Core;
+
 // Router
 
 class Router {
@@ -41,7 +43,6 @@ class Router {
             }
             if(in_array($params, $this->routes)) {
                 $this->params = $params;
-                $this->setParameters($request);
                 return true;
             } else
                 return false;
@@ -65,11 +66,47 @@ class Router {
         $this->parameters = $parameterList;
     }
 
+    // Dispatch
+    public function dispatch($request) {
+        if($this->match($request)) {
+            $controller = $this->params['controller'];
+            $controller = $this->toStringCapitalize($controller);
+
+            if(class_exists($controller)) {
+                $controllerObject = new $contoller();
+
+                $method = $this->params['method'];
+                $method = $this->toStringCamelCase($method);
+
+                if(is_callable([$controllerObject, $method])) {
+                    $controllerObject->method();
+                    $this->setParameters($request);
+                } else {
+                    echo "Method $action (in controller $contoller) not found";
+                }
+            } else {
+                echo "Controller class $controller not found";
+            }
+        } else {
+            echo "No route matched";
+        }
+    }
+
     public function getParameters() {
         return $this->parameters;
     }
 
     public function getParams() {
         return $this->params;
+    }
+
+    // Capitalize String
+    protected function toStringCapitalize($string) {
+        return str_replace(' ', '', ucwords(str_replace('-', ' ', $string)));
+    }
+
+    // Camel case String
+    protected function toStringCamelCase($string) {
+        return lcfirst($this->toStringCapitalize($string));
     }
 }
