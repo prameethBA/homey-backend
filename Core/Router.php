@@ -71,7 +71,7 @@ class Router {
         if($this->match($request)) {
             $controller = $this->params['controller'];
             $controller = $this->toStringCapitalize($controller);
-
+           
             if(class_exists($controller)) {
                 $controllerObject = new $contoller();
 
