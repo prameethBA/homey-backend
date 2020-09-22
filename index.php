@@ -1,32 +1,13 @@
 <?php
 
-// Front controller
-
-// Autoloader
-spl_autoload_register(function ($class) {
-    $root = dirname(__DIR__);
-    $file = $root . '\\homey-backend\\' .str_replace('/', '\\', $class) . '.php';
-    if(is_readable($file)) {
-        require_once $file;
-        echo $file;
-    }
-});
-
-spl_autoload_register(function ($class) {
-    $root = dirname(__DIR__);
-    $file = $root . '\\homey-backend\\App\\Controller\\' .str_replace('/', '\\', $class) . '.php';
-    if(is_readable($file)) {
-        require_once $file;
-        echo $file;
-    }
-});
-
+require_once('./Core/Router.php');
 
 $router = new Core\Router();
 
-$router->add('', "home", "index");
-$router->add('/post/add', "post", "add");
-$router->add('/post/set', "post");
-// print_r(get_declared_classes());
-if($router->dispatch($_SERVER['REQUEST_URI'])) print_r($router->getParams());
-print_r($router->getParameters());
+if(file_exists('./Controllers/' . $router->getController() . ".php")) {
+    
+} else {
+    echo "Class " . $router->getController() . " does not exist.";
+}
+echo "<br>";
+echo $router->getRequest();
