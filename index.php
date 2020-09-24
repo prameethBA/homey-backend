@@ -15,11 +15,17 @@ if(file_exists($controllerFile)) {
         $method = $router->getRequest();
         $controller->{$method}();
     } else {
-        die("Method '" . $router->getRequest() . "()' does not exist.");
+        die('{
+            status: 400,
+            message: "Invalid request."
+        }');
     }
 
 } else {
-    die("Class " . $router->getController() . " does not exist.");
+    die('{
+        status: 500,
+        message: "Internal Server Error"
+    }');
 }
 
 
