@@ -15,9 +15,14 @@ if(file_exists($controllerFile)) {
         $method = $router->getRequest();
         $controller->{$method}();
     } else {
-        echo "Method '" . $router->getRequest() . "()' does not exist.";
+        die("Method '" . $router->getRequest() . "()' does not exist.");
     }
 
 } else {
-    echo "Class " . $router->getController() . " does not exist.";
+    die("Class " . $router->getController() . " does not exist.");
 }
+
+
+require_once('./Core/DB/DB.php');
+
+$conn = new Core\DB\DB();

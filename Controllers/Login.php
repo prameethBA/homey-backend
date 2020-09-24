@@ -2,15 +2,24 @@
 
 namespace Controllers;
 
-class Login {
+require_once('Core/BaseController.php');
 
-    private $params = [];
+use Core\BaseController as BaseController;
 
-    public function __construct($params) {
-        $this->params = $params;
-    }
+class Login extends BaseController{
 
     public function get() {
-        print_r($this->params);
+        $resolve  = '{
+            status:200,
+            data:{
+                message: "Ok"
+            }
+        }';
+        $reject = '{
+            status: 500,
+            message: "Internal Server Error"
+        }';
+
+        echo ($resolve);
     }
 }
