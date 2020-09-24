@@ -12,17 +12,18 @@ class Router {
     function __construct() {
         $this->setRequest();
         $this->setContoller($_SERVER['QUERY_STRING']);
+        $this->setParameters($_SERVER['QUERY_STRING']);
     }
     
-    public function setRequest() {
-        $this->Request = $this->toStringCamelCase($_SERVER['REQUEST_METHOD']);
+    private function setRequest() {
+        $this->Request = strtolower($_SERVER['REQUEST_METHOD']);
     }
     
     public function getRequest() {
         return $this->Request;
     }
 
-    public function setContoller($request) {
+    private function setContoller($request) {
         $this->Controller = $this->toStringCapitalize(explode('/', $request)[0]);
     }
     
@@ -30,14 +31,29 @@ class Router {
         return $this->Controller;
     }
 
+    private function setParameters($request) {
+        $paramerters = [];
+        $index = -1;
+        foreach(explode('/', $request) as $value) {
+            if($index === -1) {
+                $index++;
+                continue;
+            }
+            $paramerters[$index] =  $value;
+            $index++;
+        } 
+
+        $this->paramerters = $paramerters;
+    }
+
+    public function getParameters() {
+        return $this->paramerters;
+    }
+
     // Capitalize String
     protected function toStringCapitalize($string) {
         return str_replace(' ', '', ucwords(str_replace('-', ' ', $string)));
     }
 
-    // Camel case String
-    protected function toStringCamelCase($string) {
-        return lcfirst($this->toStringCapitalize($string));
-    }
-
+   
 }
