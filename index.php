@@ -10,7 +10,7 @@ if(file_exists($controllerFile)) {
     require_once($controllerFile);
     $controllerPath = "Controllers\\" . $router->getController();
     $controller = new $controllerPath($router->getParameters());
-
+    
     if(method_exists($controller,$router->getRequest())) {
         $method = $router->getRequest();
         $controller->{$method}();
@@ -27,8 +27,3 @@ if(file_exists($controllerFile)) {
         message: "Internal Server Error"
     }');
 }
-
-
-require_once('./Core/DB/DB.php');
-
-$conn = new Core\DB\DB();
