@@ -2,9 +2,9 @@
 
 namespace Core;
 
-require_once('DB/DB.php');
+require_once('BaseModel.php');
 
-use \Core\DB\DB as DB;
+use \Core\BaseModel as BaseModel;
 
 
 
@@ -15,7 +15,7 @@ class BaseController {
     
     public function __construct($params) {
         $this->params = $params;
-        $this->conn = new DB();
+        $this->conn = new BaseModel();
     }
 
     public function get() {}
