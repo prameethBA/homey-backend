@@ -6,6 +6,9 @@ require_once('DB/DB.php');
 
 use \Core\DB\DB as DB;
 
+use PDO;
+use PDOException;
+
 
 
 class BaseModel extends DB{
@@ -18,16 +21,16 @@ class BaseModel extends DB{
     }
 
     public function getAll($table) {
-        $sql = "SELECT * FROM" . $table;
+        $sql = "SELECT * FROM " . $table;
         $stmt = $this->conn->prepare($sql);
         $stmt->execute();
         $stmt->setFetchMode(PDO::FETCH_ASSOC);
         return $stmt;
     }
 
-    public function get($table,$limit, $offset, $condition='') {
-        $condition = $condition === '' ? '' : 'WHERE ' .$condition;
-        $sql = "SELECT * FROM" . $table . $condition . " LIMIT " . $offset . ", " .$limit;
+    public function get($table, $condition='', $limit=1, $offset=0) {
+        $condition = $condition === '' ? '' : ' WHERE ' .$condition;
+        $sql = "SELECT * FROM " . $table . $condition . " LIMIT " . $offset . ", " .$limit;
         $stmt = $this->conn->prepare($sql);
         $stmt->execute();
         $stmt->setFetchMode(PDO::FETCH_ASSOC);
