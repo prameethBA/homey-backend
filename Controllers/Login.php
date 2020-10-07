@@ -11,10 +11,9 @@ use Core\BaseController as BaseController;
 class Login extends BaseController{
 
     public function get() {
-        $stmt = $this->conn->get('user');
-        foreach((($stmt->fetchAll())) as $k=>$v) {
-            print_r($v);
-          }
+        $stmt = $this->conn->getAll('user');
+
+        
         if($stmt->rowCount() == 1) {
             echo $resolve = "{
                 status: 200,
@@ -52,11 +51,17 @@ class Login extends BaseController{
         $stmt = $this->conn->get('user',"(email='{$username}' OR mobile='{$username}') AND password='{$password}'");
 
         if($stmt->rowCount() == 1) {
+            $result = $stmt->fetch();
+            $payload = "{
+                id: " . $result['user_id'] . ",
+                email: '" . $result['email'] . "'
+            }";
+            $this->setToken($payload);
             echo $resolve = "{
                 status: 200,
                 data : {
                     login: true,
-                    token: USER_TOKEN,
+                    token: '" . $this->getToken() . "',
                     message: 'Login Succesfull'
                 }
             }";

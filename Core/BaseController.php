@@ -3,12 +3,14 @@
 namespace Core;
 
 require_once('BaseModel.php');
+require_once('Token.php');
 
 use \Core\BaseModel as BaseModel;
+use \Core\Token as Token;
 
 
 
-class BaseController {
+class BaseController extends Token {
     
     protected $conn;
     protected $params = [];
