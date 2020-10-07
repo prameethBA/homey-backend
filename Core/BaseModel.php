@@ -46,32 +46,31 @@ class BaseModel extends DB{
         $sql = "INSERT INTO " . $table . "(";
         
         foreach ($columns as $key => $value) {
-            $sql += "`" . $key ."`"; 
+            $sql .= "`" . $key ."`"; 
         }
 
-        $sql += ") VALUES (";
+        $sql .= ") VALUES (";
 
         foreach ($columns as $key => $value) {
             if(is_int($value))
-                $sql += $value;
+                $sql .= $value;
             else 
-                $sql += "`" . $value ."`"; 
+                $sql .= "`" . $value ."`"; 
         }
 
         $this->conn->exec($sql);
     }
     
     public function update($table, $columns, $condition) {
-        $sql = "UPDATE " . $table . "SET ";
+        $sql = "UPDATE " . $table . " SET ";
        
         foreach ($columns as $key => $value) {
             if(is_int($value))
-                $sql += $key . "=" .$value;
+                $sql .= $key . "= " . $value . " ";
             else 
-                $sql += $key . "= `" . $value ."`"; 
+                $sql .= $key . "= '" . $value . "' "; 
         }
-        $sql += $condition === '' ? '' : 'WHERE ' .$condition;
-        
+        $sql .= $condition === '' ? '' : 'WHERE ' .$condition;
 
         $this->conn->exec($sql);
     }

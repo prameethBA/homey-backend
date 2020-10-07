@@ -65,6 +65,9 @@ class Login extends BaseController{
                     message: 'Login Succesfull'
                 }
             }";
+
+            $this->conn->update('user',['access_token' => $this->getToken()], "user_id = {$result['user_id']}");
+            
         } else {
             echo $reject = "{
                 status: 404,
