@@ -68,11 +68,11 @@ class BaseModel extends DB{
             if(is_int($value))
                 $sql .= $key . "= " . $value . " ";
             else 
-                $sql .= $key . "= '" . $value . "' "; 
+                $sql .= $key . "= '" . $value . "', "; 
         }
-        $sql .= $condition === '' ? '' : 'WHERE ' .$condition;
-
-        $this->conn->exec($sql);
+        $sql = rtrim($sql, ", ");//remove last comma seperator
+        $sql .= $condition === '' ? '' : ' WHERE ' .$condition;
+        // $this->conn->exec($sql);
     }
 
 }
