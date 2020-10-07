@@ -15,7 +15,7 @@ class Login extends BaseController{
 
         
         if($stmt->rowCount() == 1) {
-            $resolve = "{
+            echo $resolve = "{
                 status: 200,
                 data : {
                     login: true,
@@ -23,16 +23,14 @@ class Login extends BaseController{
                     message: 'Login Succesfull'
                 }
             }";
-            echo json_encode($resolve);
         } else {
-            $reject = "{
+            echo $reject = "{
                 status: 404,
                 data: {
                     login: false,
                     message: 'Login failed.User Not found'
                 }
             }";
-            echo json_encode($reject);
         }
     }
 
@@ -43,12 +41,12 @@ class Login extends BaseController{
             $password = $this->params[1];
         }
         else {
-            die(json_encode($reject  = "{
+            die($reject  = "{
                 status:400,
                 data:{
                     message: 'Invalid parameters.'
                 }
-            }"));
+            }");
         }
 
         $stmt = $this->conn->get('user',"(email='{$username}' OR mobile='{$username}') AND password='{$password}'");
@@ -60,27 +58,25 @@ class Login extends BaseController{
                 email: '" . $result['email'] . "'
             }";
             $this->setToken($payload);
-            $resolve = "{
-                'status': 200,
-                'data' : {
-                    'login': true,
-                    'token': '" . $this->getToken() . "',
-                    'message': 'Login Succesfull'
+            echo $resolve = "{
+                \"status\": \"200\",
+                \"data\" : {
+                    \"login\": \"true\",
+                    \"token\": \"" . $this->getToken() . "\",
+                    \"message\": \"Login Succesfull\"
                 }
             }";
-            echo json_encode($resolve);
 
             $this->conn->update('user',['access_token' => $this->getToken(), "next" =>"val"], "user_id = {$result['user_id']}");
             
         } else {
-            $reject = "{
-                status: 404,
-                data: {
-                    login: false,
-                    message: 'Login failed.User Not found'
+            echo $reject = "{
+                \"status\": \"404\",
+                \"data\": {
+                    \"login\": \"false\",
+                    \"message\": \"Login failed.User Not found\"
                 }
             }";
-            echo json_encode($reject);
         }
         
     }
