@@ -58,26 +58,57 @@ class Login extends BaseController{
                 email: '" . $result['email'] . "'
             }";
             $this->setToken($payload);
-            echo $resolve = "{
-                \"status\": \"200\",
-                \"data\" : {
-                    \"login\": \"true\",
-                    \"token\": \"" . $this->getToken() . "\",
-                    \"message\": \"Login Succesfull\"
+            echo $resolve = '{
+                "status": "200",
+                "data" : {
+                    "login": "true",
+                    "token": "{$this->getToken()}",
+                    "message": "Login Succesfull"
                 }
-            }";
+            }';
 
             $this->conn->update('user',['access_token' => $this->getToken(), "next" =>"val"], "user_id = {$result['user_id']}");
             
         } else {
-            echo $reject = "{
-                \"status\": \"404\",
-                \"data\": {
-                    \"login\": \"false\",
-                    \"message\": \"Login failed.User Not found\"
+            echo $reject = '{
+                "status": "404",
+                "data": {
+                    "login": "false",
+                    "message": "Login failed.User Not found"
                 }
-            }";
+            }';
         }
         
+    }
+
+    //Logout method
+    public function delete() {
+        if(isset($this->params[0])) {
+            $userId = $this->params[0];
+            if($this->conn->validateUser($userId)) {
+                $this->conn->delete('user', "user-id = {$userId}");
+                echo $resolve  = '{
+                    "status":"200",
+                    "data":{
+                        message: "Logout Succesfull."
+                    }
+                }';
+            } else {
+                die($reject  = '{
+                    "status":"500",
+                    "data":{
+                        "message": "Failed the log out procces."
+                    }
+                }');
+            }
+        }
+        else {
+            die($reject  = '{
+                "status":"400",
+                "data":{
+                    "message": "Invalid parameters."
+                }
+            }');
+        }
     }
 }

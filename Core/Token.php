@@ -44,5 +44,4 @@ class Token {
             return false;
     }
 
-   
 }

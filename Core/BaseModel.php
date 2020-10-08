@@ -38,7 +38,7 @@ class BaseModel extends DB{
     }
 
     public function delete($table, $condition) {
-        $sql = "DELETE FROM " .$table . "WHERE " . $condition;
+        $sql = "DELETE FROM " .$table . " WHERE " . $condition;
         $this->conn->exec($sql);
     }
 
@@ -73,6 +73,17 @@ class BaseModel extends DB{
         $sql = rtrim($sql, ", ");//remove last comma seperator
         $sql .= $condition === '' ? '' : ' WHERE ' .$condition;
         // $this->conn->exec($sql);
+    }
+
+    public function validateUser($userId) {
+        $sql = "SELECT * FROM user WHERE user_id = {$userId} AND access_token = '{$_SERVER['HTTP_AUTHORIZATION']}'";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute();
+        $stmt->setFetchMode(PDO::FETCH_ASSOC);
+        if($stmt->rowCount() == 1)
+            return true;
+        else
+            return false;
     }
 
 }
