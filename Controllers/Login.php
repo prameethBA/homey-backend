@@ -5,13 +5,19 @@ namespace Controllers;
 // use PDO;
 // use PDOException;
 require_once('Core/BaseController.php');
-
 use Core\BaseController as BaseController;
 
-class Login extends BaseController{
+require_once('Models/User.php');
+use Models\User as User;
+
+class Login {
+
+    public function __construct() {
+        $this->user = new User();
+    }
 
     public function get() {
-        $stmt = $this->conn->getAll('user');
+        $stmt = $this->user->conn->getAll();
 
         
         if($stmt->rowCount() == 1) {
@@ -49,7 +55,7 @@ class Login extends BaseController{
             }");
         }
 
-        $stmt = $this->conn->get('user',"(email='{$username}' OR mobile='{$username}') AND password='{$password}'");
+        $stmt = $this->user->conn->get("(email='{$username}' OR mobile='{$username}') AND password='{$password}'");
 
         if($stmt->rowCount() == 1) {
             $result = $stmt->fetch();
@@ -67,7 +73,7 @@ class Login extends BaseController{
                 }
             }';
 
-            $this->conn->update('user',['access_token' => $this->getToken(), "next" =>"val"], "user_id = {$result['user_id']}");
+            $this->user->conn->update(['access_token' => $this->getToken(), "next" =>"val"], "user_id = {$result['user_id']}");
             
         } else {
             echo $reject = '{
@@ -85,8 +91,8 @@ class Login extends BaseController{
     public function delete() {
         if(isset($this->params[0])) {
             $userId = $this->params[0];
-            if($this->conn->validateUser($userId)) {
-                $this->conn->delete('user', "user-id = {$userId}");
+            if($this->user->conn->validateUser($userId)) {
+                $this->user->conn->delete( "user-id = {$userId}");
                 echo $resolve  = '{
                     "status":"200",
                     "data":{

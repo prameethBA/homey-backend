@@ -2,10 +2,10 @@
 
 namespace Core;
 
-require_once('BaseModel.php');
+// require_once('BaseModel.php');
 require_once('Token.php');
 
-use \Core\BaseModel as BaseModel;
+// use \Core\BaseModel as BaseModel;
 use \Core\Token as Token;
 
 // Allow from any origin
@@ -37,12 +37,10 @@ if($_SERVER["REQUEST_METHOD"] == "OPTIONS")
 
 class BaseController extends Token {
     
-    protected $conn;
     protected $params = [];
     
     public function __construct($params) {
         $this->params = $params;
-        $this->conn = new BaseModel();
     }
 
     public function get() {}

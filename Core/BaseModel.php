@@ -14,36 +14,41 @@ use PDOException;
 class BaseModel extends DB{
 
     protected $conn;
+
+    protected $table;
+    protected $Schema = [];
     
     public function __construct() {
         $this->conn = new DB();
         $this->conn = $this->conn->connection;
+
+        $this->table = strtolower(get_class($this));
     }
 
-    public function getAll($table) {
-        $sql = "SELECT * FROM " . $table;
+    public function getAll() {
+        $sql = "SELECT * FROM " . $this->table;
         $stmt = $this->conn->prepare($sql);
         $stmt->execute();
         $stmt->setFetchMode(PDO::FETCH_ASSOC);
         return $stmt;
     }
 
-    public function get($table, $condition='', $limit=1, $offset=0) {
+    public function get($condition='', $limit=1, $offset=0) {
         $condition = $condition === '' ? '' : ' WHERE ' .$condition;
-        $sql = "SELECT * FROM " . $table . $condition . " LIMIT " . $offset . ", " .$limit;
+        $sql = "SELECT * FROM " . $this->table . $condition . " LIMIT " . $offset . ", " .$limit;
         $stmt = $this->conn->prepare($sql);
         $stmt->execute();
         $stmt->setFetchMode(PDO::FETCH_ASSOC);
         return $stmt;
     }
 
-    public function delete($table, $condition) {
-        $sql = "DELETE FROM " .$table . " WHERE " . $condition;
+    public function delete($condition) {
+        $sql = "DELETE FROM " . $this->table . " WHERE " . $condition;
         $this->conn->exec($sql);
     }
 
-    public function save($table, $columns) {
-        $sql = "INSERT INTO " . $table . "(";
+    public function save($columns) {
+        $sql = "INSERT INTO " . $this->table . "(";
         
         foreach ($columns as $key => $value) {
             $sql .= "`" . $key ."`"; 
@@ -61,8 +66,8 @@ class BaseModel extends DB{
         $this->conn->exec($sql);
     }
     
-    public function update($table, $columns, $condition) {
-        $sql = "UPDATE " . $table . " SET ";
+    public function update($columns, $condition) {
+        $sql = "UPDATE " . $this->table . " SET ";
        
         foreach ($columns as $key => $value) {
             if(is_int($value))
