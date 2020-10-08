@@ -16,7 +16,7 @@ class BaseModel extends DB{
     protected $conn;
 
     protected $table;
-    protected $Schema = [];
+    protected $schema = [];
     
     public function __construct() {
         $this->conn = new DB();
