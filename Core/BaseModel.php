@@ -15,7 +15,9 @@ class BaseModel extends DB{
     protected $schema = [];
     
     public function __construct() {
-        $this->table = strtolower(basename(get_class($this)));
+
+        $table = (explode('\\',strtolower(basename(get_class($this)))));
+        $this->table = isset($table[1]) ? $table[1] : $table[0];
     }
  
     public function getAll($select = '*', $limit='', $offset=0) {
