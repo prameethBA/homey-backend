@@ -25,8 +25,12 @@ class BaseModel extends DB{
         $this->table = strtolower(get_class($this));
     }
 
-    public function getAll() {
-        $sql = "SELECT * FROM " . $this->table;
+    
+    public function getAll($select = '*', $limit=' (SELECT COUNT(*) FROM Customers) ', $offset=0) {
+        if(is_string($select))
+            $sql = "SELECT * FROM " . $this->table . " LIMIT " . $offset . ", " .$limit;
+        else
+            $sql = "SELECT " . implode(', ', $select) ." FROM " . $this->table . " LIMIT " . $offset . ", " .$limit;
         $stmt = $this->conn->prepare($sql);
         $stmt->execute();
         $stmt->setFetchMode(PDO::FETCH_ASSOC);
