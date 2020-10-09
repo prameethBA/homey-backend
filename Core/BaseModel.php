@@ -9,8 +9,6 @@ use \Core\DB\DB as DB;
 use PDO;
 use PDOException;
 
-
-
 class BaseModel extends DB{
 
     protected $table;

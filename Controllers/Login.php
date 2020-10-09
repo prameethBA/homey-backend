@@ -4,44 +4,47 @@ namespace Controllers;
 
 // use PDO;
 // use PDOException;
+use Exception;
+
 require_once('Core/BaseController.php');
 use Core\BaseController as BaseController;
 
 require_once('Models/User.php');
 use Models\User as User;
 
-class Login {
+class Login extends BaseController {
 
     public function __construct() {
         $this->user = new User();
     }
 
     public function get() {
-        $stmt = $this->user->getAll(['user_id', 'email', 'mobile']);
+        try {
+            $stmt = $this->user->getAll(['user_id', 'email', 'mobile']);
+            
+            http_response_code(200);
+            echo $resolve = '{
+                "data": {
+                    ' . json_encode($stmt->fetchAll()) . '
+                }
+            }
+            ';
 
-        
-        if($stmt->rowCount() == 1) {
-            echo $resolve = "{
-                status: 200,
-                data : {
-                    login: true,
-                    token: USER_TOKEN,
-                    message: 'Login Succesfull'
+        } catch(Exception $err) {
+            http_response_code(500);
+            die($reject = '{
+                "data": {
+                    "login": "false",
+                    "message": "' . $err->getMessage() . '"
                 }
-            }";
-        } else {
-            echo $reject = "{
-                status: 404,
-                data: {
-                    login: false,
-                    message: 'Login failed.User Not found'
-                }
-            }";
+            }');
         }
+            
     }
 
     //Login method
     public function post() {
+        print_r($this->params);
         if(isset($this->params[0]) && isset($this->params[1])) {
             $username = $this->params[0];
             $password = $this->params[1];
