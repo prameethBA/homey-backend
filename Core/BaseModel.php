@@ -13,25 +13,23 @@ use PDOException;
 
 class BaseModel extends DB{
 
-    protected $conn;
-
     protected $table;
     protected $schema = [];
     
     public function __construct() {
-        $this->conn = new DB();
-        $this->conn = $this->conn->connection;
-
-        $this->table = strtolower(get_class($this));
+        $this->table = strtolower(basename(get_class($this)));
     }
+ 
+    public function getAll($select = '*', $limit='', $offset=0) {
 
-    
-    public function getAll($select = '*', $limit=' (SELECT COUNT(*) FROM Customers) ', $offset=0) {
+        // set limits
+        $limit = is_int($limit) ? " LIMIT " . $offset . ", " .$limit : "";
+
         if(is_string($select))
             $sql = "SELECT * FROM " . $this->table . " LIMIT " . $offset . ", " .$limit;
         else
-            $sql = "SELECT " . implode(', ', $select) ." FROM " . $this->table . " LIMIT " . $offset . ", " .$limit;
-        $stmt = $this->conn->prepare($sql);
+            $sql = "SELECT " . implode(', ', $select) ." FROM " . $this->table .$limit;
+        $stmt = DB::connect()->prepare($sql);
         $stmt->execute();
         $stmt->setFetchMode(PDO::FETCH_ASSOC);
         return $stmt;
@@ -40,7 +38,7 @@ class BaseModel extends DB{
     public function get($condition='', $limit=1, $offset=0) {
         $condition = $condition === '' ? '' : ' WHERE ' .$condition;
         $sql = "SELECT * FROM " . $this->table . $condition . " LIMIT " . $offset . ", " .$limit;
-        $stmt = $this->conn->prepare($sql);
+        $stmt = DB::connect()->prepare($sql);
         $stmt->execute();
         $stmt->setFetchMode(PDO::FETCH_ASSOC);
         return $stmt;
@@ -48,7 +46,7 @@ class BaseModel extends DB{
 
     public function delete($condition) {
         $sql = "DELETE FROM " . $this->table . " WHERE " . $condition;
-        $this->conn->exec($sql);
+        DB::connect()->exec($sql);
     }
 
     public function save($columns) {
@@ -67,7 +65,7 @@ class BaseModel extends DB{
                 $sql .= "`" . $value ."`"; 
         }
 
-        $this->conn->exec($sql);
+        DB::connect()->exec($sql);
     }
     
     public function update($columns, $condition) {
@@ -81,12 +79,12 @@ class BaseModel extends DB{
         }
         $sql = rtrim($sql, ", ");//remove last comma seperator
         $sql .= $condition === '' ? '' : ' WHERE ' .$condition;
-        // $this->conn->exec($sql);
+        // DB::connect()->exec($sql);
     }
 
     public function validateUser($userId) {
         $sql = "SELECT * FROM user WHERE user_id = {$userId} AND access_token = '{$_SERVER['HTTP_AUTHORIZATION']}'";
-        $stmt = $this->conn->prepare($sql);
+        $stmt = DB::connect()->prepare($sql);
         $stmt->execute();
         $stmt->setFetchMode(PDO::FETCH_ASSOC);
         if($stmt->rowCount() == 1)

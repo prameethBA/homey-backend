@@ -3,8 +3,8 @@
 namespace Core\Config;
 
 class Config {
-    protected $serverName = "localhost";
-    protected $userName = "homey";
-    protected $password = "homey";
-    protected $dbName = "homey";
+    protected static $serverName = "localhost";
+    protected static $userName = "homey";
+    protected static $password = "homey";
+    protected static $dbName = "homey";
 }

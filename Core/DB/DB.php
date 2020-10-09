@@ -16,31 +16,32 @@ if(file_exists($dbFile)) {
 }
 
 
-class DB extends Config {
+class DB extends Config{
 
-    public $connection;
+    // public static $connection;
 
-    public function __construct() {
-       $this->connectToDB();
-    }
+    // public function __construct() {
+    //    $this->connect();
+    // }
 
-    private function connectToDB() {
+    protected static function connect() {
         try {
 
-            $connection = new PDO("mysql:host=$this->serverName;dbname=$this->dbName", $this->userName, $this->password);
+            $connection = new PDO("mysql:host=" . Config::$serverName . ";dbname=" . Config::$dbName, Config::$userName, Config::$password);
             // set the PDO error mode to exception
             $connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            $this->connection = $connection;
+            return $connection;
             
           } catch(PDOException $err) {
               
             die("Connection failed: " . $err->getMessage());
-
+            
           }
+          return null;
     }
 
-    public function close() {
-        $this->connection = null;
+    protected static function close($connection) {
+        $connection = null;
     }
 
 }

@@ -17,7 +17,7 @@ class Login {
     }
 
     public function get() {
-        $stmt = $this->user->conn->getAll();
+        $stmt = $this->user->getAll(['user_id', 'email', 'mobile']);
 
         
         if($stmt->rowCount() == 1) {
