@@ -11,36 +11,35 @@ use PDOException;
 
 class BaseModel extends DB{
 
-    protected $table;
+    protected static $table;
     protected $schema = [];
     
     public function __construct() {
-
-        $table = (explode('\\',strtolower(basename(get_class($this)))));
-        $this->table = isset($table[1]) ? $table[1] : $table[0];
+        $table = (explode('\\',strtolower(basename(get_called_class()))));
+        self::$table = isset($table[1]) ? $table[1] : $table[0];
     }
  
-    public function getAll($select = '*', $limit='', $offset=0) {
+    public static function getAll($select = '*', $limit='', $offset=0) {
 
         // set limits
         $limit = is_int($limit) ? " LIMIT " . $offset . ", " .$limit : "";
 
         if(is_string($select))
-            $sql = "SELECT * FROM " . $this->table . " LIMIT " . $offset . ", " .$limit;
+            $sql = "SELECT * FROM " . self::$table . " LIMIT " . $offset . ", " .$limit;
         else
-            $sql = "SELECT " . implode(', ', $select) ." FROM " . $this->table .$limit;
+            $sql = "SELECT " . implode(', ', $select) ." FROM " . self::$table .$limit;
 
         return $sql;
     }
 
-    public function get($condition='', $limit='', $offset=0) {
+    public static function get($condition='', $limit='', $offset=0) {
 
         // set limits
         $limit = is_int($limit) ? " LIMIT " . $offset . ", " .$limit : "";
         // Set Conditon
         $condition = $condition === '' ? '' : ' WHERE ' .$condition;
 
-        $sql = "SELECT * FROM " . $this->table . $condition .$limit;
+        $sql = "SELECT * FROM " . self::$table . $condition .$limit;
 
         return $sql;
         
@@ -60,12 +59,12 @@ class BaseModel extends DB{
         return parent::connect()->exec($sql);
     }
 
-    public function delete($condition) {
-        $sql = "DELETE FROM " . $this->table . " WHERE " . $condition;
+    public static function delete($condition) {
+        $sql = "DELETE FROM " . self::$table . " WHERE " . $condition;
     }
 
-    public function save($columns) {
-        $sql = "INSERT INTO " . $this->table . "(";
+    public static function save($columns) {
+        $sql = "INSERT INTO " . self::$table . "(";
         
         foreach ($columns as $key => $value) {
             $sql .= "`" . $key ."`"; 
@@ -81,8 +80,8 @@ class BaseModel extends DB{
         }
     }
     
-    public function update($columns, $condition) {
-        $sql = "UPDATE " . $this->table . " SET ";
+    public static function update($columns, $condition) {
+        $sql = "UPDATE " . self::$table . " SET ";
        
         foreach ($columns as $key => $value) {
             if(is_int($value))
@@ -94,7 +93,7 @@ class BaseModel extends DB{
         $sql .= $condition === '' ? '' : ' WHERE ' .$condition;
     }
 
-    public function validateUser($userId) {
+    public static function validateUser($userId) {
         $sql = "SELECT * FROM user WHERE user_id = {$userId} AND access_token = '{$_SERVER['HTTP_AUTHORIZATION']}'";
         $stmt = parent::connect()->prepare($sql);
         $stmt->execute();

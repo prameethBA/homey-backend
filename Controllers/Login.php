@@ -16,12 +16,12 @@ class Login extends BaseController {
 
     public function __construct($params) {
         parent::__construct($params);
-        $this->user = new User();
+        new User();
     }
 
     public function get() {
         try {
-            $stmt = User::execute($this->user->getAll(['user_id', 'email', 'mobile']));
+            $stmt = User::execute(User::getAll(['user_id', 'email', 'mobile']));
             
             http_response_code(200);
             echo $resolve = '{
@@ -59,7 +59,7 @@ class Login extends BaseController {
             }");
         }
 
-        $stmt = USER::execute($this->user->get("(email='{$username}' OR mobile='{$username}') AND password='{$password}'"));
+        $stmt = User::execute(User::get("(email='{$username}' OR mobile='{$username}') AND password='{$password}'"));
 
         if($stmt->rowCount() == 1) {
             $result = $stmt->fetch();
@@ -77,7 +77,7 @@ class Login extends BaseController {
                 }
             }';
 
-            $this->user->update(['access_token' => $this->getToken(), "next" =>"val"], "user_id = {$result['user_id']}");
+            User::update(['access_token' => $this->getToken(), "next" =>"val"], "user_id = {$result['user_id']}");
             
         } else {
             http_response_code(404);
@@ -95,8 +95,8 @@ class Login extends BaseController {
     public function delete() {
         if(isset($this->params[0])) {
             $userId = $this->params[0];
-            if($this->user->validateUser($userId)) {
-                $this->user->delete( "user-id = {$userId}");
+            if(User::validateUser($userId)) {
+                User::delete( "user-id = {$userId}");
                 echo $resolve  = '{
                     "status":"200",
                     "data":{
