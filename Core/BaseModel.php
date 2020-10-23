@@ -45,6 +45,22 @@ class BaseModel extends DB{
         
     }
 
+    public static function save($values) {
+
+        $keys;
+        $values;
+
+        foreach ($values as $key => $value){ 
+            $keys .= $key . ", ";
+            $values .= $value . ", ";
+        } 
+        
+        echo $sql = $keys + $values;
+        die();
+        return $sql;
+        
+    }
+
     // Execute select
     public static function execute($sql) {
         $stmt = parent::connect()->prepare($sql);
@@ -53,7 +69,7 @@ class BaseModel extends DB{
         return $stmt;
     }
 
-    // Excucute Insert, update and delete 
+    // Excucute update and delete 
 
     public static function exec($sql) {
         return parent::connect()->exec($sql);
@@ -61,23 +77,6 @@ class BaseModel extends DB{
 
     public static function delete($condition) {
         $sql = "DELETE FROM " . self::$table . " WHERE " . $condition;
-    }
-
-    public static function save($columns) {
-        $sql = "INSERT INTO " . self::$table . "(";
-        
-        foreach ($columns as $key => $value) {
-            $sql .= "`" . $key ."`"; 
-        }
-
-        $sql .= ") VALUES (";
-
-        foreach ($columns as $key => $value) {
-            if(is_int($value))
-                $sql .= $value;
-            else 
-                $sql .= "`" . $value ."`"; 
-        }
     }
     
     public static function update($columns, $condition) {
