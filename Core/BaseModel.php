@@ -35,7 +35,7 @@ class BaseModel extends DB{
     public static function get($condition='', $limit='', $offset=0) {
 
         // set limits
-        $limit = is_int($limit) ? " LIMIT " . $offset . ", " .$limit : "";
+        $limit = is_int($limit) ? " LIMIT " . $offset . ", " . $limit : "";
         // Set Conditon
         $condition = $condition === '' ? '' : ' WHERE ' .$condition;
 
@@ -45,18 +45,18 @@ class BaseModel extends DB{
         
     }
 
-    public static function save($values) {
+    public static function save($data) {
 
         $keys;
         $values;
 
-        foreach ($values as $key => $value){ 
+        foreach ($data as $key => $value){ 
             $keys .= $key . ", ";
-            $values .= $value . ", ";
+            $values .= is_int($value) ? $value . ", " : "'" . $value . "', ";
         } 
         
-        echo $sql = $keys + $values;
-        die();
+        $sql = "INSERT INTO " . self::$table  . "(" . rtrim($keys,', ') .") VALUES(" . rtrim($values,', ') . ")";
+
         return $sql;
         
     }
