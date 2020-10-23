@@ -40,7 +40,7 @@ class BaseModel extends DB{
         $condition = $condition === '' ? '' : ' WHERE ' .$condition;
 
         $sql = "SELECT * FROM " . self::$table . $condition .$limit;
-
+        
         return $sql;
         
     }

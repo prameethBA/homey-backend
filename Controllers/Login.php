@@ -14,8 +14,8 @@ use Models\User as User;
 
 class Login extends BaseController {
 
-    public function __construct($params) {
-        parent::__construct($params);
+    public function __construct($params, $secureParams) {
+        parent::__construct($params, $secureParams);
         new User();
     }
 
@@ -45,18 +45,17 @@ class Login extends BaseController {
 
     //Login method
     public function post() {
-        // print_r($this->params);
-        if(isset($this->params[0]) && isset($this->params[1])) {
-            $username = $this->params[0];
-            $password = $this->params[1];
+        if(isset($this->secureParams['Username']) && isset($this->secureParams['Password'])) {
+            $username = $this->secureParams['Username'];
+            $password = $this->secureParams['Password'];
         }
         else {
-            die($reject  = "{
-                status:400,
-                data:{
-                    message: 'Invalid parameters.'
+            die($reject  = '{
+                "status":"400",
+                "data":{
+                    "message": "Invalid parameters."
                 }
-            }");
+            }');
         }
 
         $stmt = User::execute(User::get("(email='{$username}' OR mobile='{$username}') AND password='{$password}'"));
@@ -84,7 +83,7 @@ class Login extends BaseController {
             echo $reject = '{
                 "data": {
                     "login": "false",
-                    "message": "Login failed.User Not found"
+                    "message": "Login failed! <br> Invalid Email, Mobile or Password."
                 }
             }';
         }

@@ -10,8 +10,7 @@ if(file_exists($controllerFile)) {
    
     require_once($controllerFile);
     $controllerPath = "Controllers\\" . $router->getController();
-    $controller = new $controllerPath($router->getParameters());
-    
+    $controller = new $controllerPath($router->getParameters(),$router->getHeaderParameters());
     if(method_exists($controller,$router->getRequest())) {
         $method = $router->getRequest();
         $controller->{$method}();
