@@ -4,20 +4,23 @@ namespace Controllers;
 
 use Exception;
 
-use \Core\DB\DB as DB;
+require_once('Core/BaseController.php');
 use Core\BaseController as BaseController;
-use Models\User as User;
+require_once('Models/Login.php');
+use Models\Login as LoginModel;
+require_once('Core/DB/DB.php');
+use Core\DB\DB as DB;
 
 class Login extends BaseController {
 
     public function __construct($params, $secureParams) {
         parent::__construct($params, $secureParams);
-        new User();
+        new LoginModel();
     }
 
     public function get() {
         try {
-            $stmt = User::execute(User::getAll(['user_id', 'email', 'mobile']));
+            $stmt = LoginModel::execute(LoginModel::getAll(['user_id', 'email', 'mobile']));
             
             http_response_code(200);
             echo $resolve = '{
@@ -43,7 +46,7 @@ class Login extends BaseController {
     public function post() {
         if(isset($this->secureParams['Username']) && isset($this->secureParams['Password'])) {
             $username = $this->secureParams['Username'];
-            $password = $this->secureParams['Password'];
+            $password = md5($this->secureParams['Password']);//Encode the password
         }
         else {
             http_response_code(400);
@@ -54,7 +57,7 @@ class Login extends BaseController {
             }');
         }
 
-        $stmt = DB::execute(User::get("(email='{$username}' OR mobile='{$username}') AND password='{$password}'"));
+        $stmt = DB::execute(LoginModel::get("(email='{$username}' OR mobile='{$username}') AND password='{$password}'"));
 
         if($stmt->rowCount() == 1) {
             $result = $stmt->fetch();
@@ -72,7 +75,7 @@ class Login extends BaseController {
                 }
             }';
 
-            DB::update(['access_token' => $this->getToken(), "next" =>"val"], "user_id = {$result['user_id']}");
+            DB::exec(LoginModel::update(['access_token' => $this->getToken()], "user_id = {$result['user_id']}"));
             
         } else {
             http_response_code(404);
@@ -90,8 +93,8 @@ class Login extends BaseController {
     public function delete() {
         if(isset($this->params[0])) {
             $userId = $this->params[0];
-            if(User::validateUser($userId)) {
-                User::delete( "user-id = {$userId}");
+            if(LoginModel::validateUser($userId)) {
+                LoginModel::delete( "user-id = {$userId}");
                 echo $resolve  = '{
                     "status":"200",
                     "data":{

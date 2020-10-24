@@ -59,6 +59,7 @@ class BaseModel {
 
     public static function delete($condition) {
         $sql = "DELETE FROM " . self::$table . " WHERE " . $condition;
+        return $sql;
     }
     
     public static function update($columns, $condition) {
@@ -72,6 +73,8 @@ class BaseModel {
         }
         $sql = rtrim($sql, ", ");//remove last comma seperator
         $sql .= $condition === '' ? '' : ' WHERE ' .$condition;
+
+        return $sql;
     }
 
     // public static function validateUser($userId) {

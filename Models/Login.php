@@ -8,7 +8,7 @@ require_once('Core/BaseModel.php');
 
 use Core\BaseModel as BaseModel;
 
-class User extends BaseModel{
+class Login extends BaseModel{
 
     public $schema = [
         'user_id',
