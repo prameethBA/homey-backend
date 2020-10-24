@@ -10,20 +10,15 @@ class BaseModel {
     protected static $table;
     protected $schema = [];
     
-    public function __construct() {
-        $table = (explode('\\',strtolower(basename(get_called_class()))));
-        self::$table = isset($table[1]) ? $table[1] : $table[0];
-    }
- 
     public static function getAll($select = '*', $limit='', $offset=0) {
 
         // set limits
         $limit = is_int($limit) ? " LIMIT " . $offset . ", " .$limit : "";
 
         if(is_string($select))
-            $sql = "SELECT * FROM " . self::$table . " LIMIT " . $offset . ", " .$limit;
+            $sql = "SELECT * FROM " . static::$table . " LIMIT " . $offset . ", " .$limit;
         else
-            $sql = "SELECT " . implode(', ', $select) ." FROM " . self::$table .$limit;
+            $sql = "SELECT " . implode(', ', $select) ." FROM " . static::$table .$limit;
 
         return $sql;
     }
@@ -35,7 +30,7 @@ class BaseModel {
         // Set Conditon
         $condition = $condition === '' ? '' : ' WHERE ' .$condition;
 
-        $sql = "SELECT * FROM " . self::$table . $condition .$limit;
+        $sql = "SELECT * FROM " . static::$table . $condition .$limit;
         
         return $sql;
         
@@ -51,19 +46,19 @@ class BaseModel {
             $values .= is_int($value) ? $value . ", " : "'" . $value . "', ";
         } 
         
-        $sql = "INSERT INTO " . self::$table  . "(" . rtrim($keys,', ') .") VALUES(" . rtrim($values,', ') . ")";
+        $sql = "INSERT INTO " . static::$table  . "(" . rtrim($keys,', ') .") VALUES(" . rtrim($values,', ') . ")";
 
         return $sql;
         
     }
 
     public static function delete($condition) {
-        $sql = "DELETE FROM " . self::$table . " WHERE " . $condition;
+        $sql = "DELETE FROM " . static::$table . " WHERE " . $condition;
         return $sql;
     }
     
     public static function update($columns, $condition) {
-        $sql = "UPDATE " . self::$table . " SET ";
+        $sql = "UPDATE " . static::$table . " SET ";
        
         foreach ($columns as $key => $value) {
             if(is_int($value))

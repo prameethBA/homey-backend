@@ -8,7 +8,7 @@ require_once('Core/BaseModel.php');
 
 use Core\BaseModel as BaseModel;
 
-class Login extends BaseModel{
+class User extends BaseModel{
 
     protected static $table;
 
@@ -19,11 +19,10 @@ class Login extends BaseModel{
 
     public $schema = [
         'user_id',
-        'email',
-        'mobile',
-        'password',
-        'access_token',
-        'user_status'
+        'first_name',
+        'last_name',
+        'nic',
+        'user_image',
     ]; 
 
 }
