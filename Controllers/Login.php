@@ -47,7 +47,7 @@ class Login extends BaseController {
         if(isset($this->secureParams['Username']) && isset($this->secureParams['Password'])) {
             $username = $this->secureParams['Username'];
             $password = md5($this->secureParams['Password']);//Encode the password
-            $stmt = DB::execute(LoginModel::get("(email='{$username}' OR mobile='{$username}') AND password='{$password}'"));
+            $stmt = DB::execute(LoginModel::get(['user_id', 'email', 'access_token', 'user_status'], "(email='{$username}' OR mobile='{$username}') AND password='{$password}'"));
             if($stmt->rowCount() == 1) {
                 $result = $stmt->fetch();
                 $payload = "{
@@ -60,7 +60,7 @@ class Login extends BaseController {
                     "data" : {
                         "login": "true",
                         "token": "' . $this->getToken() . '",
-                        "message": "Login Succesfull"
+                        "message": "Login Succesfull."
                     }
                 }';
     
