@@ -2,14 +2,10 @@
 
 namespace Core;
 
-require_once('DB/DB.php');
-
-use \Core\DB\DB as DB;
-
 use PDO;
 use PDOException;
 
-class BaseModel extends DB{
+class BaseModel {
 
     protected static $table;
     protected $schema = [];
@@ -61,20 +57,6 @@ class BaseModel extends DB{
         
     }
 
-    // Execute select
-    public static function execute($sql) {
-        $stmt = parent::connect()->prepare($sql);
-        $stmt->execute();
-        $stmt->setFetchMode(PDO::FETCH_ASSOC);
-        return $stmt;
-    }
-
-    // Excucute update and delete 
-
-    public static function exec($sql) {
-        return parent::connect()->exec($sql);
-    }
-
     public static function delete($condition) {
         $sql = "DELETE FROM " . self::$table . " WHERE " . $condition;
     }
@@ -92,15 +74,15 @@ class BaseModel extends DB{
         $sql .= $condition === '' ? '' : ' WHERE ' .$condition;
     }
 
-    public static function validateUser($userId) {
-        $sql = "SELECT * FROM user WHERE user_id = {$userId} AND access_token = '{$_SERVER['HTTP_AUTHORIZATION']}'";
-        $stmt = parent::connect()->prepare($sql);
-        $stmt->execute();
-        $stmt->setFetchMode(PDO::FETCH_ASSOC);
-        if($stmt->rowCount() == 1)
-            return true;
-        else
-            return false;
-    }
+    // public static function validateUser($userId) {
+    //     $sql = "SELECT * FROM user WHERE user_id = {$userId} AND access_token = '{$_SERVER['HTTP_AUTHORIZATION']}'";
+    //     $stmt = parent::connect()->prepare($sql);
+    //     $stmt->execute();
+    //     $stmt->setFetchMode(PDO::FETCH_ASSOC);
+    //     if($stmt->rowCount() == 1)
+    //         return true;
+    //     else
+    //         return false;
+    // }
 
 }

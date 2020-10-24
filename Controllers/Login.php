@@ -4,10 +4,8 @@ namespace Controllers;
 
 use Exception;
 
-require_once('Core/BaseController.php');
+use \Core\DB\DB as DB;
 use Core\BaseController as BaseController;
-
-require_once('Models/User.php');
 use Models\User as User;
 
 class Login extends BaseController {
@@ -48,15 +46,15 @@ class Login extends BaseController {
             $password = $this->secureParams['Password'];
         }
         else {
+            http_response_code(400);
             die($reject  = '{
-                "status":"400",
                 "data":{
                     "message": "Invalid parameters."
                 }
             }');
         }
 
-        $stmt = User::execute(User::get("(email='{$username}' OR mobile='{$username}') AND password='{$password}'"));
+        $stmt = DB::execute(User::get("(email='{$username}' OR mobile='{$username}') AND password='{$password}'"));
 
         if($stmt->rowCount() == 1) {
             $result = $stmt->fetch();
@@ -74,7 +72,7 @@ class Login extends BaseController {
                 }
             }';
 
-            User::update(['access_token' => $this->getToken(), "next" =>"val"], "user_id = {$result['user_id']}");
+            DB::update(['access_token' => $this->getToken(), "next" =>"val"], "user_id = {$result['user_id']}");
             
         } else {
             http_response_code(404);

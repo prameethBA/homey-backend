@@ -18,12 +18,6 @@ if(file_exists($dbFile)) {
 
 class DB extends Config{
 
-    // public static $connection;
-
-    // public function __construct() {
-    //    $this->connect();
-    // }
-
     protected static function connect() {
         try {
 
@@ -44,4 +38,18 @@ class DB extends Config{
         $connection = null;
     }
 
-}
+     // Execute select
+     public static function execute($sql) {
+        $stmt = self::connect()->prepare($sql);
+        $stmt->execute();
+        $stmt->setFetchMode(PDO::FETCH_ASSOC);
+        return $stmt;
+    }
+
+    // Excucute update and delete 
+
+    public static function exec($sql) {
+        return self::connect()->exec($sql);
+    }
+
+}//End of Class
