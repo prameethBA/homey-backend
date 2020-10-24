@@ -16,21 +16,24 @@ class BaseModel {
         $limit = is_int($limit) ? " LIMIT " . $offset . ", " .$limit : "";
 
         if(is_string($select))
-            $sql = "SELECT * FROM " . static::$table . " LIMIT " . $offset . ", " .$limit;
+            $sql = "SELECT " . $select . " FROM " . static::$table . " LIMIT " . $offset . ", " .$limit;
         else
-            $sql = "SELECT " . implode(', ', $select) ." FROM " . static::$table .$limit;
+            $sql = "SELECT " . implode(', ', $select) . " FROM " . static::$table .$limit;
 
         return $sql;
     }
 
-    public static function get($condition='', $limit='', $offset=0) {
+    public static function get($select = '*', $condition='', $limit='', $offset=0) {
 
         // set limits
         $limit = is_int($limit) ? " LIMIT " . $offset . ", " . $limit : "";
         // Set Conditon
         $condition = $condition === '' ? '' : ' WHERE ' .$condition;
 
-        $sql = "SELECT * FROM " . static::$table . $condition .$limit;
+        if(is_string($select))
+            $sql = "SELECT " . $select . " FROM " . static::$table . $condition .$limit;
+        else
+            $sql = "SELECT " . implode(', ', $select) . " FROM " . static::$table . $condition .$limit;
         
         return $sql;
         

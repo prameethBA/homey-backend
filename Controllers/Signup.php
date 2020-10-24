@@ -22,9 +22,10 @@ class Signup extends BaseController {
 
     public function __construct($params, $secureParams) {
         parent::__construct($params, $secureParams);
-        $this->login = new Login();
-        $this->user = new User();
-        $this->hash = new Hash();
+        new Login();
+        new User();
+        new Admin();
+        new Hash();
     }
 
     public function get() {
@@ -44,33 +45,91 @@ class Signup extends BaseController {
                 case 'user':
                     if(isset( $this->secureParams['Firstname'], $this->secureParams['Lastname'], $this->secureParams['Email'],  $this->secureParams['Password'])) {
                         $email = $this->secureParams['Email'];
-                        die($this->login::get("email = '{$email}'"));
-                        $stmt = DB::execute($this->login::get("email = '{$email}'"));
+                        $stmt = DB::execute(Login::get('user_id', "email = '{$email}'"));
             
                         if ($stmt->rowCount() == 0) {
                             $firstName = $this->secureParams['Firstname'];
                             $lastName = $this->secureParams['Lastname'];
                             $password = md5($this->secureParams['Password']); //Encrypt password
                 
-                            echo $stmt = DB::execute($this->login::save(['email' => $email, 'password' => $password]));
-                            // echo $stmt = DB::execute($this->login::get("email = '{$email}' AND password = '{$password}'"));
-                            // echo $stmt = DB::execute(User::save(['first_name' => $firstName, 'last_name' => $lastName]));
-                            // echo $stmt = DB::execute(Hash::save(['user_id' => $email, 'Hash' => $password]));
+                            $stmt = DB::execute(Login::save(['email' => $email, 'password' => $password]));
+                            $stmt = DB::execute(Login::get('user_id', "email = '{$email}' AND password = '{$password}'"));
+                            $userId = ($stmt->fetch())['user_id'];
+                            $stmt = DB::execute(User::save(['user_id' => $userId, 'first_name' => $firstName, 'last_name' => $lastName]));
+                            $stmt = DB::execute(Hash::save(['user_id' => $userId, 'Hash' => $password]));
+
+                            http_response_code(201);
+                            echo $resolve  = '{
+                                "signup": "true"
+                                "data":{
+                                    "message": "User account succesfully created."
+                                }
+                             }';
+
                         } else {
                             http_response_code(409);
                             die($reject  = '{
+                                "signup" = "false"
                                 "data":{
                                     "message": "An account with the given email already exits."
                                 }
-                             }');
+                            }');
                         }
                     }
                     break;//End of signup method for User
+
+                case 'admin':
+                    if(isset( $this->secureParams['Firstname'], $this->secureParams['Lastname'], $this->secureParams['Email'],  $this->secureParams['Password'], $this->secureParams['Nic'])) {
+                        $email = $this->secureParams['Email'];
+                        $stmt = DB::execute(Login::get('user_id', "email = '{$email}'"));
+            
+                        if ($stmt->rowCount() == 0) {
+                            $firstName = $this->secureParams['Firstname'];
+                            $lastName = $this->secureParams['Lastname'];
+                            $nic = $this->secureParams['Nic'];
+                            $password = md5($this->secureParams['Password']); //Encrypt password
+                
+                            $stmt = DB::execute(Login::save(['email' => $email, 'password' => $password]));
+                            $stmt = DB::execute(Login::get('user_id', "email = '{$email}' AND password = '{$password}'"));
+                            $userId = ($stmt->fetch())['user_id'];
+                            $stmt = DB::execute(Admin::save(['user_id' => $userId, 'first_name' => $firstName, 'last_name' => $lastName, 'nic' => $nic]));
+                            $stmt = DB::execute(Hash::save(['user_id' => $userId, 'Hash' => $password]));
+
+                            http_response_code(201);
+                            echo $resolve  = '{
+                                "signup": "true"
+                                "data":{
+                                    "message": "User account succesfully created."
+                                }
+                                }';
+
+                        } else {
+                            http_response_code(409);
+                            die($reject  = '{
+                                "signup" = "false"
+                                "data":{
+                                    "message": "An account with the given email already exits."
+                                }
+                            }');
+                        }
+                    }
+                    break;//End of signup method for User
+
+                default:
+                    http_response_code(400);
+                    die($reject  = '{
+                        "signup" = "false"
+                        "data":{
+                            "message": "Invalid user type."
+                        }
+                    }');
+                    //End of Default
             }//End of Switch
         } else {
 
                 http_response_code(400);
                 die($reject  = '{
+                    "signup" = "false"
                     "data":{
                         "message": "Invalid parameters."
                     }
