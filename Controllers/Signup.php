@@ -56,8 +56,8 @@ class Signup extends BaseController {
                             $stmt = DB::execute(Login::get('user_id', "email = '{$email}' AND password = '{$password}'"));
                             $userId = ($stmt->fetch())['user_id'];
                             $stmt = DB::execute(User::save(['user_id' => $userId, 'first_name' => $firstName, 'last_name' => $lastName]));
-                            $hash = bin2hex(random_bytes($length));
-                            $stmt = DB::execute(Hash::save(['user_id' => $hash, 'Hash' => $password]));
+                            $hash = bin2hex(random_bytes(32));
+                            $stmt = DB::execute(Hash::save(['user_id' => $userId, 'hash' => $hash]));
 
                             http_response_code(201);
                             echo $resolve  = '{
@@ -76,6 +76,14 @@ class Signup extends BaseController {
                                 }
                             }');
                         }
+                    } else {
+                        http_response_code(406);
+                        die($reject  = '{
+                            "data":{
+                                "signup": "false",
+                                "message": "Invalid parameters."
+                            }
+                        }');
                     }
                     break;//End of signup method for User
 
@@ -113,7 +121,16 @@ class Signup extends BaseController {
                                 }
                             }');
                         }
+                    } else {
+                        http_response_code(406);
+                        die($reject  = '{
+                            "data":{
+                                "signup": "false",
+                                "message": "Invalid parameters."
+                            }
+                        }');
                     }
+                    
                     break;//End of signup method for User
 
                 default:
