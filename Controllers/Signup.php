@@ -56,12 +56,13 @@ class Signup extends BaseController {
                             $stmt = DB::execute(Login::get('user_id', "email = '{$email}' AND password = '{$password}'"));
                             $userId = ($stmt->fetch())['user_id'];
                             $stmt = DB::execute(User::save(['user_id' => $userId, 'first_name' => $firstName, 'last_name' => $lastName]));
-                            $stmt = DB::execute(Hash::save(['user_id' => $userId, 'Hash' => $password]));
+                            $hash = bin2hex(random_bytes($length));
+                            $stmt = DB::execute(Hash::save(['user_id' => $hash, 'Hash' => $password]));
 
                             http_response_code(201);
                             echo $resolve  = '{
-                                "signup": "true"
                                 "data":{
+                                    "signup": "true",
                                     "message": "User account succesfully created."
                                 }
                              }';
@@ -69,8 +70,8 @@ class Signup extends BaseController {
                         } else {
                             http_response_code(409);
                             die($reject  = '{
-                                "signup" = "false"
                                 "data":{
+                                    "signup": "false",
                                     "message": "An account with the given email already exits."
                                 }
                             }');
@@ -97,17 +98,17 @@ class Signup extends BaseController {
 
                             http_response_code(201);
                             echo $resolve  = '{
-                                "signup": "true"
                                 "data":{
+                                    "signup": "true",
                                     "message": "User account succesfully created."
-                                }
+                                    }
                                 }';
 
                         } else {
                             http_response_code(409);
                             die($reject  = '{
-                                "signup" = "false"
                                 "data":{
+                                    "signup": "false",
                                     "message": "An account with the given email already exits."
                                 }
                             }');
@@ -118,8 +119,8 @@ class Signup extends BaseController {
                 default:
                     http_response_code(400);
                     die($reject  = '{
-                        "signup" = "false"
                         "data":{
+                            "signup": "false",
                             "message": "Invalid user type."
                         }
                     }');
@@ -129,8 +130,8 @@ class Signup extends BaseController {
 
                 http_response_code(400);
                 die($reject  = '{
-                    "signup" = "false"
                     "data":{
+                        "signup": "false",
                         "message": "Invalid parameters."
                     }
                 }');
