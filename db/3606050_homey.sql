@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: fdb28.awardspace.net
--- Generation Time: Oct 23, 2020 at 04:44 PM
+-- Generation Time: Oct 24, 2020 at 05:19 PM
 -- Server version: 5.7.20-log
 -- PHP Version: 5.5.38
 
@@ -27,10 +27,11 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE `admin` (
+  `_id` int(11) NOT NULL,
   `user_id` int(10) NOT NULL,
   `first_name` varchar(50) NOT NULL,
   `last_name` varchar(50) NOT NULL,
-  `nic` varchar(20) NOT NULL
+  `nic` varchar(12) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -67,7 +68,8 @@ CREATE TABLE `comment` (
 --
 
 CREATE TABLE `confirmationinfo` (
-  `user_id` int(11) NOT NULL,
+  `_id` int(11) NOT NULL,
+  `user_id` int(10) NOT NULL,
   `hash` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -150,9 +152,9 @@ CREATE TABLE `login` (
   `user_id` int(10) NOT NULL,
   `email` varchar(100) NOT NULL,
   `password` varchar(50) NOT NULL,
-  `user_status` tinyint(1) NOT NULL,
-  `mobile` varchar(15) DEFAULT NULL,
-  `access_token` varchar(255) NOT NULL
+  `user_status` tinyint(1) NOT NULL DEFAULT '0',
+  `mobile` varchar(10) DEFAULT NULL,
+  `access_token` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -207,11 +209,12 @@ CREATE TABLE `report` (
 --
 
 CREATE TABLE `user` (
+  `_id` int(11) NOT NULL,
   `user_id` int(10) NOT NULL,
   `first_name` varchar(50) NOT NULL,
   `last_name` varchar(50) NOT NULL,
-  `nic` varchar(20) NOT NULL,
-  `user_image` longtext NOT NULL
+  `nic` varchar(12) DEFAULT NULL,
+  `user_image` longtext
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
@@ -222,7 +225,9 @@ CREATE TABLE `user` (
 -- Indexes for table `admin`
 --
 ALTER TABLE `admin`
-  ADD PRIMARY KEY (`user_id`);
+  ADD PRIMARY KEY (`_id`),
+  ADD UNIQUE KEY `nic` (`nic`),
+  ADD UNIQUE KEY `user_id` (`user_id`);
 
 --
 -- Indexes for table `boostedproperty`
@@ -240,7 +245,9 @@ ALTER TABLE `comment`
 -- Indexes for table `confirmationinfo`
 --
 ALTER TABLE `confirmationinfo`
-  ADD PRIMARY KEY (`user_id`);
+  ADD PRIMARY KEY (`_id`),
+  ADD UNIQUE KEY `hash` (`hash`),
+  ADD UNIQUE KEY `user_id` (`user_id`);
 
 --
 -- Indexes for table `facilities`
@@ -282,7 +289,10 @@ ALTER TABLE `images`
 -- Indexes for table `login`
 --
 ALTER TABLE `login`
-  ADD PRIMARY KEY (`user_id`);
+  ADD PRIMARY KEY (`user_id`),
+  ADD UNIQUE KEY `email` (`email`),
+  ADD UNIQUE KEY `mobile` (`mobile`),
+  ADD UNIQUE KEY `access_token` (`access_token`);
 
 --
 -- Indexes for table `property`
@@ -306,7 +316,52 @@ ALTER TABLE `report`
 -- Indexes for table `user`
 --
 ALTER TABLE `user`
-  ADD PRIMARY KEY (`user_id`);
+  ADD PRIMARY KEY (`_id`),
+  ADD UNIQUE KEY `user_id` (`user_id`),
+  ADD UNIQUE KEY `nic` (`nic`),
+  ADD UNIQUE KEY `nic_3` (`nic`),
+  ADD KEY `nic_2` (`nic`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `admin`
+--
+ALTER TABLE `admin`
+  MODIFY `_id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT for table `confirmationinfo`
+--
+ALTER TABLE `confirmationinfo`
+  MODIFY `_id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT for table `login`
+--
+ALTER TABLE `login`
+  MODIFY `user_id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+--
+-- Constraints for dumped tables
+--
+
+--
+-- Constraints for table `admin`
+--
+ALTER TABLE `admin`
+  ADD CONSTRAINT `admin_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `login` (`user_id`) ON DELETE NO ACTION ON UPDATE CASCADE;
+
+--
+-- Constraints for table `confirmationinfo`
+--
+ALTER TABLE `confirmationinfo`
+  ADD CONSTRAINT `confirmationinfo_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `login` (`user_id`) ON DELETE CASCADE ON UPDATE NO ACTION;
+
+--
+-- Constraints for table `user`
+--
+ALTER TABLE `user`
+  ADD CONSTRAINT `user_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `login` (`user_id`) ON DELETE NO ACTION ON UPDATE CASCADE;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
