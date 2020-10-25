@@ -6,22 +6,22 @@ use Exception;
 
 require_once('Core/BaseController.php');
 use Core\BaseController as BaseController;
-require_once('Models/PropertyType.php');
-use Models\PropertyType as Property;
+require_once('Models/Districts.php');
+use Models\Districts as Districts;
 
 require_once('Core/DB/DB.php');
 use Core\DB\DB as DB;
 
-class PropertyType extends BaseController {
+class District extends BaseController {
 
     public function __construct($params, $secureParams) {
         parent::__construct($params, $secureParams);
-        new Property();
+        new Districts();
     }
 
     public function get() {
         try {
-            $stmt = DB::execute(Property::getAll());
+            $stmt = DB::execute(Districts::getAll());
             
             http_response_code(200);
             echo $resolve = '{
