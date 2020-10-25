@@ -10,5 +10,5 @@ Homey BackEnd API with PHP &amp; MySQL
 | `/signup/` |  | POST | user | Firstname, Lastname, Email, Password | `data: { signup: true, message: MESSAGE }` | `data: { signup: false, message: MESSAGE}` | Sign up a User |
 | `/signup/` |  | POST | admin | Firstname, Lastname, Email, Nic,  Password | `data: { signup: true, message: MESSAGE }` | `data: { signup: false, message: MESSAGE}` | Sign up an Admin |
 | **Info** |  |  |  |  |  |  |
-| `/property-type` |  | GET |  |  |  |  | Get all property types |
+| `/property-type` |  | GET |  |  | `data : array [ { property_type_id : ID, property_type_name : NAME } ] ` | `data : { error : true, message : MESSAGE }` | Get all property types |
 |  |  |  |  |  |  |
