@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: fdb28.awardspace.net
--- Generation Time: Oct 24, 2020 at 05:19 PM
+-- Generation Time: Oct 25, 2020 at 12:38 PM
 -- Server version: 5.7.20-log
 -- PHP Version: 5.5.38
 
@@ -51,6 +51,26 @@ CREATE TABLE `boostedproperty` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `cities`
+--
+
+CREATE TABLE `cities` (
+  `_id` int(3) NOT NULL,
+  `city` varchar(50) NOT NULL,
+  `district_id` tinyint(2) NOT NULL DEFAULT '0'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `cities`
+--
+
+INSERT INTO `cities` (`_id`, `city`, `district_id`) VALUES
+(1, 'Eppawala', 1),
+(2, 'Colombo - 07', 2);
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `comment`
 --
 
@@ -72,6 +92,33 @@ CREATE TABLE `confirmationinfo` (
   `user_id` int(10) NOT NULL,
   `hash` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `confirmationinfo`
+--
+
+INSERT INTO `confirmationinfo` (`_id`, `user_id`, `hash`) VALUES
+(2, 34, '09c218b2390e7454a30142d8992624d245f0b293cb135923a4dacf39d6556852');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `districts`
+--
+
+CREATE TABLE `districts` (
+  `_id` tinyint(2) NOT NULL,
+  `district` varchar(50) NOT NULL,
+  `province_id` tinyint(1) NOT NULL DEFAULT '0'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `districts`
+--
+
+INSERT INTO `districts` (`_id`, `district`, `province_id`) VALUES
+(1, 'Anuradhapura', 0),
+(2, 'Colombo', 0);
 
 -- --------------------------------------------------------
 
@@ -157,6 +204,14 @@ CREATE TABLE `login` (
   `access_token` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+--
+-- Dumping data for table `login`
+--
+
+INSERT INTO `login` (`user_id`, `email`, `password`, `user_status`, `mobile`, `access_token`) VALUES
+(34, 'lakmalepp@gmail.com', '12bce374e7be15142e8172f668da00d8', 0, NULL, 'ew0KICAgICAgICAnYWxnJzogWydzaGExJywnbWQ1J10sDQogICAgICAgICd0eXAnOiAnSldUJw0KICAgIH0=.ew0KICAgICAgICAgICAgICAgICAgICBpZDogMzQsDQogICAgICAgICAgICAgICAgICAgIGVtYWlsOiAnbGFrbWFsZXBwQGdtYWlsLmNvbScNCiAgICAgICAgICAgICAgICB9.576956b5291ac38d04ef5f82cc974286a857f'),
+(35, 'prameethmaduwantha@gmail.com', 'eb341c24c39d0b23d9981ff69c7711b5', 0, NULL, 'ew0KICAgICAgICAnYWxnJzogWydzaGExJywnbWQ1J10sDQogICAgICAgICd0eXAnOiAnSldUJw0KICAgIH0=.ew0KICAgICAgICAgICAgICAgICAgICBpZDogMzUsDQogICAgICAgICAgICAgICAgICAgIGVtYWlsOiAncHJhbWVldGhtYWR1d2FudGhhQGdtYWlsLmNvbScNCiAgICAgICAgICAgICAgICB9.576956b5291ac38d04ef5f82c');
+
 -- --------------------------------------------------------
 
 --
@@ -189,6 +244,19 @@ CREATE TABLE `propertytype` (
   `property_type_name` varchar(30) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+--
+-- Dumping data for table `propertytype`
+--
+
+INSERT INTO `propertytype` (`property_type_id`, `property_type_name`) VALUES
+(2, 'Annex'),
+(4, 'Apartment'),
+(5, 'Business/Office'),
+(1, 'Home'),
+(7, 'Mixed Use Buildings'),
+(3, 'Room'),
+(6, 'Warehouse');
+
 -- --------------------------------------------------------
 
 --
@@ -218,6 +286,13 @@ CREATE TABLE `user` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
+-- Dumping data for table `user`
+--
+
+INSERT INTO `user` (`_id`, `user_id`, `first_name`, `last_name`, `nic`, `user_image`) VALUES
+(0, 34, 'Dimuthu', 'Lakmal', NULL, NULL);
+
+--
 -- Indexes for dumped tables
 --
 
@@ -236,6 +311,13 @@ ALTER TABLE `boostedproperty`
   ADD PRIMARY KEY (`property_id`,`user_id`);
 
 --
+-- Indexes for table `cities`
+--
+ALTER TABLE `cities`
+  ADD PRIMARY KEY (`_id`),
+  ADD UNIQUE KEY `city` (`city`);
+
+--
 -- Indexes for table `comment`
 --
 ALTER TABLE `comment`
@@ -250,10 +332,19 @@ ALTER TABLE `confirmationinfo`
   ADD UNIQUE KEY `user_id` (`user_id`);
 
 --
+-- Indexes for table `districts`
+--
+ALTER TABLE `districts`
+  ADD PRIMARY KEY (`_id`),
+  ADD UNIQUE KEY `district` (`district`),
+  ADD UNIQUE KEY `_id` (`_id`);
+
+--
 -- Indexes for table `facilities`
 --
 ALTER TABLE `facilities`
-  ADD PRIMARY KEY (`feature_id`);
+  ADD PRIMARY KEY (`feature_id`),
+  ADD UNIQUE KEY `feature_name` (`feature_name`);
 
 --
 -- Indexes for table `favourite`
@@ -304,7 +395,8 @@ ALTER TABLE `property`
 -- Indexes for table `propertytype`
 --
 ALTER TABLE `propertytype`
-  ADD PRIMARY KEY (`property_type_id`);
+  ADD PRIMARY KEY (`property_type_id`),
+  ADD UNIQUE KEY `property_type_name` (`property_type_name`);
 
 --
 -- Indexes for table `report`
@@ -332,15 +424,35 @@ ALTER TABLE `user`
 ALTER TABLE `admin`
   MODIFY `_id` int(11) NOT NULL AUTO_INCREMENT;
 --
+-- AUTO_INCREMENT for table `cities`
+--
+ALTER TABLE `cities`
+  MODIFY `_id` int(3) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+--
 -- AUTO_INCREMENT for table `confirmationinfo`
 --
 ALTER TABLE `confirmationinfo`
-  MODIFY `_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+--
+-- AUTO_INCREMENT for table `districts`
+--
+ALTER TABLE `districts`
+  MODIFY `_id` tinyint(2) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+--
+-- AUTO_INCREMENT for table `facilities`
+--
+ALTER TABLE `facilities`
+  MODIFY `feature_id` int(10) NOT NULL AUTO_INCREMENT;
 --
 -- AUTO_INCREMENT for table `login`
 --
 ALTER TABLE `login`
-  MODIFY `user_id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `user_id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
+--
+-- AUTO_INCREMENT for table `propertytype`
+--
+ALTER TABLE `propertytype`
+  MODIFY `property_type_id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 --
 -- Constraints for dumped tables
 --
