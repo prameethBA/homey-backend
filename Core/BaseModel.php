@@ -13,12 +13,12 @@ class BaseModel {
     public static function getAll($select = '*', $limit='', $offset=0) {
 
         // set limits
-        $limit = is_int($limit) ? " LIMIT " . $offset . ", " .$limit : "";
+        $limit = is_int($limit) ? " LIMIT " . $offset . ", " . $limit : "";
 
         if(is_string($select))
-            $sql = "SELECT " . $select . " FROM " . static::$table . " LIMIT " . $offset . ", " .$limit;
+            $sql = "SELECT " . $select . " FROM " . static::$table . $limit;
         else
-            $sql = "SELECT " . implode(', ', $select) . " FROM " . static::$table .$limit;
+            $sql = "SELECT " . implode(', ', $select) . " FROM " . static::$table . $limit;
 
         return $sql;
     }
@@ -31,7 +31,7 @@ class BaseModel {
         $condition = $condition === '' ? '' : ' WHERE ' .$condition;
 
         if(is_string($select))
-            $sql = "SELECT " . $select . " FROM " . static::$table . $condition .$limit;
+            $sql = "SELECT " . $select . " FROM " . static::$table . $condition . $limit;
         else
             $sql = "SELECT " . implode(', ', $select) . " FROM " . static::$table . $condition .$limit;
         
