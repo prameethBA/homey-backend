@@ -15,15 +15,15 @@ if(file_exists($controllerFile)) {
         $method = $router->getRequest();
         $controller->{$method}();
     } else {
+        http_response_code(406);
         die('{
-            status: 400,
-            message: "Invalid request."
+            "message": "Invalid request."
         }');
     }
 
 } else {
+    http_response_code(500);
     die('{
-        status: 500,
-        message: "Internal Server Error"
+        "message": "Internal Server Error."
     }');
 }
