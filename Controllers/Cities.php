@@ -22,7 +22,7 @@ class Cities extends BaseController {
     public function get() {
         try {
             if(isset($this->params[0], $this->params[1])) {
-                if($this->params[0] == 'districtId') $stmt = DB::execute(City::get('*', ("district_id = {$this->params[1]}")));
+                if($this->params[0] == 'districtId') $stmt = DB::execute(City::get(['_id', 'name_en as city'], ("district_id = {$this->params[1]}")));
                 else throw new Exception("Invalid parameter");
             } else if(isset($this->params[0])) throw new Exception("Invalid parameter");
             else $stmt = DB::execute(City::getAll());

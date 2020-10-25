@@ -21,8 +21,7 @@ class District extends BaseController {
 
     public function get() {
         try {
-            $stmt = DB::execute(Districts::getAll());
-            
+            $stmt = DB::execute(Districts::getAll(['_id', 'name_en as district']));
             http_response_code(200);
             echo $resolve = '{
                 "data":' . json_encode($stmt->fetchAll()) . '

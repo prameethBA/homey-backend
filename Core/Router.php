@@ -29,6 +29,8 @@ if($_SERVER["REQUEST_METHOD"] == "OPTIONS")
     exit(0);
 }
 
+header('content-type:text/html;charset=utf-8');
+
 // Router
 class Router {
     private $Controller;

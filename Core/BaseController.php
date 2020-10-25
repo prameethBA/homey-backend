@@ -9,6 +9,7 @@ use \Core\Token as Token;
 class BaseController extends Token {
     
     protected $params = [];
+    protected $secureParams = [];
     
     public function __construct($params, $secureParams) {
         $this->params = $params;
