@@ -1,6 +1,8 @@
 # homey-backend
 Homey BackEnd API with PHP &amp; MySQL
 
+Development server : [http://homey-api.atwebpages.com/](http://homey-api.atwebpages.com/)
+
 **API**
 
 | URL | Pre-requirments | Request | URL Parameters | Header Parameters | onsuccess | onerror | Description |
