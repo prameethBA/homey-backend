@@ -42,7 +42,8 @@ class Router {
         $this->setRequest();
         $this->setContoller($_SERVER['QUERY_STRING']);
         $this->setParameters($_SERVER['QUERY_STRING']);
-        $this->setHeaderParameters(getallheaders());
+        // $this->setHeaderParameters(getallheaders());
+        $this->setHeaderParameters(json_decode(file_get_contents("php://input"), TRUE));//Use for handle axios requests
     }
     
     private function setRequest() {
@@ -77,8 +78,9 @@ class Router {
     }
 
     private function setHeaderParameters($request) {
-        $excludeKeys = ['User-Agent', 'Accept', 'Postman-Token', 'Host', 'Accept-Encoding', 'Connection', 'Content-Length'];
-        $this->headerParamerters = array_diff_key($request, array_flip($excludeKeys));
+        // $excludeKeys = ['User-Agent', 'Accept', 'Postman-Token', 'Host', 'Accept-Encoding', 'Connection', 'Content-Length'];
+        // $this->headerParamerters = array_diff_key($request, array_flip($excludeKeys));
+        $this->headerParamerters = $request;//use for handle axios request
     }
 
     public function getParameters() {

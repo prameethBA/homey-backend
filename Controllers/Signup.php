@@ -31,9 +31,7 @@ class Signup extends BaseController {
     public function get() {
         http_response_code(406);
             die($reject = '{
-                "data": {
-                    "message": "Invalid Request"
-                }
+                "message": "Invalid Request"
             }');    
     }
 
@@ -43,14 +41,14 @@ class Signup extends BaseController {
         if(isset($this->params[0])) {
             switch ($this->params[0]) {
                 case 'user':
-                    if(isset( $this->secureParams['Firstname'], $this->secureParams['Lastname'], $this->secureParams['Email'],  $this->secureParams['Password'])) {
-                        $email = $this->secureParams['Email'];
+                    if(isset( $this->secureParams['firstName'], $this->secureParams['lastName'], $this->secureParams['email'],  $this->secureParams['password'])) {
+                        $email = $this->secureParams['email'];
                         $stmt = DB::execute(Login::get('user_id', "email = '{$email}'"));
             
                         if ($stmt->rowCount() == 0) {
-                            $firstName = $this->secureParams['Firstname'];
-                            $lastName = $this->secureParams['Lastname'];
-                            $password = md5($this->secureParams['Password']); //Encrypt password
+                            $firstName = $this->secureParams['firstName'];
+                            $lastName = $this->secureParams['lastName'];
+                            $password = md5($this->secureParams['password']); //Encrypt password
                 
                             $stmt = DB::execute(Login::save(['email' => $email, 'password' => $password]));
                             $stmt = DB::execute(Login::get('user_id', "email = '{$email}' AND password = '{$password}'"));
@@ -61,28 +59,23 @@ class Signup extends BaseController {
 
                             http_response_code(201);
                             echo $resolve  = '{
-                                "data":{
-                                    "signup": "true",
-                                    "message": "User account succesfully created."
-                                }
+                                "signup": "true",
+                                "message": "User account succesfully created."
                              }';
 
                         } else {
-                            http_response_code(409);
+                            http_response_code(200);
                             die($reject  = '{
-                                "data":{
-                                    "signup": "false",
-                                    "message": "An account with the given email already exits."
-                                }
+                                "status": "409",
+                                "signup": "false",
+                                "message": "An account with the given email already exits."
                             }');
                         }
                     } else {
                         http_response_code(406);
                         die($reject  = '{
-                            "data":{
-                                "signup": "false",
-                                "message": "Invalid parameters."
-                            }
+                            "signup": "false",
+                            "message": "Invalid parameters."
                         }');
                     }
                     break;//End of signup method for User
@@ -106,51 +99,43 @@ class Signup extends BaseController {
 
                             http_response_code(201);
                             echo $resolve  = '{
-                                "data":{
-                                    "signup": "true",
-                                    "message": "User account succesfully created."
-                                    }
+                                "signup": "true",
+                                "message": "User account succesfully created."
                                 }';
 
                         } else {
-                            http_response_code(409);
+                            http_response_code(200);
                             die($reject  = '{
-                                "data":{
-                                    "signup": "false",
-                                    "message": "An account with the given email already exits."
-                                }
+                                "signup": "false",
+                                "message": "An account with the given email already exits."
                             }');
                         }
                     } else {
                         http_response_code(406);
                         die($reject  = '{
-                            "data":{
-                                "signup": "false",
-                                "message": "Invalid parameters."
-                            }
+                            "signup": "false",
+                            "message": "Invalid parameters."
                         }');
                     }
                     
                     break;//End of signup method for User
 
                 default:
-                    http_response_code(400);
+                    http_response_code(200);
                     die($reject  = '{
-                        "data":{
-                            "signup": "false",
-                            "message": "Invalid user type."
-                        }
+                        "status": "400",
+                        "signup": "false",
+                        "message": "Invalid user type."
                     }');
                     //End of Default
             }//End of Switch
         } else {
 
-                http_response_code(400);
+                http_response_code(200);
                 die($reject  = '{
-                    "data":{
-                        "signup": "false",
-                        "message": "Invalid parameters."
-                    }
+                    "status": "400",
+                    "signup": "false",
+                    "message": "Invalid parameters."
                 }');
 
         }//End of POST
@@ -209,11 +194,10 @@ class Signup extends BaseController {
             }
         }
         else {
+            http_response_code(200);
             die($reject  = '{
                 "status":"400",
-                "data":{
-                    "message": "Invalid parameters."
-                }
+                "message": "Invalid parameters."
             }');
         }
     }
