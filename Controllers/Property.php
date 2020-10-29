@@ -24,7 +24,21 @@ class Property extends BaseController {
 
     public function get() {
         try {
-            $stmt = DB::execute(PropertyModel::getAll());
+            if (isset($this->params[0], $this->params[1])) {
+                switch ($this->params[0]) {
+                    case 'all':
+                        if($this->params[1] == 'overview') $stmt = DB::execute(PropertyModel::getAll(['_id', 'title', 'price', 'description']));
+                        else $stmt = DB::execute(PropertyModel::getAll());
+                        break;
+                    default:
+                        http_response_code(200);
+                        die($reject = '{
+                                "status": "400",
+                                "message": "Invalid request."
+                        }');
+                        break;
+                }
+            }
             
             http_response_code(200);
             echo $resolve = '{
@@ -49,9 +63,9 @@ class Property extends BaseController {
 
             $data = [
             '_id' => $id,
-            'property_title' => $this->secureParams['title'],
+            'title' => $this->secureParams['title'],
             'rental_period' => $this->secureParams['rentalperiod'],
-            'property_price' => $this->secureParams['price'],
+            'price' => $this->secureParams['price'],
             'key_money' => $this->secureParams['keyMoney'],
             'minimum_period' => $this->secureParams['minimumPeriod'],
             'available_from' => $this->secureParams['availableFrom'],
@@ -70,7 +84,7 @@ class Property extends BaseController {
                 }
             }
             
-            http_response_code(200);
+            http_response_code(201);
             echo $resolve = '{
                 "action": "true",
                 "message": "The advertisement saved successfully."
