@@ -24,19 +24,16 @@ class Login extends BaseController {
             
             http_response_code(200);
             echo $resolve = '{
-                "data": {
-                    ' . json_encode($stmt->fetchAll()) . '
-                }
+                ' . json_encode($stmt->fetchAll()) . '
             }
             ';
 
         } catch(Exception $err) {
-            http_response_code(500);
+            http_response_code(200);
             die($reject = '{
-                "data": {
-                    "login": "false",
-                    "message": "' . $err->getMessage() . '"
-                }
+                "status": "500",
+                "login": "false",
+                "message": "' . $err->getMessage() . '"
             }');
         }
             
@@ -44,52 +41,48 @@ class Login extends BaseController {
 
     //Login method
     public function post() {
-        if(isset($this->secureParams['Username']) && isset($this->secureParams['Password'])) {
-            $username = $this->secureParams['Username'];
-            $password = md5($this->secureParams['Password']);//Encode the password
-            $stmt = DB::execute(LoginModel::get(['user_id', 'email', 'access_token', 'user_status'], "(email='{$username}' OR mobile='{$username}') AND password='{$password}'"));
+        if(isset($this->secureParams['userName']) && isset($this->secureParams['password'])) {
+            $userName = $this->secureParams['userName'];
+            $password = md5($this->secureParams['password']);//Encode the password
+            $stmt = DB::execute(LoginModel::get(['user_id', 'email', 'access_token', 'user_status'], "(email='{$userName}' OR mobile='{$userName}') AND password='{$password}'"));
             if($stmt->rowCount() == 1) {
                 $result = $stmt->fetch();
                 $payload = "{
                     id: " . $result['user_id'] . ",
                     email: '" . $result['email'] . "'
                 }";
+
                 $this->setToken($payload);
                 http_response_code(201);
                 echo $resolve = '{
-                    "data" : {
-                        "login": "true",
-                        "token": "' . $this->getToken() . '",
-                        "message": "Login Succesfull."
-                    }
+                    "login": "true",
+                    "token": "' . $this->getToken() . '",
+                    "message": "Login Succesfull."
                 }';
     
                 DB::exec(LoginModel::update(['access_token' => $this->getToken()], "user_id = {$result['user_id']}"));
                 
             } elseif($stmt->rowCount() > 1) {
-                http_response_code(500);
+                http_response_code(200);
                 echo $reject = '{
-                    "data": {
-                        "login": "false",
-                        "message": "Database error! Contact administration."
-                    }
+                    "status": "500",
+                    "login": "false",
+                    "message": "Database error! Contact administration."
                 }';
             } else {
-                http_response_code(404);
+                http_response_code(200);
                 echo $reject = '{
-                    "data": {
-                        "login": "false",
-                        "message": "Login failed! <br> Invalid Email, Mobile or Password."
-                    }
+                    "status": "404",
+                    "login": "false",
+                    "message": "Login failed! <br> Invalid Email, Mobile or Password."
                 }';
             }
         }
         else {
-            http_response_code(400);
+            http_response_code(200);
             die($reject  = '{
-                "data":{
-                    "message": "Invalid parameters."
-                }
+                "status": "400",
+                "message": "Invalid parameters."
             }');
         }
 
@@ -101,27 +94,24 @@ class Login extends BaseController {
             $userId = $this->params[0];
             if(LoginModel::validateUser($userId)) {
                 LoginModel::delete( "user-id = {$userId}");
+                http_response_code(200);
                 echo $resolve  = '{
-                    "status":"200",
-                    "data":{
-                        message: "Logout Succesfull."
-                    }
+                    "logout": "true",
+                    "message": "Logout Succesfull."
                 }';
             } else {
+                http_response_code(200);
                 die($reject  = '{
                     "status":"500",
-                    "data":{
-                        "message": "Failed the log out procces."
-                    }
+                    "message": "Failed the perform the log out procces."
                 }');
             }
         }
         else {
+            http_response_code(200);
             die($reject  = '{
                 "status":"400",
-                "data":{
-                    "message": "Invalid parameters."
-                }
+                "message": "Invalid parameters."
             }');
         }
     }
