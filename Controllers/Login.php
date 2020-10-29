@@ -56,6 +56,7 @@ class Login extends BaseController {
                 http_response_code(201);
                 echo $resolve = '{
                     "login": "true",
+                    "userId": "' . $result['user_id'] . '",
                     "token": "' . $this->getToken() . '",
                     "message": "Login Succesfull."
                 }';
