@@ -78,7 +78,7 @@ class Login extends BaseController {
 
             DB::exec(LoginModel::update(['access_token' => ''], "user_id = {$result['user_id']}"));  
 
-            http_response_code(201);
+            http_response_code(204);
             echo $resolve = '{
                 "logout": "true",
                 "message": "Succesfuly log out."
@@ -135,15 +135,16 @@ class Login extends BaseController {
                 http_response_code(200);
                 die($reject = '{
                     "status": "500",
-                    "login": "false",
+                    "action": "false",
                     "message": "Database error! Contact administration."
                 }');
             } else {
+                // unauthorized access attempts will be handle here +TODO
                 http_response_code(200);
                 die($reject = '{
                     "status": "404",
-                    "login": "false",
-                    "message": "Login failed! <br> Invalid Email, Mobile or Password."
+                    "action": "false",
+                    "message": "Sign up brfore continue."
                 }');
             }
         }
