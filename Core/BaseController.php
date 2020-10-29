@@ -11,6 +11,8 @@ class BaseController extends Token {
     protected $params = [];
     protected $secureParams = [];
     
+    protected $state = [];
+
     public function __construct($params, $secureParams) {
         $this->params = $params;
         $this->secureParams = $secureParams;
@@ -23,4 +25,4 @@ class BaseController extends Token {
     public function delete() {}
     public function patch() {}
 
-}
+} //End of the class
