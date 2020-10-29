@@ -46,6 +46,7 @@ class BaseModel {
 
         foreach ($data as $key => $value){ 
             $keys .= $key . ", ";
+            // $values .= ":" . $key . ", ";
             $values .= is_int($value) ? $value . ", " : "'" . $value . "', ";
         } 
         

@@ -10,6 +10,8 @@ class BaseController extends Token {
     
     protected $params = [];
     protected $secureParams = [];
+
+    private $uniqueKeyString = "THIS_IS_THE_KEY_STRING_TO_GENERATE_UNIQUE_KEY";
     
     protected $state = [];
 
@@ -24,5 +26,12 @@ class BaseController extends Token {
     public function head() {}
     public function delete() {}
     public function patch() {}
+
+    // Generate unique key
+
+    protected function uniqueKey($key) {
+        return md5(time() . sha1($key . $this->uniqueKeyString ));
+    }
+
 
 } //End of the class

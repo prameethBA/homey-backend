@@ -39,11 +39,23 @@ class DB extends Config{
         $connection = null;
     }
 
-     // Execute select
+    
+    // Execute insert
+    // public static function insert($sql, $params=[]) {
+    //     $stmt = self::connect()->prepare($sql);
+    //     foreach ($params as $key => $value) {
+    //         $stmt->bindParam($key, $value);
+    //     }
+    //     $stmt->execute();
+    //     // $stmt->setFetchMode(PDO::FETCH_ASSOC);
+    //     return $stmt;
+    // }
+    
+    // Execute select
      public static function execute($sql) {
         $stmt = self::connect()->prepare($sql);
         $stmt->execute();
-        $stmt->setFetchMode(PDO::FETCH_ASSOC);
+        // $stmt->setFetchMode(PDO::FETCH_ASSOC);
         return $stmt;
     }
 
