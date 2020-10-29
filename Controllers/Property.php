@@ -2,6 +2,7 @@
 
 namespace Controllers;
 
+use PDO;
 use Exception;
 
 require_once('Core/BaseController.php');
@@ -41,10 +42,7 @@ class Property extends BaseController {
             }
             
             http_response_code(200);
-            echo $resolve = '{
-                ' . json_encode($stmt->fetchAll()) . '
-            }
-            ';
+            echo $resolve = json_encode($stmt->fetchAll());
 
         } catch(Exception $err) {
             http_response_code(200);

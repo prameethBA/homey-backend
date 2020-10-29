@@ -55,7 +55,7 @@ class DB extends Config{
      public static function execute($sql) {
         $stmt = self::connect()->prepare($sql);
         $stmt->execute();
-        // $stmt->setFetchMode(PDO::FETCH_ASSOC);
+        $stmt->setFetchMode(PDO::FETCH_ASSOC);
         return $stmt;
     }
 
