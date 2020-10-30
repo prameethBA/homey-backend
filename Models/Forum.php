@@ -7,7 +7,7 @@ require_once('Core/BaseModel.php');
 
 use Core\BaseModel as BaseModel;
 
-class Forun extends BaseModel{
+class Forum extends BaseModel{
 
     protected static $table;
 
