@@ -7,7 +7,7 @@ require_once('Core/BaseModel.php');
 
 use Core\BaseModel as BaseModel;
 
-class PropertyType extends BaseModel{
+class Comment extends BaseModel{
 
     protected static $table;
 
@@ -17,8 +17,10 @@ class PropertyType extends BaseModel{
     }
 
     public $schema = [
-        'property_type_id',
-        'property_type_name'
+        'comment_id',
+        'forum_id',
+        'comment',
+        'time_stamp',
     ]; 
 
 }
