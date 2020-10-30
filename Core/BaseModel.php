@@ -19,7 +19,6 @@ class BaseModel {
             $sql = "SELECT " . $select . " FROM " . static::$table . $limit;
         else
             $sql = "SELECT " . implode(', ', $select) . " FROM " . static::$table . $limit;
-
         return $sql;
     }
 
@@ -37,6 +36,18 @@ class BaseModel {
         
         return $sql;
         
+    }
+
+    public static function join($select = '*', $limit='', $offset=0) {
+
+        // set limits
+        $limit = is_int($limit) ? " LIMIT " . $offset . ", " . $limit : "";
+
+        if(is_string($select))
+            $sql = "SELECT " . $select . " FROM " . static::$table . $limit;
+        else
+            $sql = "SELECT " . implode(', ', $select) . " FROM " . static::$table . $limit;
+        return $sql;
     }
 
     public static function save($data) {

@@ -25,11 +25,10 @@ class Property extends BaseController {
 
     public function get() {
         try {
-            if (isset($this->params[0], $this->params[1])) {
+            if (isset($this->params[0])) {
                 switch ($this->params[0]) {
                     case 'all':
-                        if($this->params[1] == 'overview') $stmt = DB::execute(PropertyModel::getAll(['_id', 'title', 'price', 'description']));
-                        else $stmt = DB::execute(PropertyModel::getAll());
+                        $stmt = DB::execute(PropertyModel::getAll(['_id', 'title', 'price', 'description'], (int)$this->params[1], (int)$this->params[1] * (int)$this->params[2]));
                         break;
                     default:
                         http_response_code(200);
