@@ -6,22 +6,23 @@ use Exception;
 
 require_once('Core/BaseController.php');
 use Core\BaseController as BaseController;
-require_once('Models/Districts.php');
-use Models\Districts as Districts;
+require_once('Models/Facilities.php');
+use Models\Facilities as Facilities;
 
 require_once('Core/DB/DB.php');
 use Core\DB\DB as DB;
 
-class District extends BaseController {
+class Facility extends BaseController {
 
     public function __construct($params, $secureParams) {
         parent::__construct($params, $secureParams);
-        new Districts();
+        new Facilities();
     }
 
     public function get() {
         try {
-            $stmt = DB::execute(Districts::getAll(['_id', 'name_en as district']));
+            $stmt = DB::execute(Facilities::getAll());
+            
             http_response_code(200);
             echo $resolve = '{
                 "data":' . json_encode($stmt->fetchAll()) . '

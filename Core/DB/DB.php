@@ -4,6 +4,7 @@ namespace Core\DB;
 
 use PDO;
 use PDOException;
+
 use \Core\Config\Config as Config;
 
 
@@ -21,7 +22,7 @@ class DB extends Config{
     protected static function connect() {
         try {
 
-            $connection = new PDO("mysql:host=" . Config::$serverName . ";dbname=" . Config::$dbName, Config::$userName, Config::$password);
+            $connection = new PDO("mysql:host=" . Config::$serverName . ";dbname=" . Config::$dbName, Config::$userName, Config::$password, array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8'"));
             // set the PDO error mode to exception
             $connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             return $connection;
@@ -38,7 +39,19 @@ class DB extends Config{
         $connection = null;
     }
 
-     // Execute select
+    
+    // Execute insert
+    // public static function insert($sql, $params=[]) {
+    //     $stmt = self::connect()->prepare($sql);
+    //     foreach ($params as $key => $value) {
+    //         $stmt->bindParam($key, $value);
+    //     }
+    //     $stmt->execute();
+    //     // $stmt->setFetchMode(PDO::FETCH_ASSOC);
+    //     return $stmt;
+    // }
+    
+    // Execute select
      public static function execute($sql) {
         $stmt = self::connect()->prepare($sql);
         $stmt->execute();
