@@ -38,7 +38,7 @@ class Images extends BaseController {
                                 foreach ($dir as $fileinfo) {
                                     if (!$fileinfo->isDot()) {
                                         if($result = $this->imageToBase64($fileinfo->getPathname())) {
-                                            $data .= '{"' . $fileinfo->getFilename() . '" : "' . $result . '"},';
+                                            $data .= '{"image" : "' . $result . '"},';
                                         } else die("Invalid");
                                     }
                                 }
