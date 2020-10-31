@@ -58,33 +58,33 @@ class Property extends BaseController {
 
     public function post() {
         try {
-            if (isset($this->params[0])) {
-                switch ($this->params[0]) {
-                    case 'images':
-                        $data = '{"data":[{';
-                        $index = 0;
-                        foreach ($this->secureParams['ids'] as $value) {
-                            $stmt = DB::execute(PropertyImages::get(['image'], "property_id = '" . $value . "'", 2));
-                            $data .= '"' . $index . '":' .  '{"id": "' . $value . '","images":[';
-                            // $data["'" . $index . "'"]['images'] = $stmt->fetchAll();
-                            $loop = 0;
-                            foreach ($stmt->fetchAll() as $values) {
-                                $data .= '{"' . $loop . '": "' . $values['image'] . '"},';
-                                $loop++;
-                            }
-                            $data = rtrim($data,',') . ']},';
-                            $index++;
-                        }
-                        $data = rtrim($data,',') . "}]}";
-                        http_response_code(200);
+            // if (isset($this->params[0])) {
+            //     switch ($this->params[0]) {
+            //         case 'images':
+            //             $data = '{"data":[{';
+            //             $index = 0;
+            //             foreach ($this->secureParams['ids'] as $value) {
+            //                 $stmt = DB::execute(PropertyImages::get(['image'], "property_id = '" . $value . "'", 2));
+            //                 $data .= '"' . $index . '":' .  '{"id": "' . $value . '","images":[';
+            //                 // $data["'" . $index . "'"]['images'] = $stmt->fetchAll();
+            //                 $loop = 0;
+            //                 foreach ($stmt->fetchAll() as $values) {
+            //                     $data .= '{"' . $loop . '": "' . $values['image'] . '"},';
+            //                     $loop++;
+            //                 }
+            //                 $data = rtrim($data,',') . ']},';
+            //                 $index++;
+            //             }
+            //             $data = rtrim($data,',') . "}]}";
+            //             http_response_code(200);
 
-                        echo $resolve = json_encode($data);
-                        die();//THIS SHOULD BE CHANGED
-                        break;
-                    default:
-                        break;
-                }
-            }
+            //             echo $resolve = json_encode($data);
+            //             die();//THIS SHOULD BE CHANGED
+            //             break;
+            //         default:
+            //             break;
+            //     }
+            // }
 
             $id = $this->uniqueKey($this->secureParams['userId']);
 
