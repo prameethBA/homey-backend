@@ -9,8 +9,6 @@ require_once('Core/BaseController.php');
 use Core\BaseController as BaseController;
 require_once('Models/Property.php');
 use Models\Property as PropertyModel;
-require_once('Models/PropertyImages.php');
-use Models\PropertyImages as PropertyImages;
 
 require_once('Core/DB/DB.php');
 use Core\DB\DB as DB;
@@ -20,7 +18,6 @@ class Property extends BaseController {
     public function __construct($params, $secureParams) {
         parent::__construct($params, $secureParams);
         new PropertyModel();
-        new PropertyImages();
     }
 
     public function get() {
