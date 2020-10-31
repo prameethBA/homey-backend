@@ -56,15 +56,16 @@ class Property extends BaseController {
 
                 $data = [
                 '_id' => $id,
+                'user_id' => $this->secureParams['userId'],
                 'title' => $this->secureParams['title'],
                 'rental_period' => $this->secureParams['rentalperiod'],
-                'price' => $this->secureParams['price'],
-                'key_money' => $this->secureParams['keyMoney'],
-                'minimum_period' => $this->secureParams['minimumPeriod'],
+                'price' => (int)$this->secureParams['price'],
+                'key_money' => (int)$this->secureParams['keyMoney'],
+                'minimum_period' => (int)$this->secureParams['minimumPeriod'],
                 'available_from' => $this->secureParams['availableFrom'],
                 'property_type_id' => $this->secureParams['propertyType'],
                 'description' => $this->secureParams['description'],
-                'district_id' => $this->secureParams['district'],
+                'district_id' => $this->secureParams['district'],//This is unnecceary, can be removed
                 'city_id' => $this->secureParams['city'],
                 'facilities' => $this->secureParams['facilities']
                 ];
