@@ -29,10 +29,6 @@ class Property extends BaseController {
                         http_response_code(200);
                         echo $resolve = json_encode($stmt->fetchAll());
                         break;
-                    case 'images':
-                        print_r($this->secureParams['ids']);
-                        // $stmt = DB::execute(PropertyImages::get(['image'], "property_id = '" . $this->secureParams[0]));
-                        break;
                     default:
                         http_response_code(200);
                         die($reject = '{
@@ -55,70 +51,45 @@ class Property extends BaseController {
 
     public function post() {
         try {
-            // if (isset($this->params[0])) {
-            //     switch ($this->params[0]) {
-            //         case 'images':
-            //             $data = '{"data":[{';
-            //             $index = 0;
-            //             foreach ($this->secureParams['ids'] as $value) {
-            //                 $stmt = DB::execute(PropertyImages::get(['image'], "property_id = '" . $value . "'", 2));
-            //                 $data .= '"' . $index . '":' .  '{"id": "' . $value . '","images":[';
-            //                 // $data["'" . $index . "'"]['images'] = $stmt->fetchAll();
-            //                 $loop = 0;
-            //                 foreach ($stmt->fetchAll() as $values) {
-            //                     $data .= '{"' . $loop . '": "' . $values['image'] . '"},';
-            //                     $loop++;
-            //                 }
-            //                 $data = rtrim($data,',') . ']},';
-            //                 $index++;
-            //             }
-            //             $data = rtrim($data,',') . "}]}";
-            //             http_response_code(200);
+            if (isset($this->params[0])) {
+                $id = $this->uniqueKey($this->secureParams['userId']);
 
-            //             echo $resolve = json_encode($data);
-            //             die();//THIS SHOULD BE CHANGED
-            //             break;
-            //         default:
-            //             break;
-            //     }
-            // }
+                $data = [
+                '_id' => $id,
+                'title' => $this->secureParams['title'],
+                'rental_period' => $this->secureParams['rentalperiod'],
+                'price' => $this->secureParams['price'],
+                'key_money' => $this->secureParams['keyMoney'],
+                'minimum_period' => $this->secureParams['minimumPeriod'],
+                'available_from' => $this->secureParams['availableFrom'],
+                'property_type_id' => $this->secureParams['propertyType'],
+                'description' => $this->secureParams['description'],
+                'district_id' => $this->secureParams['district'],
+                'city_id' => $this->secureParams['city'],
+                'facilities' => $this->secureParams['facilities']
+                ];
 
-            $id = $this->uniqueKey($this->secureParams['userId']);
+                $stmt = DB::execute(PropertyModel::save($data));
 
-            $data = [
-            '_id' => $id,
-            'title' => $this->secureParams['title'],
-            'rental_period' => $this->secureParams['rentalperiod'],
-            'price' => $this->secureParams['price'],
-            'key_money' => $this->secureParams['keyMoney'],
-            'minimum_period' => $this->secureParams['minimumPeriod'],
-            'available_from' => $this->secureParams['availableFrom'],
-            'property_type_id' => $this->secureParams['propertyType'],
-            'description' => $this->secureParams['description'],
-            'district_id' => $this->secureParams['district'],
-            'city_id' => $this->secureParams['city'],
-            'facilities' => $this->secureParams['facilities']
-            ];
+                if(isset($this->secureParams['images'])) {
 
+                    $path  = $_SERVER["DOCUMENT_ROOT"] . "/data/propertyImages/" . $id;
 
-            if(isset($this->secureParams['images'])) {
-
-                $path  = $_SERVER["DOCUMENT_ROOT"] . "/data/propertyImages/" . $id;
-
-                // Make a folder for each property with property ID
-                if($this->makeDir($path, 0777, false)) {
-                    // Save each image for the created directory
-                    $index = 1;
-                    foreach ($this->secureParams['images'] as $img) {
-                        // if file not saved correctly trow an error
-                        if(!$this->base64ToImage($img, $path . "/" . $index++ )) {
-                            http_response_code(200);
-                            die($reject = '{
-                                "status": "424",
-                                "error": "true",
-                                "message": "Failed to put images into database"
-                                }
-                            }');
+                    // Make a folder for each property with property ID
+                    if($this->makeDir($path, 0777, false)) {
+                        // Save each image for the created directory
+                        $index = 1;
+                        foreach ($this->secureParams['images'] as $img) {
+                            // if file not saved correctly trow an error
+                            if(!$this->base64ToImage($img, $path . "/" . $index++ )) {
+                                http_response_code(200);
+                                die($reject = '{
+                                    "status": "424",
+                                    "error": "true",
+                                    "message": "Failed to put images into database"
+                                    }
+                                }');
+                            }
                         }
                     }
                 }
