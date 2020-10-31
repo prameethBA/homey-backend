@@ -5,7 +5,9 @@ namespace Core;
 // use PDO;
 // use PDOException;
 
-class BaseModel {
+require_once('DB/DB.php');
+
+class BaseModel extends DB{
 
     protected static $table;
     protected $schema = [];

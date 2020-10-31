@@ -59,6 +59,15 @@ class DB extends Config{
         return $stmt;
     }
 
+
+    // Execute select
+    public static function image($sql) {
+        $stmt = self::connect()->prepare($sql);
+        $stmt->execute();
+        $stmt->setFetchMode(PDO::FETCH_BOUND);
+        return $stmt;
+    }
+
     // Excucute update and delete 
 
     public static function exec($sql) {
