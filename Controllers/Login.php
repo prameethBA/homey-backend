@@ -104,18 +104,18 @@ class Login extends BaseController {
                 return true;
             } elseif($stmt->rowCount() > 1) {
                 http_response_code(200);
-                echo $reject = '{
+                die($reject = '{
                     "status": "500",
                     "login": "false",
                     "message": "Database error! Contact administration."
-                }';
+                }');
             } else {
                 http_response_code(200);
-                echo $reject = '{
+                die($reject = '{
                     "status": "404",
                     "login": "false",
                     "message": "Login failed! <br> Invalid Email, Mobile or Password."
-                }';
+                }');
             }
         }
         else return false;
