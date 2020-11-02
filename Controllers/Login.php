@@ -127,7 +127,32 @@ class Login extends BaseController {
             }
         }
         else return false;
-    }//End of the validateLoggedUser() 
+    }//End of the validateLoggedUser()
+    
+    private function checkUserStatus($userStatus) {
+        switch($userStatus) {
+            case 0: 
+                http_response_code(200);
+                die($reject = '{
+                    "status": "401",
+                    "action": "false",
+                    "message": "Confirm the email address to activate account."
+                }');
+                break;
+
+            case 1: 
+                return true;
+                break;
+
+            default:
+                die($reject = '{
+                    "status": "401",
+                    "action": "false",
+                    "message": "Confirm the email address to activate account."
+                }');
+                break;
+        }//End of switch
+    }//End of checkUserStatus()
 
     private function setAccessToken() {
         if($this->validateLoggedUser() || $this->userLogin()) {
@@ -141,15 +166,18 @@ class Login extends BaseController {
 
             DB::exec(LoginModel::update(['access_token' => $this->getToken()], "user_id = {$result['user_id']}"));  
 
-            http_response_code(201);
-            echo $resolve = '{
-                "login": "true",
-                "userStatus": "' . $result['user_status'] . '",
-                "userType": "' . $result['user_type'] . '",
-                "userId": "' . $result['user_id'] . '",
-                "token": "' . $this->getToken() . '",
-                "message": "Login Succesfull."
-            }';
+            // Check the userStatus
+            if($this->checkUserStatus($result['user_status'])) {
+                http_response_code(201);
+                echo $resolve = '{
+                    "login": "true",
+                    "userType": "' . $result['user_type'] . '",
+                    "userId": "' . $result['user_id'] . '",
+                    "token": "' . $this->getToken() . '",
+                    "message": "Login Succesfull."
+                }';
+            }
+
         } else {
             // unauthorized access attempts will be handle here +TODO
             http_response_code(200);
