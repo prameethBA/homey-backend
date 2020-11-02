@@ -6,6 +6,7 @@ namespace Core;
 // use PDOException;
 
 require_once('DB/DB.php');
+use \Core\DB\DB as DB;
 
 class BaseModel extends DB{
 
