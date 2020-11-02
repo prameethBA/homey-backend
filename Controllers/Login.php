@@ -41,32 +41,7 @@ class Login extends BaseController {
 
     //Login method
     public function post() {
-        if($this->validateLoggedUser() || $this->userLogin()) {
-            $result = $this->state['result'];
-            $payload = "{
-                id: " . $result['user_id'] . ",
-                email: '" . $result['email'] . "'
-            }";
-
-            $this->setToken($payload);
-
-            DB::exec(LoginModel::update(['access_token' => $this->getToken()], "user_id = {$result['user_id']}"));  
-
-            http_response_code(201);
-            echo $resolve = '{
-                "login": "true",
-                "userId": "' . $result['user_id'] . '",
-                "token": "' . $this->getToken() . '",
-                "message": "Login Succesfull."
-            }';
-        } else {
-            // unauthorized access attempts will be handle here +TODO
-            http_response_code(200);
-            die($reject  = '{
-                "status": "400",
-                "message": "Invalid request with invalid parameters."
-            }');
-        }
+        $this->setAccessToken();
 
     }//End of POST
 
@@ -93,12 +68,15 @@ class Login extends BaseController {
         }
     }//End of DELETE
 
+
+    // Private methods
+
     // Login method for non logged user
     private function userLogin() {
         if(isset($this->secureParams['userName'], $this->secureParams['password'])) {
             $userName = $this->secureParams['userName'];
             $password = md5($this->secureParams['password']);//Encode the password
-            $stmt = DB::execute(LoginModel::get(['user_id', 'email', 'access_token', 'user_status'], "(email='{$userName}' OR mobile='{$userName}') AND password='{$password}'"));
+            $stmt = DB::execute(LoginModel::get(['user_id', 'email', 'user_status', 'user_type'], "(email='{$userName}' OR mobile='{$userName}') AND password='{$password}'"));
             if($stmt->rowCount() == 1) {
                 $this->state['result'] = $stmt->fetch();
                 return true;
@@ -127,7 +105,7 @@ class Login extends BaseController {
         if(isset($this->secureParams['userId'], $this->secureParams['token'])) {
             $userId = $this->secureParams['userId'];
             $token = $this->secureParams['token'];
-            $stmt = DB::execute(LoginModel::get(['user_id', 'email', 'access_token', 'user_status'], "access_token='{$token}' AND user_id='{$userId}'"));
+            $stmt = DB::execute(LoginModel::get(['user_id', 'email', 'access_token', 'user_status', 'user_type'], "access_token='{$token}' AND user_id='{$userId}'"));
             if($stmt->rowCount() == 1) {
                 $this->state['result'] = $stmt->fetch();
                 return true;
@@ -144,12 +122,44 @@ class Login extends BaseController {
                 die($reject = '{
                     "status": "404",
                     "action": "false",
-                    "message": "Sign up brfore continue."
+                    "message": "Sign up before continue."
                 }');
             }
         }
         else return false;
-    }//End of the loggedUseValidate() 
+    }//End of the validateLoggedUser() 
+
+    private function setAccessToken() {
+        if($this->validateLoggedUser() || $this->userLogin()) {
+            $result = $this->state['result'];
+            $payload = "{
+                id: " . $result['user_id'] . ",
+                email: '" . $result['email'] . "'
+            }";
+
+            $this->setToken($payload);
+
+            DB::exec(LoginModel::update(['access_token' => $this->getToken()], "user_id = {$result['user_id']}"));  
+
+            http_response_code(201);
+            echo $resolve = '{
+                "login": "true",
+                "userStatus": "' . $result['user_status'] . '",
+                "userType": "' . $result['user_type'] . '",
+                "userId": "' . $result['user_id'] . '",
+                "token": "' . $this->getToken() . '",
+                "message": "Login Succesfull."
+            }';
+        } else {
+            // unauthorized access attempts will be handle here +TODO
+            http_response_code(200);
+            die($reject  = '{
+                "status": "400",
+                "message": "Invalid request with invalid parameters."
+            }');
+        }
+    }
+    
 
 
 }//End of the class
