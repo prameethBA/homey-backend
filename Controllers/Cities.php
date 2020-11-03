@@ -54,10 +54,10 @@ class Cities extends BaseController {
                         $ltd = (double)$this->secureParams['ltd'];
                         $lng = (double)$this->secureParams['lng'];
 
-                        $stmt = DB::execute(City::getHaving(['_id', 'name_en as city', '(6371 * ACOS(COS(RADIANS(' . $ltd . ')) * COS(RADIANS(latitude)) * COS(RADIANS(longitude) - RADIANS(' . $lng . ')) + SIN(RADIANS(' . $ltd . ')) * SIN(RADIANS(latitude)))) AS distance'], ("distance < 25 ORDER BY distance"), 5));
+                        $stmt = DB::execute(City::getHaving(['district_id as district', 'name_en as city', '(6371 * ACOS(COS(RADIANS(' . $ltd . ')) * COS(RADIANS(latitude)) * COS(RADIANS(longitude) - RADIANS(' . $lng . ')) + SIN(RADIANS(' . $ltd . ')) * SIN(RADIANS(latitude)))) AS distance'], ("distance < 25 ORDER BY distance"), 5));
 
                         http_response_code(200);
-                        echo $resolve = '{' . json_encode($stmt->fetchAll()) . '}';
+                        echo $resolve = json_encode($stmt->fetchAll());
                 }
 
             } else throw new Exception("Invalid parameter");
