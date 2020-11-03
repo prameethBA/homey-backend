@@ -45,4 +45,36 @@ class Cities extends BaseController {
             
     }//End of GET
 
+    public function post() {
+        try {
+            if(isset($this->params[0])) {
+
+                switch ($this->params[0]) {
+                    case 'nearest-city':
+                        $ltd = $secureParams['ltd'];
+                        $lng = $secureParams['lng'];
+                        $stmt = DB::execute(City::getHaving(['_id', 'name_en as city', '(6371 * ACOS(COS(RADIANS(7.358849)) * COS(RADIANS(latitude)) * COS(RADIANS(longitude) - RADIANS(81.280133)) + SIN(RADIANS(7.358849)) * SIN(RADIANS(latitude)))) AS distance'], ("distance < 25 ORDER BY distance"), 5));
+
+                        http_response_code(200);
+                        echo $resolve = '{
+                            "data":' . json_encode($stmt->fetchAll()) . '
+                        }
+                        ';
+                }
+
+            } else throw new Exception("Invalid parameter");
+            
+
+        } catch(Exception $err) {
+            http_response_code(500);
+            die($reject = '{
+                "data": {
+                    "error": "true",
+                    "message": "' . $err->getMessage() . '"
+                }
+            }');
+        }
+            
+    }//End of POST
+
 }//End of Class

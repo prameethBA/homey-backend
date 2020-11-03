@@ -41,6 +41,22 @@ class BaseModel extends DB{
         
     }
 
+    public static function getHaving($select = '*', $condition='', $limit='', $offset=0) {
+
+        // set limits
+        $limit = is_int($limit) ? " LIMIT " . $offset . ", " . $limit : "";
+        // Set Conditon
+        $condition = $condition === '' ? '' : ' HAVING ' .$condition;
+
+        if(is_string($select))
+            $sql = "SELECT " . $select . " FROM " . static::$table . $condition . $limit;
+        else
+            $sql = "SELECT " . implode(', ', $select) . " FROM " . static::$table . $condition .$limit;
+        
+        return $sql;
+        
+    }
+
     public static function join($select = '*', $limit='', $offset=0) {
 
         // set limits
