@@ -57,7 +57,12 @@ class Signup extends BaseController {
                             $hash = bin2hex(random_bytes(32));
                             $stmt = DB::execute(Hash::save(['user_id' => $userId, 'hash' => $hash]));
 
-                            http_response_code(200);
+                            $subject = "Activate the homey account";
+                            $message = "😁";
+
+                            $this->sendMail($email, $subject, $message);                           
+
+                            http_response_code(201);
                             echo $resolve  = '{
                                 "signup": "true",
                                 "message": "User account succesfully created."

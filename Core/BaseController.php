@@ -33,5 +33,23 @@ class BaseController extends Token {
         return md5(time() . sha1($key . $this->uniqueKeyString ));
     }
 
+    protected function sendMail($receiver = [], $subject = 'Message From Admin@homey.lk', $message = "homey.lk") {
+        // Multiple recipients
+        $to = is_string($receiver) ? $receive : implode(', ', $select); 
+
+        // To send HTML mail, the Content-type header must be set
+        $headers[] = 'MIME-Version: 1.0';
+        $headers[] = "Content-Type: text/html; charset=UTF-8";
+
+        // Additional headers
+        // $headers = 'To: Mary <mary@example.com>, Kelly <kelly@example.com>';
+        $headers[] = 'From: Homey.lk <admin@homey.lk>';
+        // $headers = 'Cc: birthdayarchive@example.com';
+        // $headers = 'Bcc: birthdaycheck@example.com';
+
+        // Mail it
+        mail($to, $subject, $message, implode("\r\n", $headers));
+    }
+
 
 } //End of the class
