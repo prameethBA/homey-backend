@@ -53,21 +53,23 @@ class Property extends BaseController {
         try {
             if (isset($this->params[0])) {
 
-                $userId = $this->secureParams['userId'];
                 switch ($this->params[0]) {
                     case 'add-new':
-
+                        
+                        $userId = $this->secureParams['userId'];
                         $token = $this->secureParams['token'];
 
-                        if($this->authenticateUser($userId, $token)) {
+                        
+                        if($this->verifyToken($token)) {
                             $id = $this->uniqueKey($userId);
+                            $location = json_encode($this->secureParams['location']);
+                            $facilities = json_encode($this->secureParams['facilities']);
             
-                            die($this->secureParams['location']);
-
                             $data = [
                             '_id' => $id,
                             'user_id' => $this->secureParams['userId'],
                             'title' => $this->secureParams['title'],
+                            'location' => $location,
                             'rental_period' => $this->secureParams['rentalperiod'],
                             'price' => (int)$this->secureParams['price'],
                             'key_money' => (int)$this->secureParams['keyMoney'],
@@ -77,7 +79,7 @@ class Property extends BaseController {
                             'description' => $this->secureParams['description'],
                             'district_id' => $this->secureParams['district'],//This is unnecceary, can be removed
                             'city_id' => $this->secureParams['city'],
-                            'facilities' => $this->secureParams['facilities']
+                            'facilities' => $facilities
                             ];
             
                             $stmt = DB::execute(PropertyModel::save($data));
@@ -103,7 +105,7 @@ class Property extends BaseController {
                                             }');
                                         }
                                     }
-                                }
+                                } else throw new Exception("Permission Denied. Server side failure.");
                             }//End of save images
                             http_response_code(201);
                             echo $resolve = '{

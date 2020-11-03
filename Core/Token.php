@@ -16,7 +16,7 @@ class Token {
     private $payload;
     private $signature;
 
-    public function setToken($payload){
+    protected function setToken($payload){
         $this->payload = $payload;
         $info = base64_encode($this->header) . "." . base64_encode($this->payload) . "." . sha1($this->SECRET);
         $this->signature = md5($info);
@@ -24,11 +24,11 @@ class Token {
         $this->token = $info . "." . $this->signature;
     }
 
-    public function getToken() {
+    protected function getToken() {
         return $this->token;
     }
 
-    public function verifyToken($token) {
+    protected function verifyToken($token) {
         $explodedToken = explode(".",$token);
         $header = $explodedToken[0];
         $payload = $explodedToken[1];
@@ -36,7 +36,7 @@ class Token {
 
         $info = base64_encode($header) . "." . base64_encode($payload) . "." . sha1($this->SECRET);
         $tokenSignature = md5($info);
-        setToken($payload);
+        $this->setToken($payload);
 
         if($this->token == $info . "." . $tokenSignature)
             return true;
@@ -44,8 +44,10 @@ class Token {
             return false;
     }
 
-    public function authenticateUser($userId, $token) {
+    protected function authenticateUser($userId, $token) {
         require_once('Core/DB/DB.php');
+
+        die("SELECT user_id FROM login WHERE user_id = {$userId} AND access_token ='{$token}'");
         
         $stmt = DB\DB::execute("SELECT user_id FROM login WHERE user_id = {$userId} AND access_token ='{$token}'");
 
@@ -54,7 +56,7 @@ class Token {
         return false;
     }
 
-    public function authenticateAdmin($userId, $token) {
+    protected function authenticateAdmin($userId, $token) {
         require_once('Core/DB/DB.php');
         
         $stmt = DB\DB::execute("SELECT user_id FROM login WHERE user_id = {$userId} AND access_token ='{$token}' AND user_type = 1");
