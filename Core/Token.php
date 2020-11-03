@@ -47,7 +47,7 @@ class Token {
     public function authenticateUser($userId, $token) {
         require_once('Core/DB/DB.php');
         
-        $stmt = Core\DB\DB::execute("SELECT user_id FROM login WHERE user_id = {$userId} AND token ='{$token}'");
+        $stmt = DB\DB::execute("SELECT user_id FROM login WHERE user_id = {$userId} AND access_token ='{$token}'");
 
         if($stmt->rowCount() == 1) return true;
 
@@ -57,7 +57,7 @@ class Token {
     public function authenticateAdmin($userId, $token) {
         require_once('Core/DB/DB.php');
         
-        $stmt = Core\DB\DB::execute("SELECT user_id FROM login WHERE user_id = {$userId} AND token ='{$token}' AND user_type = 1");
+        $stmt = DB\DB::execute("SELECT user_id FROM login WHERE user_id = {$userId} AND access_token ='{$token}' AND user_type = 1");
 
         if($stmt->rowCount() == 1) return true;
 

@@ -53,65 +53,73 @@ class Property extends BaseController {
         try {
             if (isset($this->params[0])) {
 
+                $userId = $this->secureParams['userId'];
                 switch ($this->params[0]) {
                     case 'add-new':
 
-                        $userId = $this->secureParams['userId'];
                         $token = $this->secureParams['token'];
 
-                        $id = $this->uniqueKey($userId);
-        
-                        $data = [
-                        '_id' => $id,
-                        'user_id' => $this->secureParams['userId'],
-                        'title' => $this->secureParams['title'],
-                        'rental_period' => $this->secureParams['rentalperiod'],
-                        'price' => (int)$this->secureParams['price'],
-                        'key_money' => (int)$this->secureParams['keyMoney'],
-                        'minimum_period' => (int)$this->secureParams['minimumPeriod'],
-                        'available_from' => $this->secureParams['availableFrom'],
-                        'property_type_id' => $this->secureParams['propertyType'],
-                        'description' => $this->secureParams['description'],
-                        'district_id' => $this->secureParams['district'],//This is unnecceary, can be removed
-                        'city_id' => $this->secureParams['city'],
-                        'facilities' => $this->secureParams['facilities']
-                        ];
-        
-                        $stmt = DB::execute(PropertyModel::save($data));
-        
-                        if(isset($this->secureParams['images'])) {
-        
-                            $path  = $_SERVER["DOCUMENT_ROOT"] . "/data/propertyImages/" . $id;
-        
-                            // Make a folder for each property with property ID
-                            if($this->makeDir($path, 0777, false)) {
-                                // Save each image for the created directory
-                                $index = 1;
-                                foreach ($this->secureParams['images'] as $img) {
-                                    // if file not saved correctly trow an error
-                                    if(!$this->base64ToImage($img, $path . "/" . $index++ )) {
-                                        http_response_code(200);
-                                        die($reject = '{
-                                            "status": "424",
-                                            "error": "true",
-                                            "message": "Failed to put images into database"
-                                            }
-                                        }');
+                        if($this->authenticateUser($userId, $token)) {
+                            $id = $this->uniqueKey($userId);
+            
+                            die($this->secureParams['location']);
+
+                            $data = [
+                            '_id' => $id,
+                            'user_id' => $this->secureParams['userId'],
+                            'title' => $this->secureParams['title'],
+                            'rental_period' => $this->secureParams['rentalperiod'],
+                            'price' => (int)$this->secureParams['price'],
+                            'key_money' => (int)$this->secureParams['keyMoney'],
+                            'minimum_period' => (int)$this->secureParams['minimumPeriod'],
+                            'available_from' => $this->secureParams['availableFrom'],
+                            'property_type_id' => $this->secureParams['propertyType'],
+                            'description' => $this->secureParams['description'],
+                            'district_id' => $this->secureParams['district'],//This is unnecceary, can be removed
+                            'city_id' => $this->secureParams['city'],
+                            'facilities' => $this->secureParams['facilities']
+                            ];
+            
+                            $stmt = DB::execute(PropertyModel::save($data));
+            
+                            // save images
+                            if(isset($this->secureParams['images'])) {
+            
+                                $path  = $_SERVER["DOCUMENT_ROOT"] . "/data/propertyImages/" . $id;
+            
+                                // Make a folder for each property with property ID
+                                if($this->makeDir($path, 0777, false)) {
+                                    // Save each image for the created directory
+                                    $index = 1;
+                                    foreach ($this->secureParams['images'] as $img) {
+                                        // if file not saved correctly trow an error
+                                        if(!$this->base64ToImage($img, $path . "/" . $index++ )) {
+                                            http_response_code(200);
+                                            die($reject = '{
+                                                "status": "424",
+                                                "error": "true",
+                                                "message": "Failed to put images into database"
+                                                }
+                                            }');
+                                        }
                                     }
                                 }
+                            }//End of save images
+                            http_response_code(201);
+                            echo $resolve = '{
+                                "action": "true",
+                                "message": "The advertisement saved successfully."
                             }
-                        break; 
-                }
+                            ';
+                        } else throw new Exception("Authentication failed. Unauthorized request.");
 
-                }
-            }
+                    break;
+                    default:
+                        throw new Exception("Invalid parameter");
+                }//End of the switch
 
-            http_response_code(201);
-            echo $resolve = '{
-                "action": "true",
-                "message": "The advertisement saved successfully."
-            }
-            ';
+            } else throw new Exception("Invalid request.No parameters given");
+
 
         } catch(Exception $err) {
             http_response_code(200);
