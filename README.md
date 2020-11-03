@@ -1,7 +1,9 @@
 # homey-backend
 Homey BackEnd API with PHP &amp; MySQL
 
-Development server : [http://homey-api.atwebpages.com/](http://homey-api.atwebpages.com/)
+Development server 👉 [http://api.homeylk.tk/](http://api.homeylk.tk/)
+
+Front End 👉 [homey-frontend](https://github.com/homey-lk/homey-frontend)
 
 **API**
 
