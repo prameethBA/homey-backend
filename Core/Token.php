@@ -21,7 +21,7 @@ class Token {
         $info = base64_encode($this->header) . "." . base64_encode($this->payload) . "." . sha1($this->SECRET);
         $this->signature = md5($info);
 
-        $this->token = $info . "." . $this->signature;
+        $this->token = md5($info . "." . $this->signature);
     }
 
     protected function getToken() {
@@ -47,8 +47,6 @@ class Token {
     protected function authenticateUser($userId, $token) {
         require_once('Core/DB/DB.php');
 
-        die("SELECT user_id FROM login WHERE user_id = {$userId} AND access_token ='{$token}'");
-        
         $stmt = DB\DB::execute("SELECT user_id FROM login WHERE user_id = {$userId} AND access_token ='{$token}'");
 
         if($stmt->rowCount() == 1) return true;

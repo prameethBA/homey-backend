@@ -60,7 +60,7 @@ class Property extends BaseController {
                         $token = $this->secureParams['token'];
 
                         
-                        if($this->verifyToken($token)) {
+                        if($this->authenticateUser($userId, $token)) {
                             $id = $this->uniqueKey($userId);
                             $location = json_encode($this->secureParams['location']);
                             $facilities = json_encode($this->secureParams['facilities']);
