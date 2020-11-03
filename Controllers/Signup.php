@@ -43,31 +43,40 @@ class Signup extends BaseController {
                 case 'user':
                     if(isset( $this->secureParams['firstName'], $this->secureParams['lastName'], $this->secureParams['email'],  $this->secureParams['password'])) {
                         $email = $this->secureParams['email'];
+                        
                         $stmt = DB::execute(Login::get('user_id', "email = '{$email}'"));
-            
+                        
                         if ($stmt->rowCount() == 0) {
                             $firstName = $this->secureParams['firstName'];
                             $lastName = $this->secureParams['lastName'];
                             $password = md5($this->secureParams['password']); //Encrypt password
-                
+                            
                             $stmt = DB::execute(Login::save(['email' => $email, 'password' => $password]));
                             $stmt = DB::execute(Login::get('user_id', "email = '{$email}' AND password = '{$password}'"));
                             $userId = ($stmt->fetch())['user_id'];
                             $stmt = DB::execute(User::save(['user_id' => $userId, 'first_name' => $firstName, 'last_name' => $lastName]));
                             $hash = bin2hex(random_bytes(32));
                             $stmt = DB::execute(Hash::save(['user_id' => $userId, 'hash' => $hash]));
+                            
+                            $subject = "Homey - Activate account."; 
+                            $message = "Data base error.";
+    
+                            include_once($_SERVER['DOCUMENT_ROOT'] . '/assets/email-confirmation.php');
 
-                            $subject = "Activate the homey account";
-                            $message = "😁";
-
-                            $this->sendMail($email, $subject, $message);                           
-
+                            if(!$this->sendMail($email, $subject, $message)) {
+                                http_response_code(202);
+                                die($reject  = '{
+                                    "signup": "true",
+                                    "message": "User account succesfully created. But confirmation email sent was failed. Try again later with email <b>' . $email . '<b> ."
+                                }');
+                            }                       
+                            
                             http_response_code(201);
                             echo $resolve  = '{
                                 "signup": "true",
-                                "message": "User account succesfully created."
-                             }';
-
+                                "message": "User account succesfully created. An email was sent to <b>' . $email . '<b> ."
+                            }';
+                            
                         } else {
                             http_response_code(200);
                             die($reject  = '{
@@ -77,8 +86,9 @@ class Signup extends BaseController {
                             }');
                         }
                     } else {
-                        http_response_code(406);
+                        http_response_code(200);
                         die($reject  = '{
+                            status: "406",
                             "signup": "false",
                             "message": "Invalid parameters."
                         }');

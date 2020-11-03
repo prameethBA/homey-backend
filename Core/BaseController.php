@@ -35,7 +35,7 @@ class BaseController extends Token {
 
     protected function sendMail($receiver = [], $subject = 'Message From Admin@homey.lk', $message = "homey.lk") {
         // Multiple recipients
-        $to = is_string($receiver) ? $receive : implode(', ', $select); 
+        $to = is_string($receiver) ? $receiver : implode(', ', $select); 
 
         // To send HTML mail, the Content-type header must be set
         $headers[] = 'MIME-Version: 1.0';
@@ -49,6 +49,7 @@ class BaseController extends Token {
 
         // Mail it
         mail($to, $subject, $message, implode("\r\n", $headers));
+        return true;
     }
 
 
