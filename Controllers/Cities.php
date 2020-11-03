@@ -51,15 +51,13 @@ class Cities extends BaseController {
 
                 switch ($this->params[0]) {
                     case 'nearest-city':
-                        $ltd = $secureParams['ltd'];
-                        $lng = $secureParams['lng'];
-                        $stmt = DB::execute(City::getHaving(['_id', 'name_en as city', '(6371 * ACOS(COS(RADIANS(7.358849)) * COS(RADIANS(latitude)) * COS(RADIANS(longitude) - RADIANS(81.280133)) + SIN(RADIANS(7.358849)) * SIN(RADIANS(latitude)))) AS distance'], ("distance < 25 ORDER BY distance"), 5));
+                        $ltd = (double)$this->secureParams['ltd'];
+                        $lng = (double)$this->secureParams['lng'];
+
+                        $stmt = DB::execute(City::getHaving(['_id', 'name_en as city', '(6371 * ACOS(COS(RADIANS(' . $ltd . ')) * COS(RADIANS(latitude)) * COS(RADIANS(longitude) - RADIANS(' . $lng . ')) + SIN(RADIANS(' . $ltd . ')) * SIN(RADIANS(latitude)))) AS distance'], ("distance < 25 ORDER BY distance"), 5));
 
                         http_response_code(200);
-                        echo $resolve = '{
-                            "data":' . json_encode($stmt->fetchAll()) . '
-                        }
-                        ';
+                        echo $resolve = '{' . json_encode($stmt->fetchAll()) . '}';
                 }
 
             } else throw new Exception("Invalid parameter");
