@@ -52,47 +52,57 @@ class Property extends BaseController {
     public function post() {
         try {
             if (isset($this->params[0])) {
-                $id = $this->uniqueKey($this->secureParams['userId']);
 
-                $data = [
-                '_id' => $id,
-                'user_id' => $this->secureParams['userId'],
-                'title' => $this->secureParams['title'],
-                'rental_period' => $this->secureParams['rentalperiod'],
-                'price' => (int)$this->secureParams['price'],
-                'key_money' => (int)$this->secureParams['keyMoney'],
-                'minimum_period' => (int)$this->secureParams['minimumPeriod'],
-                'available_from' => $this->secureParams['availableFrom'],
-                'property_type_id' => $this->secureParams['propertyType'],
-                'description' => $this->secureParams['description'],
-                'district_id' => $this->secureParams['district'],//This is unnecceary, can be removed
-                'city_id' => $this->secureParams['city'],
-                'facilities' => $this->secureParams['facilities']
-                ];
+                switch ($this->params[0]) {
+                    case 'add-new':
 
-                $stmt = DB::execute(PropertyModel::save($data));
+                        $userId = $this->secureParams['userId'];
+                        $token = $this->secureParams['token'];
 
-                if(isset($this->secureParams['images'])) {
-
-                    $path  = $_SERVER["DOCUMENT_ROOT"] . "/data/propertyImages/" . $id;
-
-                    // Make a folder for each property with property ID
-                    if($this->makeDir($path, 0777, false)) {
-                        // Save each image for the created directory
-                        $index = 1;
-                        foreach ($this->secureParams['images'] as $img) {
-                            // if file not saved correctly trow an error
-                            if(!$this->base64ToImage($img, $path . "/" . $index++ )) {
-                                http_response_code(200);
-                                die($reject = '{
-                                    "status": "424",
-                                    "error": "true",
-                                    "message": "Failed to put images into database"
+                        $id = $this->uniqueKey($userId);
+        
+                        $data = [
+                        '_id' => $id,
+                        'user_id' => $this->secureParams['userId'],
+                        'title' => $this->secureParams['title'],
+                        'rental_period' => $this->secureParams['rentalperiod'],
+                        'price' => (int)$this->secureParams['price'],
+                        'key_money' => (int)$this->secureParams['keyMoney'],
+                        'minimum_period' => (int)$this->secureParams['minimumPeriod'],
+                        'available_from' => $this->secureParams['availableFrom'],
+                        'property_type_id' => $this->secureParams['propertyType'],
+                        'description' => $this->secureParams['description'],
+                        'district_id' => $this->secureParams['district'],//This is unnecceary, can be removed
+                        'city_id' => $this->secureParams['city'],
+                        'facilities' => $this->secureParams['facilities']
+                        ];
+        
+                        $stmt = DB::execute(PropertyModel::save($data));
+        
+                        if(isset($this->secureParams['images'])) {
+        
+                            $path  = $_SERVER["DOCUMENT_ROOT"] . "/data/propertyImages/" . $id;
+        
+                            // Make a folder for each property with property ID
+                            if($this->makeDir($path, 0777, false)) {
+                                // Save each image for the created directory
+                                $index = 1;
+                                foreach ($this->secureParams['images'] as $img) {
+                                    // if file not saved correctly trow an error
+                                    if(!$this->base64ToImage($img, $path . "/" . $index++ )) {
+                                        http_response_code(200);
+                                        die($reject = '{
+                                            "status": "424",
+                                            "error": "true",
+                                            "message": "Failed to put images into database"
+                                            }
+                                        }');
                                     }
-                                }');
+                                }
                             }
-                        }
-                    }
+                        break; 
+                }
+
                 }
             }
 

@@ -44,4 +44,24 @@ class Token {
             return false;
     }
 
+    public function authenticateUser($userId, $token) {
+        require_once('Core/DB/DB.php');
+        
+        $stmt = Core\DB\DB::execute("SELECT user_id FROM login WHERE user_id = {$userId} AND token ='{$token}'");
+
+        if($stmt->rowCount() == 1) return true;
+
+        return false;
+    }
+
+    public function authenticateAdmin($userId, $token) {
+        require_once('Core/DB/DB.php');
+        
+        $stmt = Core\DB\DB::execute("SELECT user_id FROM login WHERE user_id = {$userId} AND token ='{$token}' AND user_type = 1");
+
+        if($stmt->rowCount() == 1) return true;
+
+        return false;
+    }
+
 }
