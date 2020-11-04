@@ -25,7 +25,7 @@ class AdminPropertySummary extends BaseController {
                 if(!$this->authenticate()) throw new Exception("Unautherized request.");
                 switch ($this->params[0]) {
                     case 'pending-approval':
-                        $stmt = DB::execute(Property::get(['_id', 'title', 'user_id','created'], ("property_status = 0 ORDER BY creadted")));
+                        $stmt = DB::execute(Property::get(['_id', 'title', 'user_id','created'], ("property_status = 0 ORDER BY created")));
                         
                         http_response_code(200);
                         echo $resolve = json_encode($stmt->fetchAll());
