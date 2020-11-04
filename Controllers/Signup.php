@@ -142,7 +142,7 @@ class Signup extends BaseController {
                         $hash = $this->secureParams['hash'];
                         $userId = (int)base64_decode($this->secureParams['userId']);//derive userId
 
-                        $stmt = DB::execute(Hash::get('user_id', "user_id = '{$userId}' AND hash = {$hash}"));
+                        $stmt = DB::execute(Hash::get('user_id', "user_id = '{$userId}' AND hash = '{$hash}'"));
             
                         if ($stmt->rowCount() == 1) {
                             $stmt = DB::execute(Hash::delete("user_id = {$userId}"));
