@@ -40,6 +40,7 @@ class Signup extends BaseController {
 
         if(isset($this->params[0])) {
             switch ($this->params[0]) {
+                // signup a user
                 case 'user':
                     if(isset( $this->secureParams['firstName'], $this->secureParams['lastName'], $this->secureParams['email'],  $this->secureParams['password'])) {
                         $email = $this->secureParams['email'];
@@ -95,6 +96,7 @@ class Signup extends BaseController {
                     }
                     break;//End of signup method for User
 
+                //signup a admin
                 case 'admin':
                     if(isset( $this->secureParams['Firstname'], $this->secureParams['Lastname'], $this->secureParams['Email'],  $this->secureParams['Password'], $this->secureParams['Nic'])) {
                         $email = $this->secureParams['Email'];
@@ -134,6 +136,50 @@ class Signup extends BaseController {
                     }
                     
                     break;//End of signup method for User
+
+                case 'confirm':
+                    if(isset( $this->secureParams['hash'], $this->secureParams['userId'])) {
+                        $hash = $this->secureParams['hash'];
+                        $userId = (int)base64_decode($this->secureParams['userId']);//derive userId
+
+                        $stmt = DB::execute(Hash::get('user_id', "user_id = '{$userId}' AND hash = {$hash}"));
+            
+                        if ($stmt->rowCount() == 1) {
+                            $stmt = DB::execute(Hash::delete("user_id = {$userId}"));
+                            $stmt = DB::execute(Login::get(['user_status'], ("user_id = {$userId}")));
+                            $result = $stmt->fetch();
+                            if($result['user_status'] == 0) {
+                                $stmt = DB::execute(Login::update(['user_status' => 1], ("user_id = {$userId}")));
+                                http_response_code(201);
+                                echo $resolve  = '{
+                                    "signup": "true",
+                                    "message": "User account succesfully Activated."
+                                    }';
+                            } else {
+                                http_response_code(200);
+                                die($reject  = '{
+                                    "status": "403",
+                                    "signup": "false",
+                                    "message": "Banned user!"
+                                }');
+                            }
+                        } else {
+                            http_response_code(203);
+                            die($reject  = '{
+                                "status": "203",
+                                "signup": "false",
+                                "message": "Invalid request or Link has been expired."
+                            }');
+                        }
+                    } else {
+                        http_response_code(200);
+                        die($reject  = '{
+                            "status": "406",
+                            "signup": "false",
+                            "message": "Invalid parameters."
+                        }');
+                    }
+                    break;
 
                 default:
                     http_response_code(200);
