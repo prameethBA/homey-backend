@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: fdb28.awardspace.net
--- Generation Time: Oct 31, 2020 at 05:58 PM
+-- Generation Time: Nov 05, 2020 at 07:30 PM
 -- Server version: 5.7.20-log
 -- PHP Version: 5.5.38
 
@@ -1945,16 +1945,17 @@ CREATE TABLE `comment` (
 CREATE TABLE `confirmationinfo` (
   `_id` int(11) NOT NULL,
   `user_id` int(10) NOT NULL,
-  `hash` varchar(100) NOT NULL
+  `hash` varchar(100) NOT NULL,
+  `created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `confirmationinfo`
 --
 
-INSERT INTO `confirmationinfo` (`_id`, `user_id`, `hash`) VALUES
-(1, 1, 'fed8153f33b5fe573b0afbbe8c8685a74ead74800b7270894396f7092750f77f'),
-(2, 2, '1a47f5ac5932090c04a1efc188c11f0a37b3c36a1c2e7139dcac2340381e5aeb');
+INSERT INTO `confirmationinfo` (`_id`, `user_id`, `hash`, `created`) VALUES
+(18, 18, '0125da0d0a27b3de17c353a92f654716264d90b9e01ef03518a0ad93b38dd89b', '2020-11-03 07:18:43'),
+(20, 20, 'c9f937afd660db997d3557f2f976ad608f676a3148fcd6e9ad0cfdf1677b5d39', '2020-11-04 12:21:11');
 
 -- --------------------------------------------------------
 
@@ -2012,6 +2013,14 @@ CREATE TABLE `facilities` (
   `feature_name` varchar(80) NOT NULL,
   `measurable` tinyint(1) NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `facilities`
+--
+
+INSERT INTO `facilities` (`_id`, `feature_name`, `measurable`) VALUES
+(1, 'Bath', 1),
+(2, 'beds', 1);
 
 -- --------------------------------------------------------
 
@@ -2071,16 +2080,20 @@ CREATE TABLE `login` (
   `password` varchar(50) NOT NULL,
   `user_status` tinyint(1) NOT NULL DEFAULT '0',
   `mobile` varchar(10) DEFAULT NULL,
-  `access_token` varchar(255) DEFAULT NULL
+  `access_token` varchar(255) DEFAULT NULL,
+  `user_type` tinyint(1) NOT NULL DEFAULT '0',
+  `created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `login`
 --
 
-INSERT INTO `login` (`user_id`, `email`, `password`, `user_status`, `mobile`, `access_token`) VALUES
-(1, 'lakmalepp@gmail.com', '12bce374e7be15142e8172f668da00d8', 0, NULL, 'ew0KICAgICAgICAnYWxnJzogWydzaGExJywnbWQ1J10sDQogICAgICAgICd0eXAnOiAnSldUJw0KICAgIH0=.ew0KICAgICAgICAgICAgICAgIGlkOiAxLA0KICAgICAgICAgICAgICAgIGVtYWlsOiAnbGFrbWFsZXBwQGdtYWlsLmNvbScNCiAgICAgICAgICAgIH0=.576956b5291ac38d04ef5f82cc974286a857f0b2.0335dc16fd73'),
-(2, 'prameethmaduwantha@gmail.com', 'eb341c24c39d0b23d9981ff69c7711b5', 0, NULL, 'ew0KICAgICAgICAnYWxnJzogWydzaGExJywnbWQ1J10sDQogICAgICAgICd0eXAnOiAnSldUJw0KICAgIH0=.ew0KICAgICAgICAgICAgICAgIGlkOiAyLA0KICAgICAgICAgICAgICAgIGVtYWlsOiAncHJhbWVldGhtYWR1d2FudGhhQGdtYWlsLmNvbScNCiAgICAgICAgICAgIH0=.576956b5291ac38d04ef5f82cc974286a857f0b2.');
+INSERT INTO `login` (`user_id`, `email`, `password`, `user_status`, `mobile`, `access_token`, `user_type`, `created`, `updated`) VALUES
+(18, 'lakmalepp@gmail.com', '12bce374e7be15142e8172f668da00d8', 1, NULL, 'd32ea4f1117e5631064afb53fdb0936d', 1, '2020-11-03 07:18:43', '2020-11-03 18:00:15'),
+(19, 'eapdimuthulakmal98@gmail.com', '12bce374e7be15142e8172f668da00d8', 1, NULL, 'e23e7778f9d0faf7fc5d4c5071bf4c36', 0, '2020-11-04 11:15:39', '2020-11-05 19:29:06'),
+(20, 'kavishka.dilhara98@gmail.com', '12bce374e7be15142e8172f668da00d8', 0, NULL, NULL, 0, '2020-11-04 12:21:11', '2020-11-04 12:21:11');
 
 -- --------------------------------------------------------
 
@@ -2100,6 +2113,7 @@ CREATE TABLE `property` (
   `description` varchar(300) NOT NULL,
   `district_id` tinyint(2) NOT NULL,
   `city_id` int(4) NOT NULL,
+  `location` varchar(255) DEFAULT NULL,
   `property_status` tinyint(1) NOT NULL DEFAULT '0',
   `facilities` varchar(500) NOT NULL,
   `user_id` varchar(32) NOT NULL DEFAULT '0',
@@ -2111,11 +2125,24 @@ CREATE TABLE `property` (
 -- Dumping data for table `property`
 --
 
-INSERT INTO `property` (`_id`, `title`, `price`, `rental_period`, `key_money`, `minimum_period`, `available_from`, `property_type_id`, `description`, `district_id`, `city_id`, `property_status`, `facilities`, `user_id`, `created`, `updated`) VALUES
-('23ca1585227393bb408a7b51b9a513ab', 'A house for Rent In Colombo', 15000, 3, 90000, 6, '2020-10-31', 0, 'Fully furnished two story house, with parking available.', 0, 0, 0, 'Array', '45', '2020-10-31 17:31:22', '2020-10-31 17:32:01'),
-('9baaa5cfbf73204a16d0b239a224d571', 'title', 17000, 0, 20000, 5, '2018-12-12', 1, 'description', 1, 1, 0, 'facilities', '0', '2020-10-31 17:31:22', '2020-10-31 17:19:46'),
-('c80c98c4d5ea3b80a1ed9f8d8ef765a7', 'house for lease', 100000, 4, 200000, 2, '2020-10-31', 0, 'Contact for more info. URGENT', 0, 0, 0, 'Array', '0', '2020-10-31 17:31:22', '2020-10-31 17:19:46'),
-('f455205ebf4c136b8a9b7b2007b2f23c', 'kajdkdak', 342434, 1, 684868, 0, '2020-10-31', 0, 'nkjkjbekw wlkenwkejkw wekwjewke ekwekwjekwje', 0, 0, 0, 'Array', '0', '2020-10-31 17:31:22', '2020-10-31 17:19:46');
+INSERT INTO `property` (`_id`, `title`, `price`, `rental_period`, `key_money`, `minimum_period`, `available_from`, `property_type_id`, `description`, `district_id`, `city_id`, `location`, `property_status`, `facilities`, `user_id`, `created`, `updated`) VALUES
+('02aaf686726974c43f8a05a2287aafda', 'Boarding place at Nugegoda', 45454545, 3, 45454545, 6789, '2020-11-03', 0, 'rtyui rtyuiop', 0, 0, '{"lng":80.861924238261877917466335929930210113525390625,"lat":7.909654871014336841028580238344147801}', 0, '[{"featureId":"1","feature":"Bath","quantity":"0"}]', '18', '2020-11-03 17:46:40', '2020-11-05 08:20:46'),
+('287f6f6f8367b0c407816f9402f34fe7', 'mkkdmknflnlf dfdfkldfkldkfln', 343434, 2, 343434, 0, '2020-11-05', 0, 'kejdkjen ekekrerj', 0, 0, '{"lng":80.4113026913005484175300807692110538482666015625,"ltd":7.9881407731075650957563993870280683040618896484375}', 0, '[{"featureId":"1","feature":"Bath","quantity":"0"},{"featureId":"2","feature":"beds","quantity":"0"}]', '18', '2020-11-05 16:40:43', '2020-11-05 16:40:43'),
+('455c704968bf967ba611cebf1052d46a', '18020437', 43434, 1, 43434, 0, '2020-11-05', 0, 'nwdnwje wewejwew', 0, 0, '{"lng":80.4268413653337148616628837771713733673095703125,"ltd":8.517133928716258850499798427335917949676513671875}', 0, '[{"featureId":"1","feature":"Bath","quantity":"0"}]', '18', '2020-11-05 16:11:27', '2020-11-05 16:11:27'),
+('7071d1d2db60bd8b76cd988486f99cc9', '18020437', 43434, 1, 43434, 0, '2020-11-05', 0, 'nwdnwje wewejwew', 0, 0, '{"lng":80.4268413653337148616628837771713733673095703125,"ltd":8.517133928716258850499798427335917949676513671875}', 0, '[{"featureId":"1","feature":"Bath","quantity":"0"},{"featureId":"1","feature":"Bath","quantity":"0"}]', '18', '2020-11-05 16:18:23', '2020-11-05 16:18:23'),
+('76591f07ad98e6da0bb59310f9458255', 'mkkdmknflnlf dfdfkldfkldkfln', 343434, 2, 343434, 0, '2020-11-05', 0, 'kejdkjen ekekrerj', 0, 0, '{"lng":80.4113026913005484175300807692110538482666015625,"ltd":7.9881407731075650957563993870280683040618896484375}', 0, '[{"featureId":"1","feature":"Bath","quantity":"0"},{"featureId":"2","feature":"beds","quantity":"0"}]', '18', '2020-11-05 16:40:42', '2020-11-05 16:40:42'),
+('882ed72d1bbc49430b07a0d8991f26dd', '18020437', 23232, 2, 23232, 0, '2020-11-05', 0, 'wewejwe ewejwewkekw', 0, 0, '{"lng":80.2481466139524712843922316096723079681396484375,"ltd":8.1712153210025153526885333121754229068756103515625}', 0, '[{"featureId":"1","feature":"Bath","quantity":"0"}]', '18', '2020-11-05 16:41:51', '2020-11-05 16:41:51'),
+('89a8a352a7ed1a86e6478be5be09fa87', '18020437', 343434, 1, 343434, 0, '2020-11-05', 0, 'jkwkjekjwe wewenw', 0, 0, '{"lng":79.9140651222397906394689925946295261383056640625,"ltd":8.117378471438957632244637352414429187774658203125}', 0, '[{"featureId":"2","feature":"beds","quantity":"0"},{"featureId":"1","feature":"Bath","quantity":"0"},{"featureId":"2","feature":"beds","quantity":"0"},{"featureId":"1","feature":"Bath","quantity":"0"},{"featureId":"2","feature":"beds","quantity":"0"}]', '18', '2020-11-05 16:37:14', '2020-11-05 16:37:14'),
+('92a8e81d01186be61577abb00ea643a6', '18020437', 23232, 2, 23232, 0, '2020-11-05', 0, 'wewejwe ewejwewkekw', 0, 0, '{"lng":80.2481466139524712843922316096723079681396484375,"ltd":8.1712153210025153526885333121754229068756103515625}', 0, '[{"featureId":"1","feature":"Bath","quantity":"0"}]', '18', '2020-11-05 16:41:49', '2020-11-05 16:41:49'),
+('aaed0f171da5689fbc6012f01103fc35', '18020437', 43434, 1, 43434, 0, '2020-11-05', 0, 'nwdnwje wewejwew', 0, 0, '{"lng":80.4268413653337148616628837771713733673095703125,"ltd":8.517133928716258850499798427335917949676513671875}', 0, '[{"featureId":"1","feature":"Bath","quantity":"0"}]', '18', '2020-11-05 16:18:17', '2020-11-05 16:18:17'),
+('ad8aa68e65fd9aa625225ee3a348dd9f', '18020437', 23232, 2, 23232, 0, '2020-11-05', 0, 'wewejwe ewejwewkekw', 0, 0, '{"lng":80.2481466139524712843922316096723079681396484375,"ltd":8.1712153210025153526885333121754229068756103515625}', 0, '[{"featureId":"1","feature":"Bath","quantity":"0"}]', '18', '2020-11-05 16:41:34', '2020-11-05 16:41:34'),
+('b108d1b246552dc5b74bd946bc193dbc', '18020437', 32323, 2, 32323, 0, '2020-11-03', 0, 'iwuieewejiwew wewejijweijwe', 0, 0, '{"lng":80.590005497513942600562586449086666107177734375,"lat":7.630044258542549862056603160453960299}', 0, '[{"featureId":"1","feature":"Bath","quantity":"0"}]', '18', '2020-11-03 17:48:33', '2020-11-05 08:21:12'),
+('b5d00a466ba55594a29cca700530eedc', '18020437', 32434, 1, 32434, 0, '2020-11-05', 0, 'jireirje ekrjerjerjk erkerjke', 0, 0, '{"lng":81.3203151222397906394689925946295261383056640625,"ltd":6.6550354430502665081803570501506328582763671875}', 0, '[{"featureId":"1","feature":"Bath","quantity":"0"}]', '18', '2020-11-05 16:29:31', '2020-11-05 16:29:31'),
+('b7444a7b587dbbaf03272ceba36b49c8', 'mkkdmknflnlf dfdfkldfkldkfln', 343434, 2, 343434, 0, '2020-11-05', 0, 'kejdkjen ekekrerj', 0, 0, '{"lng":80.4113026913005484175300807692110538482666015625,"ltd":7.9881407731075650957563993870280683040618896484375}', 0, '[{"featureId":"1","feature":"Bath","quantity":"0"},{"featureId":"2","feature":"beds","quantity":"0"}]', '18', '2020-11-05 16:39:18', '2020-11-05 16:39:18'),
+('ccd144f9d28349bbeb846dcb46d7a91e', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed dapibus ornare diam. Duis pretium quam ', 3232323, 1, 3232323, 0, '2020-11-04', 0, 'jhsdsdh sjdksjdsjd skdskdjLorem ipsum dolor sit amet, consectetur adipiscing elit. Sed dapibus ornare diam. Duis pretium quam eros, sit amet suscipit felis ultricies id. Morbi viverra sem in justo rutrum fringilla. Sed dui nulla, rhoncus eget dapibus vitae, aliquam ut ante. Proin et leo eros. Cras n', 0, 0, '{"lng":80.4528745007425385438182274810969829559326171875,"lat":7.90942038790093260303137867595069110}', 0, '[{"featureId":"1","feature":"Bath","quantity":"0"}]', '18', '2020-11-04 12:42:25', '2020-11-05 08:21:04'),
+('dabc005fe120044a78c2590fbc7b3638', '18020437', 343434, 1, 343434, 0, '2020-11-05', 0, 'jkwkjekjwe wewenw', 0, 0, '{"lng":79.9140651222397906394689925946295261383056640625,"ltd":8.117378471438957632244637352414429187774658203125}', 0, '[{"featureId":"2","feature":"beds","quantity":"0"},{"featureId":"1","feature":"Bath","quantity":"0"},{"featureId":"2","feature":"beds","quantity":"0"}]', '18', '2020-11-05 16:37:16', '2020-11-05 16:37:16'),
+('e676bb1217d2a4a0a24e3e9939d08260', '18020437', 43434, 1, 43434, 0, '2020-11-05', 0, 'lswdsld lwelwkek', 0, 0, '{"lng":80.667690812847496317772311158478260040283203125,"ltd":7.63252769476469072884583511040546000003814697265625}', 0, '[{"featureId":"1","feature":"Bath","quantity":"0"},{"featureId":"2","feature":"beds","quantity":"0"}]', '18', '2020-11-05 16:20:00', '2020-11-05 16:20:00'),
+('f9af5bbe0a7b0d8a3897e830e4bd3413', 'Barding Place In colombo', 20000, 3, 120000, 6, '2020-11-03', 0, 'Fully furnished, two story house', 0, 0, '{"lng":79.870757138166908362109097652137279510498046875,"lat":6.913107536410366904533475462812930345}', 0, '[{"featureId":"1","feature":"Bath","quantity":"3"},{"featureId":"2","feature":"beds","quantity":"3"}]', '18', '2020-11-03 17:52:16', '2020-11-05 08:20:56');
 
 -- --------------------------------------------------------
 
@@ -2188,16 +2215,19 @@ CREATE TABLE `user` (
   `first_name` varchar(50) NOT NULL,
   `last_name` varchar(50) NOT NULL,
   `nic` varchar(12) DEFAULT NULL,
-  `user_image` longtext
+  `user_image` longtext,
+  `created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `user`
 --
 
-INSERT INTO `user` (`_id`, `user_id`, `first_name`, `last_name`, `nic`, `user_image`) VALUES
-(1, 1, 'Dimuthu', 'Lakmal', NULL, NULL),
-(2, 2, 'Prameeth', 'Maduwantha', NULL, NULL);
+INSERT INTO `user` (`_id`, `user_id`, `first_name`, `last_name`, `nic`, `user_image`, `created`, `updated`) VALUES
+(18, 18, 'Dimuthu', 'Lakmal', NULL, NULL, '2020-11-03 07:18:43', '2020-11-03 07:18:43'),
+(19, 19, 'Dimuthu', 'Lakmal', NULL, NULL, '2020-11-04 11:15:39', '2020-11-04 11:15:39'),
+(20, 20, 'kavishka', 'dilhara', NULL, NULL, '2020-11-04 12:21:11', '2020-11-04 12:21:11');
 
 --
 -- Indexes for dumped tables
@@ -2341,7 +2371,7 @@ ALTER TABLE `cities`
 -- AUTO_INCREMENT for table `confirmationinfo`
 --
 ALTER TABLE `confirmationinfo`
-  MODIFY `_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 --
 -- AUTO_INCREMENT for table `districts`
 --
@@ -2351,12 +2381,12 @@ ALTER TABLE `districts`
 -- AUTO_INCREMENT for table `facilities`
 --
 ALTER TABLE `facilities`
-  MODIFY `_id` int(10) NOT NULL AUTO_INCREMENT;
+  MODIFY `_id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 --
 -- AUTO_INCREMENT for table `login`
 --
 ALTER TABLE `login`
-  MODIFY `user_id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `user_id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 --
 -- AUTO_INCREMENT for table `propertytype`
 --
@@ -2371,7 +2401,7 @@ ALTER TABLE `provinces`
 -- AUTO_INCREMENT for table `user`
 --
 ALTER TABLE `user`
-  MODIFY `_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 --
 -- Constraints for dumped tables
 --
