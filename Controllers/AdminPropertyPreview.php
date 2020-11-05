@@ -27,6 +27,7 @@ class AdminPropertyPreview extends BaseController {
                     case 'pending-approval':
                         $data = [
                             'price',
+                            'title',
                             'rental_period',
                             'key_money',
                             'minimum_period',
@@ -35,6 +36,8 @@ class AdminPropertyPreview extends BaseController {
                             'description',
                             'city_id',
                             'location',
+                            'created',
+                            'user_id',
                             'facilities',
                         ];
 
