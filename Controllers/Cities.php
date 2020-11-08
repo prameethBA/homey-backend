@@ -25,13 +25,10 @@ class Cities extends BaseController {
                 if($this->params[0] == 'districtId') $stmt = DB::execute(City::get(['_id', 'name_en as city'], ("district_id = {$this->params[1]}")));
                 else throw new Exception("Invalid parameter");
             } else if(isset($this->params[0])) throw new Exception("Invalid parameter");
-            else $stmt = DB::execute(City::getAll());
+            else $stmt = DB::execute(City::getAll(['_id', 'name_en as name']));
             
             http_response_code(200);
-            echo $resolve = '{
-                "data":' . json_encode($stmt->fetchAll()) . '
-            }
-            ';
+            echo $resolve = json_encode($stmt->fetchAll());
 
         } catch(Exception $err) {
             http_response_code(500);
