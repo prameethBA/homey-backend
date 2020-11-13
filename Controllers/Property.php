@@ -116,8 +116,19 @@ class Property extends BaseController {
                         } else throw new Exception("Authentication failed. Unauthorized request.");
 
                     break;
-                    default:
-                        throw new Exception("Invalid parameter");
+
+                case 'get':
+                    $userId = $this->secureParams['userId'];
+                    $token = $this->secureParams['token'];
+                    if($this->authenticateUser($userId, $token)) {
+                        $stmt = DB::execute(PropertyModel::get('*', ("_id = '" . $this->secureParams['propertyId'] . "'")));
+                        http_response_code(200);
+                        echo json_encode($stmt->fetch());
+                    } else throw new Exception("Authentication failed. Unauthorized request.");
+
+                    break;
+                default:
+                    throw new Exception("Invalid parameter");
                 }//End of the switch
 
             } else throw new Exception("Invalid request.No parameters given");
