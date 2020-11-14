@@ -49,6 +49,33 @@ class Images extends BaseController {
                         echo($data);
 
                         break;
+                    case 'profile':
+                        switch($this->params[1]) {
+                            case 'save':
+                                // save images
+                                if(isset($this->secureParams['images'])) {
+                
+                                    $path  = $_SERVER["DOCUMENT_ROOT"] . "/data/profileImages/" . $this->secureParams['userId'];
+                
+                                    // Make a folder for each property with property ID
+                                    if($this->makeDir($path, 0777, false)) {
+                                        // Save each image for the created directory
+                                        // if file not saved correctly throw an error
+                                        if(!$this->base64ToImage($this->secureParams['image'], $path . "/" . $index++ )) {
+                                            http_response_code(200);
+                                            die($reject = '{
+                                                "status": "424",
+                                                "error": "true",
+                                                "message": "Failed to put images into database"
+                                                }
+                                            }');
+                                        }
+                                    } else throw new Exception("Permission Denied. Server side failure.");
+                                }//End of save images
+                                break;
+                        }
+
+                        break;
                     default:
                         http_response_code(200);
                         die($reject = '{
@@ -56,6 +83,7 @@ class Images extends BaseController {
                                 "message": "Invalid request."
                         }');
                         break;
+                    
                 }
             }
         } catch(Exception $err) {
@@ -83,6 +111,28 @@ class Images extends BaseController {
         }
 
         return false;
+    }
+
+    // Check if a directory exits or, create new directory
+    private function makeDir($path,$mode, $recursive) {
+        return is_dir($path) || mkdir($path, $mode, $recursive);
+    }
+
+    // Save base64 immage to as a file
+    private function base64ToImage($base64, $file) {
+
+        // split the string on commas
+        $data = explode( ',', $base64 );//$data[ 1 ] == <actual base64 string>
+
+        // RegX to get extention
+        $regx = '/(?<=\/)(.*?)(?=;)/'; //$data[ 0 ] == "data:image/png;base64"
+        preg_match($regx, $data[0], $matches);
+
+        $extention = $matches[0];
+    
+        // Save file
+        if(file_put_contents($file . "." . $extention, base64_decode($data[1]))) return true;
+        return false; 
     }
 
 }//End of Class
