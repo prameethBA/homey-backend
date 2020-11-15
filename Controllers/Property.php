@@ -94,7 +94,7 @@ class Property extends BaseController {
                                     // Save each image for the created directory
                                     $index = 1;
                                     foreach ($this->secureParams['images'] as $img) {
-                                        // if file not saved correctly trow an error
+                                        // if file not saved correctly throw an error
                                         if(!$this->base64ToImage($img, $path . "/" . $index++ )) {
                                             http_response_code(200);
                                             die($reject = '{

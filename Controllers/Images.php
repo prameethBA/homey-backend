@@ -47,21 +47,23 @@ class Images extends BaseController {
                         }
                         $data = rtrim($data,',') . ']';
                         echo($data);
-
                         break;
+
                     case 'profile':
                         switch($this->params[1]) {
                             case 'save':
                                 // save images
-                                if(isset($this->secureParams['images'])) {
+                                if(isset($this->secureParams['image'])) {
                 
                                     $path  = $_SERVER["DOCUMENT_ROOT"] . "/data/profileImages/" . $this->secureParams['userId'];
                 
                                     // Make a folder for each property with property ID
                                     if($this->makeDir($path, 0777, false)) {
-                                        // Save each image for the created directory
+
+                                        //clear the directory
+                                        $this->clearDir($path);
                                         // if file not saved correctly throw an error
-                                        if(!$this->base64ToImage($this->secureParams['image'], $path . "/" . $index++ )) {
+                                        if(!$this->base64ToImage($this->secureParams['image'], $path . "/" . $this->secureParams['userId'] )) {
                                             http_response_code(200);
                                             die($reject = '{
                                                 "status": "424",
@@ -70,8 +72,28 @@ class Images extends BaseController {
                                                 }
                                             }');
                                         }
+                                        http_response_code(201);
+                                        echo $resolve = '{
+                                            "message": "Profile picture succesfully updated."
+                                        }';
                                     } else throw new Exception("Permission Denied. Server side failure.");
                                 }//End of save images
+                                break;
+                            case 'get':
+                                    $path  = $_SERVER["DOCUMENT_ROOT"] . "/data/profileImages/" . $this->secureParams['userId'];
+                                    
+                                    if($this->dirExits($path)) {
+                                        $dir = new DirectoryIterator($path);
+                                        foreach ($dir as $fileinfo) {
+                                            if (!$fileinfo->isDot()) {
+                                                if(!($result = $this->imageToBase64($fileinfo->getPathname())))  throw new Exception("No images found.");
+                                            }
+                                        }
+                                    }
+                                    http_response_code(201);
+                                    echo $resolve = '{
+                                        "image": "' . $result .'"
+                                    }';
                                 break;
                         }
 
@@ -134,5 +156,18 @@ class Images extends BaseController {
         if(file_put_contents($file . "." . $extention, base64_decode($data[1]))) return true;
         return false; 
     }
+
+    //clear the directory
+    private function clearDir($path) {
+        $files = glob($path.'/*');  
+        // Deleting all the files in the list 
+        foreach($files as $file) { 
+        
+            if(is_file($file))  
+            
+                // Delete the given file 
+                unlink($file);  
+        } 
+    }//End of clearDir()
 
 }//End of Class
