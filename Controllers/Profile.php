@@ -29,14 +29,51 @@ class Profile extends BaseController {
                 switch ($this->params[0]) {
                     case 'info':
 
-                        $stmt = DB::execute(Login::get(['email', 'mobile'], ("user_id = '{$this->secureParams['userId']}'")));
+                        $stmt = DB::execute(Login::get(['email', 'mobile', 'updated as lastLogin'], ("user_id = '{$this->secureParams['userId']}'")));
                         $authData = json_encode($stmt->fetch());
-                        $stmt = DB::execute(User::get(['first_name as firstName', 'last_name as lastName', 'nic'], ("user_id = '{$this->secureParams['userId']}'")));
+                        $stmt = DB::execute(User::get([
+                            'first_name as firstName',
+                            'last_name as lastName',
+                            'address1',
+                            'address2',
+                            'address3',
+                            'city',
+                            'district',
+                            'dob',
+                            'nic'
+                            ], ("user_id = '{$this->secureParams['userId']}'")));
                         $userData = json_encode($stmt->fetch());
                         http_response_code(200);
                         echo $resolve = '{
                             "authData": ' . $authData . ',
                             "userData": ' . $userData . '
+                        }';
+                        break;
+
+                    case 'update':
+
+                        $loginData = [
+                            'email' => $this->secureParams['email'],
+                            'mobile' => $this->secureParams['mobile'],
+                        ];
+
+                        $userData = [
+                            'first_name' => $this->secureParams['firstName'],
+                            'last_name' => $this->secureParams['lastName'],
+                            'nic' => $this->secureParams['nic'],
+                            'address1' => $this->secureParams['address1'],
+                            'address2' => $this->secureParams['address2'],
+                            'address3' => $this->secureParams['address3'],
+                            'city' => $this->secureParams['city'],
+                            'district' => $this->secureParams['district'],
+                            'dob' => $this->secureParams['dob'],
+                        ];
+
+                        $stmt = DB::execute(Login::update($loginData, ("user_id = '{$this->secureParams['userId']}'")));
+                        $stmt = DB::execute(User::update($userData, ("user_id = '{$this->secureParams['userId']}'")));
+                        http_response_code(201);
+                        echo $resolve = '{
+                            "message" : "Profile update successfully"
                         }';
                         break;
                     
