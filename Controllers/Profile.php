@@ -91,14 +91,14 @@ class Profile extends BaseController {
             }');
         }//End of try catch
             
-    }//End of GET
+    }//End of post
 
-    // Authenticate Admin 
+    // Authenticate User 
     private function authenticate() {
         if(isset($this->secureParams['userId'], $this->secureParams['token'])) {
             if($this->authenticateUser($this->secureParams['userId'], $this->secureParams['token'])) return true;
             else return false;
         } else return false;
-    }
+    }//end of authenticateUser()
 
 }//End of Class

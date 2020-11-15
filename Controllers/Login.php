@@ -45,6 +45,40 @@ class Login extends BaseController {
 
     }//End of POST
 
+    //patch
+    public function patch() {
+        try {
+            if(isset($this->params[0])) {
+                if(!$this->authenticate()) throw new Exception("Unauthorized request.");
+                switch ($this->params[0]) {
+                    case 'password':
+                        $this->secureParams['password'] = $this->secureParams['old'];
+                        if(!$this->userLogin()) throw new Exception("Unauthorized request.");
+                        $stmt = DB::execute(LoginModel::update(['password' => $secureParams['new']], ("user_id = '{$this->secureParams['userId']}'")));
+                        http_response_code(201);
+                        echo $resolve = '{
+                            "message": "Password has been changed.",
+                        }';
+                        break;
+
+                    // case 'update':
+                    //     break;
+                    
+                    default:
+                        throw new Exception("Invalid Request");
+                }
+            } else throw new Exception("Invalid Parmeters");
+
+        } catch(Exception $err) {
+            http_response_code(200);
+            die($reject = '{
+                    "status": "500",
+                    "error": "true",
+                    "message": "' . $err->getMessage() . '"
+            }');
+        }//End of try catch
+    }//End of patch
+
     //Logout method
     public function delete() {
         //Only clear the token when valid token was sent
@@ -70,6 +104,14 @@ class Login extends BaseController {
 
 
     // Private methods
+    
+    // Authenticate User 
+    private function authenticate() {
+        if(isset($this->secureParams['userId'], $this->secureParams['token'])) {
+            if($this->authenticateUser($this->secureParams['userId'], $this->secureParams['token'])) return true;
+            else return false;
+        } else return false;
+    }//end of authenticateUser()
 
     // Login method for non logged user
     private function userLogin() {
