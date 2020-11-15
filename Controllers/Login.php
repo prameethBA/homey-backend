@@ -53,11 +53,13 @@ class Login extends BaseController {
                 switch ($this->params[0]) {
                     case 'password':
                         $this->secureParams['password'] = $this->secureParams['old'];
-                        if(!$this->userLogin()) throw new Exception("Unauthorized request.");
-                        $stmt = DB::execute(LoginModel::update(['password' => $secureParams['new']], ("user_id = '{$this->secureParams['userId']}'")));
+                        $this->secureParams['userName'] = $this->secureParams['email'];
+                        $newPassword = md5($this->secureParams['new']);
+                        if(!$this->userLogin()) throw new Exception("Current password is invalid!");
+                        $stmt = DB::execute(LoginModel::update(['password' => $newPassword], ("user_id = '{$this->secureParams['userId']}'")));
                         http_response_code(201);
                         echo $resolve = '{
-                            "message": "Password has been changed.",
+                            "message": "Password has been changed."
                         }';
                         break;
 
