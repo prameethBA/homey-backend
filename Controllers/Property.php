@@ -63,7 +63,7 @@ class Property extends BaseController
     {
         try {
             if (isset($this->params[0])) {
-
+                if (!$this->authenticate()) throw new Exception("Unautherized request.");
                 switch ($this->params[0]) {
                     case 'add-new':
 
@@ -130,13 +130,26 @@ class Property extends BaseController
                         break;
 
                     case 'get':
-                        $userId = $this->secureParams['userId'];
-                        $token = $this->secureParams['token'];
-                        if ($this->authenticateUser($userId, $token)) {
-                            $stmt = DB::execute(PropertyModel::get('*', ("_id = '" . $this->secureParams['propertyId'] . "'")));
-                            http_response_code(200);
-                            echo json_encode($stmt->fetch());
-                        } else throw new Exception("Authentication failed. Unauthorized request.");
+                        switch ($this->params[1]) {
+                            case 'property':
+                                $userId = $this->secureParams['userId'];
+                                $token = $this->secureParams['token'];
+                                if ($this->authenticateUser($userId, $token)) {
+                                    $stmt = DB::execute(PropertyModel::get('*', ("_id = '" . $this->secureParams['propertyId'] . "'")));
+                                    http_response_code(200);
+                                    echo json_encode($stmt->fetch());
+                                } else throw new Exception("Authentication failed. Unauthorized request.");
+                                break;
+
+                            case 'own':
+                                $stmt = DB::execute(PropertyModel::join('*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.user_id = '{$this->secureParams['userId']}'")));
+                                http_response_code(200);
+                                echo json_encode($stmt->fetchAll());
+                                break;
+
+                            default:
+                                throw new Exception("Authentication failed. Unauthorized request.");
+                        }
 
                         break;
                     default:
