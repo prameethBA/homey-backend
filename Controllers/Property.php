@@ -13,6 +13,10 @@ require_once('Models/Property.php');
 
 use Models\Property as PropertyModel;
 
+require_once('Models/PropertySettings.php');
+
+use Models\PropertySettings as PropertySettings;
+
 require_once('Core/DB/DB.php');
 
 use Core\DB\DB as DB;
@@ -24,6 +28,7 @@ class Property extends BaseController
     {
         parent::__construct($params, $secureParams);
         new PropertyModel();
+        new PropertySettings();
     }
 
     public function get()
@@ -149,6 +154,60 @@ class Property extends BaseController
             }');
         }
     } //End of POST
+
+
+    //patch
+    public function patch()
+    {
+        try {
+            if (isset($this->params[0])) {
+                if (!$this->authenticate()) throw new Exception("Unauthorized request.");
+                switch ($this->params[0]) {
+                    case 'settings':
+                        $data = [
+                            'property_id' => $this->secureParams['propertyId'],
+                            'boost' => (bool)$this->secureParams['boost'] ? 1 : 0,
+                            'schedule' => (bool)$this->secureParams['schedule'] ? 1 : 0,
+                            'schedule_date' => $this->secureParams['scheduleDate'],
+                            'schedule_time' => $this->secureParams['scheduleTime'],
+                            'sharing' => (bool)$this->secureParams['sharing'] ? 1 : 0,
+                        ];
+                        DB::execute(PropertySettings::save($data));
+                        DB::execute(PropertyModel::update(['privated' => (bool)$this->secureParams['privated'] ? 1 : 0], ("_id = '{$this->secureParams['propertyId']}'")));
+                        http_response_code(201);
+                        echo $resolve = '{
+                            "message": "Property Settings Applied."
+                        }';
+                        break;
+
+                        // case 'update':
+                        //     break;
+
+                    default:
+                        throw new Exception("Invalid Request");
+                }
+            } else throw new Exception("Invalid Parmeters");
+        } catch (Exception $err) {
+            http_response_code(200);
+            die($reject = '{
+                    "status": "500",
+                    "error": "true",
+                    "message": "' . $err->getMessage() . '"
+            }');
+        } //End of try catch
+    } //End of patch
+
+
+    // Private methods
+
+    // Authenticate User 
+    private function authenticate()
+    {
+        if (isset($this->secureParams['userId'], $this->secureParams['token'])) {
+            if ($this->authenticateUser($this->secureParams['userId'], $this->secureParams['token'])) return true;
+            else return false;
+        } else return false;
+    } //end of authenticateUser()
 
     // Check if a directory exits or, create new directory
     private function makeDir($path, $mode, $recursive)
