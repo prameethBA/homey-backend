@@ -193,9 +193,25 @@ class Property extends BaseController
                         }';
                         break;
 
-                        // case 'update':
-                        //     break;
+                    case 'online-payment':
 
+                        DB::exec(PropertySettings::update(['accept_online_payment' => (int)$this->secureParams['onlinePayment']], ("property_id = '{$this->secureParams['propertyId']}'")));
+                        http_response_code(200);
+                        echo $resolve = '{
+                                "status": "204",
+                                "message": "Updated"
+                            }';
+                        break;
+
+                    case 'visibility':
+
+                        DB::exec(PropertyModel::update(['privated' => (int)$this->secureParams['visibility']], ("_id = '{$this->secureParams['propertyId']}'")));
+                        http_response_code(200);
+                        echo $resolve = '{
+                                    "status": "204",
+                                    "message": "Updated"
+                                }';
+                        break;
                     default:
                         throw new Exception("Invalid Request");
                 }
