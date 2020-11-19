@@ -6,21 +6,28 @@ use PDO;
 use Exception;
 
 require_once('Core/BaseController.php');
+
 use Core\BaseController as BaseController;
+
 require_once('Models/Property.php');
+
 use Models\Property as PropertyModel;
 
 require_once('Core/DB/DB.php');
+
 use Core\DB\DB as DB;
 
-class Property extends BaseController {
+class Property extends BaseController
+{
 
-    public function __construct($params, $secureParams) {
+    public function __construct($params, $secureParams)
+    {
         parent::__construct($params, $secureParams);
         new PropertyModel();
     }
 
-    public function get() {
+    public function get()
+    {
         try {
             if (isset($this->params[0])) {
                 switch ($this->params[0]) {
@@ -38,64 +45,63 @@ class Property extends BaseController {
                         break;
                 }
             }
-
-        } catch(Exception $err) {
+        } catch (Exception $err) {
             http_response_code(200);
             die($reject = '{
                     "status": "500",
                     "message": "' . $err->getMessage() . '"
             }');
         }
-            
-    }//End of GET
+    } //End of GET
 
-    public function post() {
+    public function post()
+    {
         try {
             if (isset($this->params[0])) {
 
                 switch ($this->params[0]) {
                     case 'add-new':
-                        
+
                         $userId = $this->secureParams['userId'];
                         $token = $this->secureParams['token'];
 
-                        
-                        if($this->authenticateUser($userId, $token)) {
+
+                        if ($this->authenticateUser($userId, $token)) {
                             $id = $this->uniqueKey($userId);
                             $location = json_encode($this->secureParams['location']);
                             $facilities = json_encode($this->secureParams['facilities']);
-            
+
                             $data = [
-                            '_id' => $id,
-                            'user_id' => $this->secureParams['userId'],
-                            'title' => $this->secureParams['title'],
-                            'location' => $location,
-                            'rental_period' => $this->secureParams['rentalperiod'],
-                            'price' => (int)$this->secureParams['price'],
-                            'key_money' => (int)$this->secureParams['keyMoney'],
-                            'minimum_period' => (int)$this->secureParams['minimumPeriod'],
-                            'available_from' => $this->secureParams['availableFrom'],
-                            'property_type_id' => $this->secureParams['propertyType'],
-                            'description' => $this->secureParams['description'],
-                            'district_id' => $this->secureParams['district'],//This is unnecceary, can be removed
-                            'city_id' => $this->secureParams['city'],
-                            'facilities' => $facilities
+                                '_id' => $id,
+                                'user_id' => $this->secureParams['userId'],
+                                'title' => $this->secureParams['title'],
+                                'location' => $location,
+                                'rental_period' => $this->secureParams['rentalperiod'],
+                                'price' => (int)$this->secureParams['price'],
+                                'key_money' => (int)$this->secureParams['keyMoney'],
+                                'minimum_period' => (int)$this->secureParams['minimumPeriod'],
+                                'available_from' => $this->secureParams['availableFrom'],
+                                'property_type_id' => $this->secureParams['propertyType'],
+                                'description' => $this->secureParams['description'],
+                                'district_id' => $this->secureParams['district'], //This is unnecceary, can be removed
+                                'city_id' => $this->secureParams['city'],
+                                'facilities' => $facilities
                             ];
-            
+
                             $stmt = DB::execute(PropertyModel::save($data));
-            
+
                             // save images
-                            if(isset($this->secureParams['images'])) {
-            
+                            if (isset($this->secureParams['images'])) {
+
                                 $path  = $_SERVER["DOCUMENT_ROOT"] . "/data/propertyImages/" . $id;
-            
+
                                 // Make a folder for each property with property ID
-                                if($this->makeDir($path, 0777, false)) {
+                                if ($this->makeDir($path, 0777, false)) {
                                     // Save each image for the created directory
                                     $index = 1;
                                     foreach ($this->secureParams['images'] as $img) {
                                         // if file not saved correctly throw an error
-                                        if(!$this->base64ToImage($img, $path . "/" . $index++ )) {
+                                        if (!$this->base64ToImage($img, $path . "/" . $index++)) {
                                             http_response_code(200);
                                             die($reject = '{
                                                 "status": "424",
@@ -106,35 +112,34 @@ class Property extends BaseController {
                                         }
                                     }
                                 } else throw new Exception("Permission Denied. Server side failure.");
-                            }//End of save images
+                            } //End of save images
                             http_response_code(201);
                             echo $resolve = '{
                                 "action": "true",
+                                "propertyId": "' . $id . '",
                                 "message": "The advertisement saved successfully."
                             }
                             ';
                         } else throw new Exception("Authentication failed. Unauthorized request.");
 
-                    break;
+                        break;
 
-                case 'get':
-                    $userId = $this->secureParams['userId'];
-                    $token = $this->secureParams['token'];
-                    if($this->authenticateUser($userId, $token)) {
-                        $stmt = DB::execute(PropertyModel::get('*', ("_id = '" . $this->secureParams['propertyId'] . "'")));
-                        http_response_code(200);
-                        echo json_encode($stmt->fetch());
-                    } else throw new Exception("Authentication failed. Unauthorized request.");
+                    case 'get':
+                        $userId = $this->secureParams['userId'];
+                        $token = $this->secureParams['token'];
+                        if ($this->authenticateUser($userId, $token)) {
+                            $stmt = DB::execute(PropertyModel::get('*', ("_id = '" . $this->secureParams['propertyId'] . "'")));
+                            http_response_code(200);
+                            echo json_encode($stmt->fetch());
+                        } else throw new Exception("Authentication failed. Unauthorized request.");
 
-                    break;
-                default:
-                    throw new Exception("Invalid parameter");
-                }//End of the switch
+                        break;
+                    default:
+                        throw new Exception("Invalid parameter");
+                } //End of the switch
 
             } else throw new Exception("Invalid request.No parameters given");
-
-
-        } catch(Exception $err) {
+        } catch (Exception $err) {
             http_response_code(200);
             die($reject = '{
                 "status": "500",
@@ -143,29 +148,29 @@ class Property extends BaseController {
                 }
             }');
         }
-            
-    }//End of POST
+    } //End of POST
 
     // Check if a directory exits or, create new directory
-    private function makeDir($path,$mode, $recursive) {
-         return is_dir($path) || mkdir($path, $mode, $recursive);
+    private function makeDir($path, $mode, $recursive)
+    {
+        return is_dir($path) || mkdir($path, $mode, $recursive);
     }
 
     // Save base64 immage to as a file
-    private function base64ToImage($base64, $file) {
+    private function base64ToImage($base64, $file)
+    {
 
         // split the string on commas
-        $data = explode( ',', $base64 );//$data[ 1 ] == <actual base64 string>
+        $data = explode(',', $base64); //$data[ 1 ] == <actual base64 string>
 
         // RegX to get extention
         $regx = '/(?<=\/)(.*?)(?=;)/'; //$data[ 0 ] == "data:image/png;base64"
         preg_match($regx, $data[0], $matches);
 
         $extention = $matches[0];
-    
-        // Save file
-        if(file_put_contents($file . "." . $extention, base64_decode($data[1]))) return true;
-        return false; 
-    }
 
+        // Save file
+        if (file_put_contents($file . "." . $extention, base64_decode($data[1]))) return true;
+        return false;
+    }
 }//End of Class
