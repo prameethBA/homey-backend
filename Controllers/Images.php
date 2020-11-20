@@ -83,7 +83,10 @@ class Images extends BaseController
                                 } //End of save images
                                 break;
                             case 'get':
-                                $path  = $_SERVER["DOCUMENT_ROOT"] . "/data/profileImages/" . $this->secureParams['userId'];
+                                if (isset($this->params[2]))
+                                    $path  = $_SERVER["DOCUMENT_ROOT"] . "/data/profileImages/" . $this->params[2];
+                                else
+                                    $path  = $_SERVER["DOCUMENT_ROOT"] . "/data/profileImages/" . $this->secureParams['userId'];
 
                                 if ($this->dirExits($path)) {
                                     $dir = new DirectoryIterator($path);
