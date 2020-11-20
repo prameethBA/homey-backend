@@ -51,12 +51,19 @@ class Feedback extends BaseController
                         switch ($this->params[1]) {
                             case 'all':
 
-                                $stmt = DB::execute(Feed::getAll('_id as id', "property_id='{$this->secureParams['propertyId']}'"));
+                                $stmt = DB::execute(Feed::get('_id as id', "property_id='{$this->secureParams['propertyId']}'"));
                                 http_response_code(201);
                                 echo json_encode($stmt->fetchAll());
                                 break;
                             default:
-                                $stmt = DB::execute(Feed::get('*', "_id='{$this->params[1]}'"));
+                                $data = [
+                                    'feedback.feedback as feedback',
+                                    'feedback.created as created',
+                                    'feedback.user_id as userId',
+                                    'user.first_name as firstName',
+                                    'user.last_name as lastName'
+                                ];
+                                $stmt = DB::execute(Feed::join($data, "LEFT JOIN user ON feedback.user_id=user._id WHERE feedback._id='{$this->params[1]}'"));
                                 http_response_code(201);
                                 echo json_encode($stmt->fetch());
                                 break;
