@@ -5,30 +5,37 @@ namespace Controllers;
 use Exception;
 
 require_once('Core/BaseController.php');
+
 use Core\BaseController as BaseController;
+
 require_once('Models/Login.php');
+
 use Models\Login as LoginModel;
+
 require_once('Core/DB/DB.php');
+
 use Core\DB\DB as DB;
 
-class Login extends BaseController {
+class Login extends BaseController
+{
 
-    public function __construct($params, $secureParams) {
+    public function __construct($params, $secureParams)
+    {
         parent::__construct($params, $secureParams);
         new LoginModel();
     }
 
-    public function get() {
+    public function get()
+    {
         try {
             $stmt = LoginModel::execute(LoginModel::getAll(['user_id', 'email', 'mobile']));
-            
+
             http_response_code(200);
             echo $resolve = '{
                 ' . json_encode($stmt->fetchAll()) . '
             }
             ';
-
-        } catch(Exception $err) {
+        } catch (Exception $err) {
             http_response_code(200);
             die($reject = '{
                 "status": "500",
@@ -36,26 +43,26 @@ class Login extends BaseController {
                 "message": "' . $err->getMessage() . '"
             }');
         }
-            
     }
 
     //Login method
-    public function post() {
+    public function post()
+    {
         $this->setAccessToken();
-
-    }//End of POST
+    } //End of POST
 
     //patch
-    public function patch() {
+    public function patch()
+    {
         try {
-            if(isset($this->params[0])) {
-                if(!$this->authenticate()) throw new Exception("Unauthorized request.");
+            if (isset($this->params[0])) {
+                if (!$this->authenticate()) throw new Exception("Unauthorized request.");
                 switch ($this->params[0]) {
                     case 'password':
                         $this->secureParams['password'] = $this->secureParams['old'];
                         $this->secureParams['userName'] = $this->secureParams['email'];
                         $newPassword = md5($this->secureParams['new']);
-                        if(!$this->userLogin()) throw new Exception("Current password is invalid!");
+                        if (!$this->userLogin()) throw new Exception("Current password is invalid!");
                         $stmt = DB::execute(LoginModel::update(['password' => $newPassword], ("user_id = '{$this->secureParams['userId']}'")));
                         http_response_code(201);
                         echo $resolve = '{
@@ -63,31 +70,31 @@ class Login extends BaseController {
                         }';
                         break;
 
-                    // case 'update':
-                    //     break;
-                    
+                        // case 'update':
+                        //     break;
+
                     default:
                         throw new Exception("Invalid Request");
                 }
             } else throw new Exception("Invalid Parmeters");
-
-        } catch(Exception $err) {
+        } catch (Exception $err) {
             http_response_code(200);
             die($reject = '{
                     "status": "500",
                     "error": "true",
                     "message": "' . $err->getMessage() . '"
             }');
-        }//End of try catch
-    }//End of patch
+        } //End of try catch
+    } //End of patch
 
     //Logout method
-    public function delete() {
+    public function delete()
+    {
         //Only clear the token when valid token was sent
-        if($this->validateLoggedUser()) {
+        if ($this->validateLoggedUser()) {
             $result = $this->state['result'];
 
-            DB::exec(LoginModel::update(['access_token' => ''], "user_id = {$result['user_id']}"));  
+            DB::exec(LoginModel::update(['access_token' => ''], "user_id = {$result['user_id']}"));
 
             http_response_code(204);
             echo $resolve = '{
@@ -102,29 +109,31 @@ class Login extends BaseController {
                 "message": "Invalid request with invalid parameters."
             }');
         }
-    }//End of DELETE
+    } //End of DELETE
 
 
     // Private methods
-    
+
     // Authenticate User 
-    private function authenticate() {
-        if(isset($this->secureParams['userId'], $this->secureParams['token'])) {
-            if($this->authenticateUser($this->secureParams['userId'], $this->secureParams['token'])) return true;
+    private function authenticate()
+    {
+        if (isset($this->secureParams['userId'], $this->secureParams['token'])) {
+            if ($this->authenticateUser($this->secureParams['userId'], $this->secureParams['token'])) return true;
             else return false;
         } else return false;
-    }//end of authenticateUser()
+    } //end of authenticateUser()
 
     // Login method for non logged user
-    private function userLogin() {
-        if(isset($this->secureParams['userName'], $this->secureParams['password'])) {
+    private function userLogin()
+    {
+        if (isset($this->secureParams['userName'], $this->secureParams['password'])) {
             $userName = $this->secureParams['userName'];
-            $password = md5($this->secureParams['password']);//Encode the password
+            $password = md5($this->secureParams['password']); //Encode the password
             $stmt = DB::execute(LoginModel::get(['user_id', 'email', 'user_status', 'user_type'], "(email='{$userName}' OR mobile='{$userName}') AND password='{$password}'"));
-            if($stmt->rowCount() == 1) {
+            if ($stmt->rowCount() == 1) {
                 $this->state['result'] = $stmt->fetch();
                 return true;
-            } elseif($stmt->rowCount() > 1) {
+            } elseif ($stmt->rowCount() > 1) {
                 http_response_code(200);
                 die($reject = '{
                     "status": "500",
@@ -139,21 +148,20 @@ class Login extends BaseController {
                     "message": "Login failed! <br> Invalid Email, Mobile or Password."
                 }');
             }
-        }
-        else return false;
-
-    }//End of userLogin()
+        } else return false;
+    } //End of userLogin()
 
     // validate already logged user with token and userName
-    private function validateLoggedUser() {
-        if(isset($this->secureParams['userId'], $this->secureParams['token'])) {
+    private function validateLoggedUser()
+    {
+        if (isset($this->secureParams['userId'], $this->secureParams['token'])) {
             $userId = $this->secureParams['userId'];
             $token = $this->secureParams['token'];
             $stmt = DB::execute(LoginModel::get(['user_id', 'email', 'access_token', 'user_status', 'user_type'], "access_token='{$token}' AND user_id='{$userId}'"));
-            if($stmt->rowCount() == 1) {
+            if ($stmt->rowCount() == 1) {
                 $this->state['result'] = $stmt->fetch();
                 return true;
-            } elseif($stmt->rowCount() > 1) {
+            } elseif ($stmt->rowCount() > 1) {
                 http_response_code(200);
                 die($reject = '{
                     "status": "500",
@@ -169,13 +177,13 @@ class Login extends BaseController {
                     "message": "Sign up before continue."
                 }');
             }
-        }
-        else return false;
-    }//End of the validateLoggedUser()
-    
-    private function checkUserStatus($userStatus) {
-        switch($userStatus) {
-            case 0: 
+        } else return false;
+    } //End of the validateLoggedUser()
+
+    private function checkUserStatus($userStatus)
+    {
+        switch ($userStatus) {
+            case 0:
                 http_response_code(200);
                 die($reject = '{
                     "status": "401",
@@ -184,7 +192,7 @@ class Login extends BaseController {
                 }');
                 break;
 
-            case 1: 
+            case 1:
                 return true;
                 break;
 
@@ -195,11 +203,12 @@ class Login extends BaseController {
                     "message": "Confirm the email address to activate account."
                 }');
                 break;
-        }//End of switch
-    }//End of checkUserStatus()
+        } //End of switch
+    } //End of checkUserStatus()
 
-    private function setAccessToken() {
-        if($this->validateLoggedUser() || $this->userLogin()) {
+    private function setAccessToken()
+    {
+        if ($this->validateLoggedUser() || $this->userLogin()) {
             $result = $this->state['result'];
             $payload = "{
                 id: " . $result['user_id'] . ",
@@ -208,20 +217,29 @@ class Login extends BaseController {
 
             $this->setToken($payload);
 
-            DB::exec(LoginModel::update(['access_token' => $this->getToken()], "user_id = {$result['user_id']}"));  
-
+            DB::exec(LoginModel::update(['access_token' => $this->getToken()], "user_id = {$result['user_id']}"));
+            $stmt = DB::execute(LoginModel::join(
+                [
+                    'login.user_id as userId',
+                    'login.email as email',
+                    'login.access_token as token',
+                    'login.user_status as status',
+                    'login.user_type as userType',
+                    'user.first_name as firstName',
+                    'user.last_name  as lastName',
+                ],
+                "INNER JOIN user ON login.user_id = user.user_id WHERE login.user_id={$result['user_id']}"
+            ));
             // Check the userStatus
-            if($this->checkUserStatus($result['user_status'])) {
+            if ($this->checkUserStatus($result['user_status'])) {
                 http_response_code(201);
                 echo $resolve = '{
                     "login": "true",
-                    "userType": "' . $result['user_type'] . '",
-                    "userId": "' . $result['user_id'] . '",
+                    "userData": ' . json_encode($stmt->fetch()) . ',
                     "token": "' . $this->getToken() . '",
                     "message": "Login Succesfull."
                 }';
             }
-
         } else {
             // unauthorized access attempts will be handle here +TODO
             http_response_code(200);
@@ -231,7 +249,4 @@ class Login extends BaseController {
             }');
         }
     }
-    
-
-
 }//End of the class
