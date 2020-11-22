@@ -152,6 +152,15 @@ class Property extends BaseController
                         }
 
                         break;
+                    case 'remove':
+                        DB::exec(PropertyModel::delete("_id = '{$this->secureParams['propertyId']}'"));
+                        DB::exec(PropertySettings::delete("property_id = '{$this->secureParams['propertyId']}'"));
+                        http_response_code(200);
+                        echo $resolve = '{
+                                    "status": "204",
+                                    "message": "Property Removed"
+                                }';
+                        break;
                     default:
                         throw new Exception("Invalid parameter");
                 } //End of the switch
@@ -163,7 +172,6 @@ class Property extends BaseController
                 "status": "500",
                 "error": "true",
                 "message": "' . $err->getMessage() . '"
-                }
             }');
         }
     } //End of POST
@@ -225,7 +233,6 @@ class Property extends BaseController
             }');
         } //End of try catch
     } //End of patch
-
 
     // Private methods
 
