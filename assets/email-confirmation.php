@@ -188,7 +188,7 @@ $message = '<!DOCTYPE html>
                     <table border="0" cellpadding="0" cellspacing="0">
                       <tr>
                         <td align="center" bgcolor="#1a82e2" style="border-radius: 6px;">
-                          <a href="http://homeylk.tk/confirm?id=' . base64_encode($userId) . '&hash=' . $hash . '" target="_blank" style="display: inline-block; padding: 16px 36px; font-family: \'Source Sans Pro\', Helvetica, Arial, sans-serif; font-size: 16px; color: #ffffff; text-decoration: none; border-radius: 6px;">Confirm</a>
+                          <a href="https://homey.lk/confirm?id=' . base64_encode($userId) . '&hash=' . $hash . '" target="_blank" style="display: inline-block; padding: 16px 36px; font-family: \'Source Sans Pro\', Helvetica, Arial, sans-serif; font-size: 16px; color: #ffffff; text-decoration: none; border-radius: 6px;">Confirm</a>
                         </td>
                       </tr>
                     </table>
@@ -203,7 +203,7 @@ $message = '<!DOCTYPE html>
           <tr>
             <td align="left" bgcolor="#ffffff" style="padding: 24px; font-family: \'Source Sans Pro\', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px;">
               <p style="margin: 0;">If that doesn\'t work, copy and paste the following link in your browser:</p>
-              <p style="margin: 0;"><a href="http://homeylk.tk/confirm?id=' . base64_encode($userId) . '&hash=' . $hash . '" target="_blank">http://homeylk.tk/confirm?id=' . base64_encode($userId) . '&hash=' . $hash . '</a></p>
+              <p style="margin: 0;"><a href="https://homey.lk/confirm?id=' . base64_encode($userId) . '&hash=' . $hash . '" target="_blank">https://homey.lk/confirm?id=' . base64_encode($userId) . '&hash=' . $hash . '</a></p>
             </td>
           </tr>
           <!-- end copy -->

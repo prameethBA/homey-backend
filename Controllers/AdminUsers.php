@@ -61,6 +61,7 @@ class AdminUsers extends BaseController
 
                         $stmt = DB::execute(Login::join(
                             [
+                                'user.user_id as id',
                                 'login.email',
                                 'login.mobile',
                                 'login.user_status as status',
