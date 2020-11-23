@@ -37,7 +37,8 @@ class Property extends BaseController
             if (isset($this->params[0])) {
                 switch ($this->params[0]) {
                     case 'all':
-                        $stmt = DB::execute(PropertyModel::getAll(['_id', 'title', 'price', 'description'], (int)$this->params[1], (int)$this->params[1] * (int)$this->params[2]));
+                        $stmt = DB::execute(PropertyModel::join('*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.privated = 0")));
+                        // $stmt = DB::execute(PropertyModel::get(['_id', 'title', 'price', 'description'], (int)$this->params[1], (int)$this->params[1] * (int)$this->params[2]));
                         http_response_code(200);
                         echo $resolve = json_encode($stmt->fetchAll());
                         break;
