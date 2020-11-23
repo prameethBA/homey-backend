@@ -37,13 +37,13 @@ class Property extends BaseController
             if (isset($this->params[0])) {
                 switch ($this->params[0]) {
                     case 'all':
-                        $stmt = DB::execute(PropertyModel::join('*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.privated = 0")));
+                        $stmt = DB::execute(PropertyModel::join('*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.privated = 0 AND property.property_status = 1")));
                         // $stmt = DB::execute(PropertyModel::get(['_id', 'title', 'price', 'description'], (int)$this->params[1], (int)$this->params[1] * (int)$this->params[2]));
                         http_response_code(200);
                         echo $resolve = json_encode($stmt->fetchAll());
                         break;
                     case 'search':
-                        $stmt = DB::execute(PropertyModel::join('*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.title LIKE '%{$this->params[1]}%' OR property.description LIKE '%{$this->params[1]}%' AND property.privated = 0")));
+                        $stmt = DB::execute(PropertyModel::join('*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.title LIKE '%{$this->params[1]}%' OR property.description LIKE '%{$this->params[1]}%' AND property.privated = 0 AND property.property_status = 1")));
                         // $stmt = DB::execute(PropertyModel::get(['_id', 'title', 'price', 'description'], (int)$this->params[1], (int)$this->params[1] * (int)$this->params[2]));
                         http_response_code(200);
                         echo $resolve = json_encode($stmt->fetchAll());
