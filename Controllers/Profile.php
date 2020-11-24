@@ -5,27 +5,36 @@ namespace Controllers;
 use Exception;
 
 require_once('Core/BaseController.php');
+
 use Core\BaseController as BaseController;
+
 require_once('Models/Login.php');
+
 use Models\Login as Login;
+
 require_once('Models/User.php');
+
 use Models\User as User;
 
 require_once('Core/DB/DB.php');
+
 use Core\DB\DB as DB;
 
-class Profile extends BaseController {
+class Profile extends BaseController
+{
 
-    public function __construct($params, $secureParams) {
+    public function __construct($params, $secureParams)
+    {
         parent::__construct($params, $secureParams);
         new Login();
         new User();
     }
 
-    public function post() {
+    public function post()
+    {
         try {
-            if(isset($this->params[0])) {
-                if(!$this->authenticate()) throw new Exception("Unautherized request.");
+            if (isset($this->params[0])) {
+                if (!$this->authenticate()) throw new Exception("Unautherized request.");
                 switch ($this->params[0]) {
                     case 'info':
 
@@ -41,7 +50,7 @@ class Profile extends BaseController {
                             'district',
                             'dob',
                             'nic'
-                            ], ("user_id = '{$this->secureParams['userId']}'")));
+                        ], ("user_id = '{$this->secureParams['userId']}'")));
                         $userData = json_encode($stmt->fetch());
                         http_response_code(200);
                         echo $resolve = '{
@@ -54,7 +63,7 @@ class Profile extends BaseController {
 
                         $loginData = [
                             'email' => $this->secureParams['email'],
-                            'mobile' => $this->secureParams['mobile'],
+                            'mobile' => $this->secureParams['mobile'] == '' ? NULL : $this->secureParams['mobile'],
                         ];
 
                         $userData = [
@@ -76,29 +85,52 @@ class Profile extends BaseController {
                             "message" : "Profile update successfully"
                         }';
                         break;
-                    
+
+                    case 'validate':
+                        switch ($this->params[1]) {
+                            case 'mobile':
+                                $stmt = DB::execute(Login::get('mobile', ("user_id = '{$this->secureParams['userId']}'")));
+                                $mobile = $stmt->fetch()['mobile'];
+                                if ($mobile != NULL) {
+                                    $resolve = '{
+                                            "action":"true",
+                                            "mobile":"' . $mobile . '",
+                                            "message" : "Mobile number updated"
+                                        }';
+                                } else {
+                                    $resolve = '{
+                                            "action":"false",
+                                            "message" : "Mobile not number updated"
+                                        }';
+                                }
+                                http_response_code(200);
+                                echo $resolve;
+                                break;
+                        }
+                        break;
+
                     default:
                         throw new Exception("Invalid Request");
                 }
             } else throw new Exception("Invalid Parmeters");
-
-        } catch(Exception $err) {
+        } catch (Exception $err) {
             http_response_code(200);
             die($reject = '{
                     "status": "500",
                     "error": "true",
                     "message": "' . $err->getMessage() . '"
             }');
-        }//End of try catch
-            
-    }//End of post
+        } //End of try catch
+
+    } //End of post
 
     // Authenticate User 
-    private function authenticate() {
-        if(isset($this->secureParams['userId'], $this->secureParams['token'])) {
-            if($this->authenticateUser($this->secureParams['userId'], $this->secureParams['token'])) return true;
+    private function authenticate()
+    {
+        if (isset($this->secureParams['userId'], $this->secureParams['token'])) {
+            if ($this->authenticateUser($this->secureParams['userId'], $this->secureParams['token'])) return true;
             else return false;
         } else return false;
-    }//end of authenticateUser()
+    } //end of authenticateUser()
 
 }//End of Class
