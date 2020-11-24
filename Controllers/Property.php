@@ -17,6 +17,10 @@ require_once('Models/PropertySettings.php');
 
 use Models\PropertySettings as PropertySettings;
 
+require_once('Models/Favourite.php');
+
+use Models\Favourite as Favourite;
+
 require_once('Core/DB/DB.php');
 
 use Core\DB\DB as DB;
@@ -29,6 +33,7 @@ class Property extends BaseController
         parent::__construct($params, $secureParams);
         new PropertyModel();
         new PropertySettings();
+        new Favourite();
     }
 
     public function get()
@@ -168,6 +173,51 @@ class Property extends BaseController
                                     "status": "204",
                                     "message": "Property Removed"
                                 }';
+                        break;
+
+                    case 'favourite':
+                        switch ($this->params[1]) {
+                            case 'get':
+                                $stmt = DB::execute(Favourite::get('COUNT(_id) as count', ("user_id = {$this->secureParams['userId']} AND property_id = '{$this->secureParams['propertyId']}'")));
+
+                                http_response_code(200);
+                                echo ('{
+                                    "action": "' . $stmt->fetch()['count'] . '",
+                                    "message": "retived"
+                                }');
+                                break;
+
+                            case 'getAll':
+                                $userId = $this->secureParams['userId'];
+                                $token = $this->secureParams['token'];
+                                if ($this->authenticateUser($userId, $token)) {
+                                    $stmt = DB::execute(PropertyModel::join('*', ("INNER JOIN favourite  ON property._id = favourite.property_id WHERE NOT property.user_id = '" . $this->secureParams['userId'] . "'")));
+                                    http_response_code(200);
+                                    echo json_encode($stmt->fetchAll());
+                                } else throw new Exception("Authentication failed. Unauthorized request.");
+                                break;
+
+                            case 'add':
+                                $stmt = DB::execute(Favourite::save(['user_id' => $this->secureParams['userId'], 'property_id' => $this->secureParams['propertyId']]));
+                                http_response_code(200);
+                                echo ('{
+                                    "status": "204",
+                                    "message": "Added to favourite"
+                                }');
+                                break;
+
+                            case 'remove':
+                                $stmt = DB::execute(Favourite::delete(("property_id = '{$this->secureParams['propertyId']}' AND user_id = '{$this->secureParams['userId']}'")));
+                                http_response_code(200);
+                                echo ('{
+                                    "status": "204",
+                                    "message": "Remove from favourite"
+                                }');
+                                break;
+
+                            default:
+                                throw new Exception("Authentication failed. Unauthorized request.");
+                        }
                         break;
                     default:
                         throw new Exception("Invalid parameter");
