@@ -191,7 +191,7 @@ class Property extends BaseController
                                 $userId = $this->secureParams['userId'];
                                 $token = $this->secureParams['token'];
                                 if ($this->authenticateUser($userId, $token)) {
-                                    $stmt = DB::execute(PropertyModel::join('*', ("INNER JOIN favourite  ON property._id = favourite.property_id WHERE NOT property.user_id = '" . $this->secureParams['userId'] . "'")));
+                                    $stmt = DB::execute(PropertyModel::join('*', ("INNER JOIN favourite  ON property._id = favourite.property_id WHERE NOT property.user_id = '" . $this->secureParams['userId'] . "' AND favourite.user_id = '" . $this->secureParams['userId'] . "'")));
                                     http_response_code(200);
                                     echo json_encode($stmt->fetchAll());
                                 } else throw new Exception("Authentication failed. Unauthorized request.");
