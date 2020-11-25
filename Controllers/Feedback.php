@@ -12,6 +12,10 @@ require_once('Models/Feedback.php');
 
 use Models\Feedback as Feed;
 
+require_once('Models/Report.php');
+
+use Models\Report as Report;
+
 require_once('Core/DB/DB.php');
 
 use Core\DB\DB as DB;
@@ -23,6 +27,7 @@ class Feedback extends BaseController
     {
         parent::__construct($params, $secureParams);
         new Feed();
+        new Report();
     }
 
     public function post()
@@ -66,6 +71,33 @@ class Feedback extends BaseController
                                 $stmt = DB::execute(Feed::join($data, "LEFT JOIN user ON feedback.user_id=user._id WHERE feedback._id='{$this->params[1]}'"));
                                 http_response_code(201);
                                 echo json_encode($stmt->fetch());
+                                break;
+                        }
+                        break;
+
+                    case 'report':
+
+                        switch ($this->params[1]) {
+                            case 'save':
+
+                                $data = [
+                                    'user_id' => $this->secureParams['userId'],
+                                    'property_id' => $this->secureParams['propertyId'],
+                                    'reason' => $this->secureParams['reason'],
+                                    'message' => $this->secureParams['message']
+                                ];
+
+                                $stmt = DB::execute(Report::save($data));
+                                http_response_code(201);
+                                echo $reject = '{
+                                    "action": "true",
+                                    "message": "Property reported."
+                                }';
+                                break;
+                            case 'all':
+                                $stmt = DB::execute(Report::getAll());
+                                http_response_code(200);
+                                echo json_encode($stmt->fetchAll());
                                 break;
                         }
                         break;
