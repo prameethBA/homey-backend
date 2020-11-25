@@ -45,6 +45,7 @@ class AdminUsers extends BaseController
 
                         $stmt = DB::execute(Login::join(
                             [
+                                'user.user_id as userId',
                                 'login.email',
                                 'login.mobile',
                                 'login.user_status as status',
@@ -61,14 +62,14 @@ class AdminUsers extends BaseController
 
                         $stmt = DB::execute(Login::join(
                             [
-                                'user.user_id as id',
+                                'user.user_id as userId',
                                 'login.email',
                                 'login.mobile',
                                 'login.user_status as status',
                                 'user.first_name as firstName',
                                 'user.last_name as lastName'
                             ],
-                            (", user WHERE login.user_id = user.user_id AND login.user_type = 0")
+                            (", user WHERE login.user_id = user.user_id AND login.user_type = 1")
                         ));
                         http_response_code(200);
                         echo $resolve = json_encode($stmt->fetchAll());

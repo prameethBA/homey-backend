@@ -35,18 +35,18 @@ class AdminPropertyPreview extends BaseController
                         $data = [
                             'price',
                             'title',
-                            'rental_period',
-                            'key_money',
-                            'minimum_period',
-                            'available_from',
-                            'property_type_id',
+                            'rental_period as rentalPeriod',
+                            'key_money as keyMoney',
+                            'minimum_period as minimumPeriod',
+                            'available_from as availableFrom',
                             'description',
-                            'city_id',
                             'location',
                             'created',
-                            'user_id',
+                            'user_id userId',
                             'facilities',
                         ];
+                        // 'city_id',
+                        // 'property_type_id',
 
                         $stmt = DB::execute(Property::get($data, ("_id = '{$this->secureParams['id']}' AND property_status = 0")));
 
