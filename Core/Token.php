@@ -33,7 +33,6 @@ class Token {
         $header = $explodedToken[0];
         $payload = $explodedToken[1];
         // $signature = $explodedToken[2];
-
         $info = base64_encode($header) . "." . base64_encode($payload) . "." . sha1($this->SECRET);
         $tokenSignature = md5($info);
         $this->setToken($payload);
