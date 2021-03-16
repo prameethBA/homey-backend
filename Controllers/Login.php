@@ -4,19 +4,16 @@ namespace Controllers;
 
 use Exception;
 
-require_once('Core/BaseController.php');
+require_once('Core/Controller.php');
+use Core\Controller as Controller;
 
-use Core\BaseController as BaseController;
-
-require_once('Models/Login.php');
-
-use Models\Login as LoginModel;
+require_once('Core/Model.php');
+use Core\Model as Model;
 
 require_once('Core/DB/DB.php');
-
 use Core\DB\DB as DB;
 
-class Login extends BaseController
+class Login extends Controller
 {
 
     public function __construct($params, $secureParams)
