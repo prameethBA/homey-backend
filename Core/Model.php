@@ -9,11 +9,13 @@ require_once('DB/DB.php');
 
 use \Core\DB\DB as DB;
 
-class BaseModel extends DB
+class Model extends DB
 {
 
     protected static $table;
-    protected $schema = [];
+
+    //Schema is not essentiol for this appliucation case
+    // protected $schema = [];
 
     public static function getAll($select = '*', $limit = '', $offset = 0)
     {
