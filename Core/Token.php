@@ -15,14 +15,21 @@ class Token {
 
     private $payload;
     private $signature;
+    private $randomValue;
 
     private function setToken($info) {
         $this->token = md5($info . "." . $this->signature);
     }
 
+    private function randomToken() {
+        return time();
+    }
+
     protected function generateToken($payload){
         $this->payload = $payload;
-        $info = base64_encode($this->header) . "." . base64_encode($this->payload) . "." . sha1($this->SECRET);
+        $this->randomValue = randomToken();
+
+        $info = base64_encode($this->header) . "." . base64_encode($this->payload) . "." . sha1($this->SECRET . $this->randomValue);
         $this->signature = md5($info);
 
         //Setting up the token
@@ -33,12 +40,12 @@ class Token {
         return $this->token;
     }
 
-    protected function verifyToken($token) {
+    protected function verifyToken($token,$randomValue) {
         $explodedToken = explode(".",$token);
         $header = $explodedToken[0];
         $payload = $explodedToken[1];
         // $signature = $explodedToken[2];
-        $info = $header . "." . $payload . "." . sha1($this->SECRET);
+        $info = $header . "." . $payload . "." . sha1($this->SECRET . $randomValue);
         $tokenSignature = md5($info);
         $this->generateToken(base64_decode($payload));
 
