@@ -6,7 +6,7 @@ require_once('Token.php');
 
 use \Core\Token as Token;
 
-class BaseController extends Token {
+class Controller extends Token {
     
     protected $params = [];
     protected $secureParams = [];
