@@ -14,6 +14,10 @@ class Model extends DB
 
     protected $table;
 
+    function __construct($table) {
+        $this->table = $table;
+    }
+
     //Schema is not essential for this application case
     // protected $schema = [];
 

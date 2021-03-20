@@ -4,31 +4,29 @@ namespace Controllers;
 
 use Exception;
 
-require_once('Core/BaseController.php');
+require_once('Core/Controller.php');
+use Core\Controller as Controller;
 
-use Core\BaseController as BaseController;
-
-require_once('Models/Login.php');
-
-use Models\Login as LoginModel;
+require_once('Core/Model.php');
+use Core\Model as Model;
 
 require_once('Core/DB/DB.php');
-
 use Core\DB\DB as DB;
 
-class Login extends BaseController
+class Login extends Controller
 {
 
     public function __construct($params, $secureParams)
     {
         parent::__construct($params, $secureParams);
-        new LoginModel();
+        $this->login = new Model('login');
+        $this->login = new Model('login');
     }
 
     public function get()
     {
         try {
-            $stmt = LoginModel::execute(LoginModel::getAll(['user_id', 'email', 'mobile']));
+            $stmt = login::execute(login::getAll(['user_id', 'email', 'mobile']));
 
             http_response_code(200);
             echo $resolve = '{
@@ -63,7 +61,7 @@ class Login extends BaseController
                         $this->secureParams['userName'] = $this->secureParams['email'];
                         $newPassword = md5($this->secureParams['new']);
                         if (!$this->userLogin()) throw new Exception("Current password is invalid!");
-                        $stmt = DB::execute(LoginModel::update(['password' => $newPassword], ("user_id = '{$this->secureParams['userId']}'")));
+                        $stmt = DB::execute(login::update(['password' => $newPassword], ("user_id = '{$this->secureParams['userId']}'")));
                         http_response_code(201);
                         echo $resolve = '{
                             "message": "Password has been changed."
@@ -94,7 +92,7 @@ class Login extends BaseController
         if ($this->validateLoggedUser()) {
             $result = $this->state['result'];
 
-            DB::exec(LoginModel::update(['access_token' => ''], "user_id = {$result['user_id']}"));
+            DB::exec(login::update(['access_token' => ''], "user_id = {$result['user_id']}"));
 
             http_response_code(204);
             echo $resolve = '{
@@ -129,7 +127,7 @@ class Login extends BaseController
         if (isset($this->secureParams['userName'], $this->secureParams['password'])) {
             $userName = $this->secureParams['userName'];
             $password = md5($this->secureParams['password']); //Encode the password
-            $stmt = DB::execute(LoginModel::get(['user_id', 'email', 'user_status', 'user_type'], "(email='{$userName}' OR mobile='{$userName}') AND password='{$password}'"));
+            $stmt = DB::execute(login::get(['user_id', 'email', 'user_status', 'user_type'], "(email='{$userName}' OR mobile='{$userName}') AND password='{$password}'"));
             if ($stmt->rowCount() == 1) {
                 $this->state['result'] = $stmt->fetch();
                 return true;
@@ -157,7 +155,7 @@ class Login extends BaseController
         if (isset($this->secureParams['userId'], $this->secureParams['token'])) {
             $userId = $this->secureParams['userId'];
             $token = $this->secureParams['token'];
-            $stmt = DB::execute(LoginModel::get(['user_id', 'email', 'access_token', 'user_status', 'user_type'], "access_token='{$token}' AND user_id='{$userId}'"));
+            $stmt = DB::execute(login::get(['user_id', 'email', 'access_token', 'user_status', 'user_type'], "access_token='{$token}' AND user_id='{$userId}'"));
             if ($stmt->rowCount() == 1) {
                 $this->state['result'] = $stmt->fetch();
                 return true;
@@ -217,8 +215,8 @@ class Login extends BaseController
 
             $this->setToken($payload);
 
-            DB::exec(LoginModel::update(['access_token' => $this->getToken()], "user_id = {$result['user_id']}"));
-            $stmt = DB::execute(LoginModel::join(
+            DB::exec(login::update(['access_token' => $this->getToken()], "user_id = {$result['user_id']}"));
+            $stmt = DB::execute(login::join(
                 [
                     'login.user_id as userId',
                     'login.email as email',

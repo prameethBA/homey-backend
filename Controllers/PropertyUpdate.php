@@ -17,9 +17,9 @@ require_once('Models/ServiceFees.php');
 
 use Models\ServiceFees as ServiceFees;
 
-require_once('Models/PropertySettings.php');
+require_once('Models/PropertyUpdate.php');
 
-use Models\PropertySettings as PropertySettings;
+use Models\PropertyUpdate as PropertyUpdateModel;
 
 require_once('Models/Favourite.php');
 
@@ -37,7 +37,7 @@ class PropertyUpdate extends BaseController
         parent::__construct($params, $secureParams);
         new PropertyModel();
         new ServiceFees();
-        // new PropertySettings();
+        new PropertyUpdateModel();
         // new Favourite();
     }
 
@@ -149,8 +149,9 @@ class PropertyUpdate extends BaseController
                     case 'add':
                         $userId = $this->secureParams['userId'];
                         $token = $this->secureParams['token'];
+                        $propertyId = $this->secureParams['propertyId'];
                         if ($this->authenticateUser($userId, $token)) {
-                            $stmt = DB::execute(PropertyModel::get('key_money as keyMoney, title', ("_id = '" . $this->secureParams['propertyId'] . "'")));
+                            $stmt = DB::execute(PropertyModel::get('key_money as keyMoney, title', ("_id = '" . $propertyId . "'")));
                             
                             $results = $stmt->fetch();
 
@@ -159,11 +160,34 @@ class PropertyUpdate extends BaseController
                             
                             $stmt = DB::execute(ServiceFees::get('fee', ("service = 'reserve'")));
                             $result['fee'] = $stmt->fetch()['fee'];
+
+                            $stmt = DB::execute(PropertyUpdateModel::get( "user_id", "property_id ='" . $propertyId . "' user_id =" . $userId));
+                            if($stmt->rowCount() == 0) DB::execute(PropertyUpdateModel::save(['property_id' => $propertyId, 'user_id' => $userId]));
+                            else if($stmt->rowCount() == 1) DB::execute(PropertyUpdateModel::update('created = CURRENT_TIMESTAMP', "property_id = '" . $propertyId . "' AND user_id ='" . $userId ."'"));
+
+                            $stmt = DB::execute(PropertyUpdateModel::get('COUNT(property_id) as count', ("property_id = '" . $propertyId . "'")));
+                            $result['userCount'] = $stmt->fetch()['count'];
+
                             http_response_code(200);
                             echo json_encode($result);
                         } else throw new Exception("Authentication failed. Unauthorized request.");
                         break;
 
+                        case 'remove':
+                            $userId = $this->secureParams['userId'];
+                            $token = $this->secureParams['token'];
+                            $propertyId = $this->secureParams['propertyId'];
+                            if ($this->authenticateUser($userId, $token)) {
+                                $stmt = DB::exec(PropertyUpdateModel::delete("property_id = '" . $propertyId . "' AND user_id ='" . $userId ."'"));
+                                http_response_code(200);
+                                
+                                echo '{
+                                    "action":"true",
+                                    "message":"removed"
+                                }';
+                            } else throw new Exception("Authentication failed. Unauthorized request.");
+                            break;
+    
 
                     default:
                         throw new Exception("Invalid parameter");
@@ -179,64 +203,6 @@ class PropertyUpdate extends BaseController
             }');
         }
     } //End of POST
-
-
-    //patch
-    public function patch()
-    {
-        try {
-            if (isset($this->params[0])) {
-                if (!$this->authenticate()) throw new Exception("Unauthorized request.");
-                switch ($this->params[0]) {
-                    case 'settings':
-                        $data = [
-                            'property_id' => $this->secureParams['propertyId'],
-                            'boost' => (bool)$this->secureParams['boost'] ? 1 : 0,
-                            'schedule' => (bool)$this->secureParams['schedule'] ? 1 : 0,
-                            'schedule_date' => $this->secureParams['scheduleDate'],
-                            'schedule_time' => $this->secureParams['scheduleTime'],
-                            'sharing' => (bool)$this->secureParams['sharing'] ? 1 : 0,
-                        ];
-                        DB::execute(PropertySettings::save($data));
-                        DB::execute(PropertyModel::update(['privated' => (bool)$this->secureParams['privated'] ? 1 : 0], ("_id = '{$this->secureParams['propertyId']}'")));
-                        http_response_code(201);
-                        echo $resolve = '{
-                            "message": "Property Settings Applied."
-                        }';
-                        break;
-
-                    case 'online-payment':
-
-                        DB::exec(PropertySettings::update(['accept_online_payment' => (int)$this->secureParams['onlinePayment']], ("property_id = '{$this->secureParams['propertyId']}'")));
-                        http_response_code(200);
-                        echo $resolve = '{
-                                "status": "204",
-                                "message": "Updated"
-                            }';
-                        break;
-
-                    case 'visibility':
-
-                        DB::exec(PropertyModel::update(['privated' => (int)$this->secureParams['visibility']], ("_id = '{$this->secureParams['propertyId']}'")));
-                        http_response_code(200);
-                        echo $resolve = '{
-                                    "status": "204",
-                                    "message": "Updated"
-                                }';
-                        break;
-                    default:
-                        throw new Exception("Invalid Request");
-                }
-            } else throw new Exception("Invalid Parmeters");
-        } catch (Exception $err) {
-            http_response_code(200);
-            die($reject = '{
-                    "status": "500",
-                    "error": "true",
-                    "message": "' . $err->getMessage() . '"
-            }');
-        } //End of try catch
-    } //End of patch
 
     // Private methods
 
@@ -255,21 +221,4 @@ class PropertyUpdate extends BaseController
         return is_dir($path) || mkdir($path, $mode, $recursive);
     }
 
-    // Save base64 immage to as a file
-    private function base64ToImage($base64, $file)
-    {
-
-        // split the string on commas
-        $data = explode(',', $base64); //$data[ 1 ] == <actual base64 string>
-
-        // RegX to get extention
-        $regx = '/(?<=\/)(.*?)(?=;)/'; //$data[ 0 ] == "data:image/png;base64"
-        preg_match($regx, $data[0], $matches);
-
-        $extention = $matches[0];
-
-        // Save file
-        if (file_put_contents($file . "." . $extention, base64_decode($data[1]))) return true;
-        return false;
-    }
 }//End of Class
