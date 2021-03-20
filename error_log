@@ -3,3 +3,16 @@
 [20-Mar-2021 04:48:28 America/New_York] PHP Notice:  Undefined variable: result in /home/homefbhr/api.homey.lk/Controllers/Images.php on line 101
 [20-Mar-2021 04:48:45 America/New_York] PHP Notice:  Undefined variable: keys in /home/homefbhr/api.homey.lk/Core/BaseModel.php on line 86
 [20-Mar-2021 04:48:45 America/New_York] PHP Notice:  Undefined variable: values in /home/homefbhr/api.homey.lk/Core/BaseModel.php on line 88
+[20-Mar-2021 05:04:26 America/New_York] PHP Notice:  Undefined variable: result in /home/homefbhr/api.homey.lk/Controllers/Images.php on line 101
+[20-Mar-2021 05:11:17 America/New_York] PHP Notice:  Trying to access array offset on value of type bool in /home/homefbhr/api.homey.lk/Controllers/Payment.php on line 112
+[20-Mar-2021 05:11:17 America/New_York] PHP Notice:  Trying to access array offset on value of type bool in /home/homefbhr/api.homey.lk/Controllers/Payment.php on line 113
+[20-Mar-2021 05:33:32 America/New_York] PHP Notice:  Trying to access array offset on value of type bool in /home/homefbhr/api.homey.lk/Controllers/Payment.php on line 112
+[20-Mar-2021 05:33:32 America/New_York] PHP Notice:  Trying to access array offset on value of type bool in /home/homefbhr/api.homey.lk/Controllers/Payment.php on line 113
+[20-Mar-2021 05:33:58 America/New_York] PHP Notice:  Trying to access array offset on value of type bool in /home/homefbhr/api.homey.lk/Controllers/Payment.php on line 112
+[20-Mar-2021 05:33:58 America/New_York] PHP Notice:  Trying to access array offset on value of type bool in /home/homefbhr/api.homey.lk/Controllers/Payment.php on line 113
+[20-Mar-2021 05:35:29 America/New_York] PHP Notice:  Undefined variable: result in /home/homefbhr/api.homey.lk/Controllers/Images.php on line 101
+[20-Mar-2021 05:35:58 America/New_York] PHP Notice:  Undefined variable: keys in /home/homefbhr/api.homey.lk/Core/BaseModel.php on line 86
+[20-Mar-2021 05:35:58 America/New_York] PHP Notice:  Undefined variable: values in /home/homefbhr/api.homey.lk/Core/BaseModel.php on line 88
+[20-Mar-2021 05:36:06 America/New_York] PHP Notice:  Undefined variable: result in /home/homefbhr/api.homey.lk/Controllers/Images.php on line 101
+[20-Mar-2021 05:36:08 America/New_York] PHP Notice:  Undefined variable: result in /home/homefbhr/api.homey.lk/Controllers/Images.php on line 101
+[20-Mar-2021 05:46:13 America/New_York] PHP Fatal error:  Cannot declare class Controllers\PropertyUpdate because the name is already in use in /home/homefbhr/api.homey.lk/Controllers/PropertyUpdate.php on line 32

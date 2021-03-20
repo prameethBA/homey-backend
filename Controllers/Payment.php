@@ -65,12 +65,6 @@ class Payment extends BaseController
     {
         try {
             if (isset($this->params[0])) {
-                if ($this->params[0] == 'notify') {
-                    $fp = fopen('/data.txt', 'a'); //opens file in append mode  
-                    fwrite($fp, ' this is additional text ');
-                    fwrite($fp, 'appending data');
-                    fclose($fp);
-                }
                 if (!$this->authenticate()) throw new Exception("Unautherized request.");
                 switch ($this->params[0]) {
                     case 'request':
@@ -130,6 +124,14 @@ class Payment extends BaseController
                             http_response_code(200);
                             echo (json_encode($result));
                         }
+                        break;
+
+                    case 'notify':
+                        $fp = fopen('/data.txt', 'a'); //opens file in append mode  
+                        fwrite($fp, ' this is additional text ');
+                        fwrite($fp, 'appending data');
+                        fclose($fp);
+
                         break;
 
                     default:
