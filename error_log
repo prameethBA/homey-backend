@@ -1,0 +1,5 @@
+[20-Mar-2021 04:46:19 America/New_York] PHP Notice:  Trying to access array offset on value of type bool in /home/homefbhr/api.homey.lk/Controllers/PropertyUpdate.php on line 157
+[20-Mar-2021 04:46:19 America/New_York] PHP Notice:  Trying to access array offset on value of type bool in /home/homefbhr/api.homey.lk/Controllers/PropertyUpdate.php on line 158
+[20-Mar-2021 04:48:28 America/New_York] PHP Notice:  Undefined variable: result in /home/homefbhr/api.homey.lk/Controllers/Images.php on line 101
+[20-Mar-2021 04:48:45 America/New_York] PHP Notice:  Undefined variable: keys in /home/homefbhr/api.homey.lk/Core/BaseModel.php on line 86
+[20-Mar-2021 04:48:45 America/New_York] PHP Notice:  Undefined variable: values in /home/homefbhr/api.homey.lk/Core/BaseModel.php on line 88
