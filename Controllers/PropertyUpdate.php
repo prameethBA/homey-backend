@@ -19,7 +19,7 @@ use Models\ServiceFees as ServiceFees;
 
 require_once('Models/PropertyUpdate.php');
 
-use Models\PropertyUpdate as PropertyUpdate;
+use Models\PropertyUpdate as PropertyUpdateModel;
 
 require_once('Models/Favourite.php');
 
@@ -37,7 +37,7 @@ class PropertyUpdate extends BaseController
         parent::__construct($params, $secureParams);
         new PropertyModel();
         new ServiceFees();
-        new PropertyUpdate();
+        new PropertyUpdateModel();
         // new Favourite();
     }
 
@@ -161,13 +161,33 @@ class PropertyUpdate extends BaseController
                             $stmt = DB::execute(ServiceFees::get('fee', ("service = 'reserve'")));
                             $result['fee'] = $stmt->fetch()['fee'];
 
-                            DB::execute(PropertyUpdate::save(['property_id' => $propertyId, 'user_id' => $userId]));
+                            $stmt = DB::execute(PropertyUpdateModel::get( "user_id", "property_id ='" . $propertyId . "' user_id =" . $userId));
+                            if($stmt->rowCount() == 0) DB::execute(PropertyUpdateModel::save(['property_id' => $propertyId, 'user_id' => $userId]));
+                            else if($stmt->rowCount() == 1) DB::execute(PropertyUpdateModel::update('created = CURRENT_TIMESTAMP', "property_id = '" . $propertyId . "' AND user_id ='" . $userId ."'"));
+
+                            $stmt = DB::execute(PropertyUpdateModel::get('COUNT(property_id) as count', ("property_id = '" . $propertyId . "'")));
+                            $result['userCount'] = $stmt->fetch()['count'];
 
                             http_response_code(200);
                             echo json_encode($result);
                         } else throw new Exception("Authentication failed. Unauthorized request.");
                         break;
 
+                        case 'remove':
+                            $userId = $this->secureParams['userId'];
+                            $token = $this->secureParams['token'];
+                            $propertyId = $this->secureParams['propertyId'];
+                            if ($this->authenticateUser($userId, $token)) {
+                                $stmt = DB::exec(PropertyUpdateModel::delete("property_id = '" . $propertyId . "' AND user_id ='" . $userId ."'"));
+                                http_response_code(200);
+                                
+                                echo '{
+                                    "action":"true",
+                                    "message":"removed"
+                                }';
+                            } else throw new Exception("Authentication failed. Unauthorized request.");
+                            break;
+    
 
                     default:
                         throw new Exception("Invalid parameter");
