@@ -214,47 +214,46 @@ class Property extends BaseController
                                     "message": "Remove from favourite"
                                 }');
                                 break;
-
-                            case 'filter':
-                                //2nd switch
-                                switch ($this->params[2]) {
-
-                                    case 'own':
-                                        $userId = $this->secureParams['userId'];
-                                        $token = $this->secureParams['token'];
-                                        if (!$this->authenticateUser($userId, $token)) throw new Exception("Authentication failed. Unauthorized request.");
-                                            //filter filter option switch
-                                            switch ($this->params[3]) {
-                                                case 'boosted':
-                                                    $stmt = DB::execute(PropertyModel::join('*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.user_id = '{$userId}' AND propertysetting.boosted = 1 ORDER BY property.created DESC")));
-                                                    break;
-                                                case 'pending':
-                                                    $stmt = DB::execute(PropertyModel::join('*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.user_id = '{$userId}' AND property.property_status = 0 ORDER BY property.created DESC")));
-                                                    break;
-                                                case 'private':
-                                                    $stmt = DB::execute(PropertyModel::join('*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.user_id = '{$userId}' AND property.privated = 1 ORDER BY property.created DESC")));
-                                                    break;
-                                                case 'public':
-                                                    $stmt = DB::execute(PropertyModel::join('*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.user_id = '{$userId}' AND property.privated = 0 ORDER BY property.created DESC")));
-                                                    break;
-                                                case 'rejected':
-                                                    $stmt = DB::execute(PropertyModel::join('*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.user_id = '{$userId}' AND property.property_status = 2 ORDER BY property.created DESC")));
-                                                    break;
-                                                case 'blocked':
-                                                    $stmt = DB::execute(PropertyModel::join('*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.user_id = '{$userId}' AND property.property_status = 3 ORDER BY property.created DESC")));
-                                                    break;
-                                                default:
-                                                    $stmt = DB::execute(PropertyModel::join('*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.user_id = '{$userId}' ORDER BY property.created DESC")));
-                                                    break;
-                                            } //End of filter option switch
-                                        http_response_code(200);
-                                        echo json_encode($stmt->fetchAll());
-                                        break;
-                                } //End of second switch
-                                break;
                             default:
                                 throw new Exception("Authentication failed. Unauthorized request.");
                         }
+                        break;
+                    case 'filter':
+                        //2nd switch
+                        switch ($this->params[2]) {
+
+                            case 'own':
+                                $userId = $this->secureParams['userId'];
+                                $token = $this->secureParams['token'];
+                                if (!$this->authenticateUser($userId, $token)) throw new Exception("Authentication failed. Unauthorized request.");
+                                //filter filter option switch
+                                switch ($this->params[3]) {
+                                    case 'boosted':
+                                        $stmt = DB::execute(PropertyModel::join('*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.user_id = '{$userId}' AND propertysetting.boosted = 1 ORDER BY property.created DESC")));
+                                        break;
+                                    case 'pending':
+                                        $stmt = DB::execute(PropertyModel::join('*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.user_id = '{$userId}' AND property.property_status = 0 ORDER BY property.created DESC")));
+                                        break;
+                                    case 'private':
+                                        $stmt = DB::execute(PropertyModel::join('*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.user_id = '{$userId}' AND property.privated = 1 ORDER BY property.created DESC")));
+                                        break;
+                                    case 'public':
+                                        $stmt = DB::execute(PropertyModel::join('*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.user_id = '{$userId}' AND property.privated = 0 ORDER BY property.created DESC")));
+                                        break;
+                                    case 'rejected':
+                                        $stmt = DB::execute(PropertyModel::join('*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.user_id = '{$userId}' AND property.property_status = 2 ORDER BY property.created DESC")));
+                                        break;
+                                    case 'blocked':
+                                        $stmt = DB::execute(PropertyModel::join('*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.user_id = '{$userId}' AND property.property_status = 3 ORDER BY property.created DESC")));
+                                        break;
+                                    default:
+                                        $stmt = DB::execute(PropertyModel::join('*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.user_id = '{$userId}' ORDER BY property.created DESC")));
+                                        break;
+                                } //End of filter option switch
+                                http_response_code(200);
+                                echo json_encode($stmt->fetchAll());
+                                break;
+                        } //End of second switch
                         break;
                     default:
                         throw new Exception("Invalid parameter");
