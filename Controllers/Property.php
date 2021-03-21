@@ -255,6 +255,27 @@ class Property extends BaseController
                                 break;
                         } //End of second switch
                         break;
+                        case 'reserved':
+                            switch ($this->params[1]) {
+                                case 'own':
+                                    $userId = $this->secureParams['userId'];
+                                    $token = $this->secureParams['token'];
+                                    if ($this->authenticateUser($userId, $token)) {
+                                        $stmt = DB::execute(PropertyModel::join('*', ("
+                                        p, propertysettings s, propertyreserved r  
+                                            WHERE p._id = s.property_id 
+                                            AND p._id = r.property_id
+                                            AND r.user_id = '${userId}' 
+                                        ")));
+                                        http_response_code(200);
+                                        echo json_encode($stmt->fetchAll());
+                                    } else throw new Exception("Authentication failed. Unauthorized request.");
+                                    break;
+
+                                default:
+                                    throw new Exception("Authentication failed. Unauthorized request.");
+                            }
+                            break;
                     default:
                         throw new Exception("Invalid parameter");
                 } //End of the switch

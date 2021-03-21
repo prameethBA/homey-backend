@@ -16,6 +16,10 @@ require_once('Models/Property.php');
 
 use Models\Property as Property;
 
+require_once('Models/PropertyReserved.php');
+
+use Models\PropertyReserved as PropertyReserved;
+
 require_once('Models/User.php');
 
 use Models\User as User;
@@ -26,7 +30,7 @@ use Core\DB\DB as DB;
 
 // require payment configurations
 require_once('Core/Config/PaymentGateway.php');
-
+  
 use Core\Config\PaymentGateway as PaymentGateway;
 
 class Payment extends BaseController
@@ -38,6 +42,7 @@ class Payment extends BaseController
         new PaymentModel();
         new Property();
         new User();
+        new PropertyReserved();
     }
 
     public function get()
@@ -123,7 +128,7 @@ class Payment extends BaseController
                             DB::execute(PaymentModel::save([
                                 'request' => json_encode($result),
                                 'order_id' => $result['order_id'],
-                                'payee_id' => $payeeId,
+                                'user_id' => $userId,
                                 'property_id' => $propertyId,
                                 'status_code' => 3
                             ]));
@@ -146,12 +151,20 @@ class Payment extends BaseController
                             'card_no' => $_POST['card_no'],
                             'card_expiry' => $_POST['card_expiry'],
                             'recurring' => $_POST['recurring'],
-                        ],"order_id = '{$_POST['order_id']}'"));
+                        ], "order_id = '{$_POST['order_id']}'"));
 
+                        $stmt = DB::execute(PaymentModel::get("user_id as userId", "order_id = '{$_POST['order_id']}'"));
 
+                        DB::execute(PropertyReserved::save([
+                            'property_id' => $_POST['custom_1'],
+                            'user_id' => $stmt->fetch()['userId']
+                        ]));
                         // $fp = fopen('data.txt', 'a'); //opens file in append mode  
                         // fwrite($fp, ' this is additional text');
-                        // fwrite($fp, json_encode($_POST));
+                        // fwrite($fp, PropertyReserved::save([
+                        //     'property_id' => $_POST['custom_2'],
+                        //     'user_id' => "(" . PaymentModel::get("user_id", "order_id = \"{$_POST['order_id']}\"") . ")"
+                        // ]));
                         // fclose($fp);
 
                         break;
