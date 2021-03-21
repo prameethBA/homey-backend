@@ -17,9 +17,11 @@ class Forum extends BaseModel{
     }
 
     public $schema = [
-        'forum_id',
-        'forum_details',
-        'time_stamp'
+        '_id',
+        'title',
+        'content',
+        'created',
+        'updated'
     ]; 
 
 }
