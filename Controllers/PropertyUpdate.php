@@ -161,7 +161,7 @@ class PropertyUpdate extends BaseController
                             $stmt = DB::execute(ServiceFees::get('fee', ("service = 'reserve'")));
                             $result['fee'] = $stmt->fetch()['fee'];
 
-                            $stmt = DB::execute(PropertyUpdateModel::get( "user_id", "property_id ='" . $propertyId . "' user_id =" . $userId));
+                            $stmt = DB::execute(PropertyUpdateModel::get( "user_id", "property_id ='" . $propertyId . "' AND user_id =" . $userId));
                             if($stmt->rowCount() == 0) DB::execute(PropertyUpdateModel::save(['property_id' => $propertyId, 'user_id' => $userId]));
                             else if($stmt->rowCount() == 1) DB::execute(PropertyUpdateModel::update('created = CURRENT_TIMESTAMP', "property_id = '" . $propertyId . "' AND user_id ='" . $userId ."'"));
 
