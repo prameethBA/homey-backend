@@ -163,7 +163,7 @@ class PropertyUpdate extends BaseController
 
                             $stmt = DB::execute(PropertyUpdateModel::get( "user_id", "property_id ='" . $propertyId . "' AND user_id =" . $userId));
                             if($stmt->rowCount() == 0) DB::execute(PropertyUpdateModel::save(['property_id' => $propertyId, 'user_id' => $userId]));
-                            else if($stmt->rowCount() == 1) DB::execute(PropertyUpdateModel::update('created = CURRENT_TIMESTAMP', "property_id = '" . $propertyId . "' AND user_id ='" . $userId ."'"));
+                            else if($stmt->rowCount() >= 1) DB::execute(PropertyUpdateModel::update(['created' => 'CURRENT_TIMESTAMP'], "property_id = '" . $propertyId . "' AND user_id ='" . $userId ."'"));
 
                             $stmt = DB::execute(PropertyUpdateModel::get('COUNT(property_id) as count', ("property_id = '" . $propertyId . "'")));
                             $result['userCount'] = $stmt->fetch()['count'];
@@ -195,7 +195,7 @@ class PropertyUpdate extends BaseController
 
             } else throw new Exception("Invalid request.No parameters given");
         } catch (Exception $err) {
-            http_response_code(200);
+            http_response_code(500);
             die($reject = '{
                 "status": "500",
                 "error": "true",
