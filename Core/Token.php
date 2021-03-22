@@ -3,6 +3,7 @@
 namespace Core;
 
 require_once('Core/Model.php');
+
 use Core\Model as Model;
 
 
@@ -47,42 +48,29 @@ class Token extends Model
         return $this->token;
     }
 
-    protected function verifyToken($token)
+    protected function verifyToken($token, $userId, $userType = '')
     {
         $explodedToken = explode(".", $token);
         $header = $explodedToken[0];
         $payload = $explodedToken[1];
-        // $signature = $explodedToken[2];
+        $signature = $explodedToken[2];
 
-        $info = base64_encode($header) . "." . base64_encode($payload) . "." . sha1($this->SECRET);
+        $stmt = static::execute(static::get('login', "access_token", "user_id=" . $userId . $userType));
+
+        $info = base64_encode($header) . "." . base64_encode($payload) . "." . sha1($this->SECRET . $stmt->fetch()['access_token']);
         $tokenSignature = md5($info);
-        $this->setToken($payload);
-
-        if ($this->token == $info . "." . $tokenSignature)
-            return true;
-        else
-            return false;
+        if ($signature == $tokenSignature) return true;
+        else return false;
     }
 
     protected function authenticateUser($userId, $token)
     {
-        require_once('Core/DB/DB.php');
-
-        $stmt = DB\DB::execute("SELECT user_id FROM login WHERE user_id = {$userId} AND access_token ='{$token}'");
-
-        if ($stmt->rowCount() == 1) return true;
-
-        return false;
+       return $this->verifyToken($userId, $token);
     }
 
     protected function authenticateAdmin($userId, $token)
     {
-        require_once('Core/DB/DB.php');
+        return $this->verifyToken($userId, $token, " AND  user_type=1");
 
-        $stmt = DB\DB::execute("SELECT user_id FROM login WHERE user_id = {$userId} AND access_token ='{$token}' AND user_type = 1");
-
-        if ($stmt->rowCount() == 1) return true;
-
-        return false;
     }
 }

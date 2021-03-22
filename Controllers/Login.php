@@ -6,9 +6,6 @@ use Exception;
 
 require_once('Core/Controller.php');
 
-// require_once('Core/Model.php');
-// use Core\Model as Model;
-
 use Core\Controller as Controller;
 
 
