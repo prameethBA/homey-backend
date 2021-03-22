@@ -43,7 +43,7 @@ class Forum extends BaseController
                         http_response_code(201);
                         echo $resolve = '{
                             "action": "true",
-                            "message": "comment saved"
+                            "message": "Post created"
                         }';
                         break;
                         /*

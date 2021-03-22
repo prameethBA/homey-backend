@@ -16,6 +16,10 @@ require_once('Models/Property.php');
 
 use Models\Property as Property;
 
+require_once('Models/PropertyReserved.php');
+
+use Models\PropertyReserved as PropertyReserved;
+
 require_once('Models/User.php');
 
 use Models\User as User;
@@ -26,7 +30,7 @@ use Core\DB\DB as DB;
 
 // require payment configurations
 require_once('Core/Config/PaymentGateway.php');
-
+  
 use Core\Config\PaymentGateway as PaymentGateway;
 
 class Payment extends BaseController
@@ -38,6 +42,7 @@ class Payment extends BaseController
         new PaymentModel();
         new Property();
         new User();
+        new PropertyReserved();
     }
 
     public function get()
@@ -65,10 +70,9 @@ class Payment extends BaseController
     {
         try {
             if (isset($this->params[0])) {
-                if (!$this->authenticate()) throw new Exception("Unautherized request.");
                 switch ($this->params[0]) {
                     case 'request':
-
+                        if (!$this->authenticate()) throw new Exception("Unautherized request.");
                         $userId = $this->secureParams['userId'];
                         $token = $this->secureParams['token'];
                         $propertyId = $this->secureParams['propertyId'];
@@ -121,16 +125,47 @@ class Payment extends BaseController
                             $result['amount'] = $amount;
                             $result['custom_1'] = $propertyId;
 
+                            DB::execute(PaymentModel::save([
+                                'request' => json_encode($result),
+                                'order_id' => $result['order_id'],
+                                'user_id' => $userId,
+                                'property_id' => $propertyId,
+                                'status_code' => 3
+                            ]));
+
                             http_response_code(200);
                             echo (json_encode($result));
                         }
                         break;
 
                     case 'notify':
-                        $fp = fopen('/data.txt', 'a'); //opens file in append mode  
-                        fwrite($fp, ' this is additional text ');
-                        fwrite($fp, 'appending data');
-                        fclose($fp);
+                        DB::execute(PaymentModel::update([
+                            'payment_id' => $_POST['payment_id'],
+                            'payhere_amount' => $_POST['payhere_amount'],
+                            'payhere_currency' => $_POST['payhere_currency'],
+                            'status_code' => $_POST['status_code'],
+                            'payment_type' => $_POST['custom_2'],
+                            'status_message' => $_POST['status_message'],
+                            'method' => $_POST['method'],
+                            'card_holder_name' => $_POST['card_holder_name'],
+                            'card_no' => $_POST['card_no'],
+                            'card_expiry' => $_POST['card_expiry'],
+                            'recurring' => $_POST['recurring'],
+                        ], "order_id = '{$_POST['order_id']}'"));
+
+                        $stmt = DB::execute(PaymentModel::get("user_id as userId", "order_id = '{$_POST['order_id']}'"));
+
+                        DB::execute(PropertyReserved::save([
+                            'property_id' => $_POST['custom_1'],
+                            'user_id' => $stmt->fetch()['userId']
+                        ]));
+                        // $fp = fopen('data.txt', 'a'); //opens file in append mode  
+                        // fwrite($fp, ' this is additional text');
+                        // fwrite($fp, PropertyReserved::save([
+                        //     'property_id' => $_POST['custom_2'],
+                        //     'user_id' => "(" . PaymentModel::get("user_id", "order_id = \"{$_POST['order_id']}\"") . ")"
+                        // ]));
+                        // fclose($fp);
 
                         break;
 
