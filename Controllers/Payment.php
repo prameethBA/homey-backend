@@ -20,6 +20,10 @@ require_once('Models/PropertyReserved.php');
 
 use Models\PropertyReserved as PropertyReserved;
 
+require_once('Models/PropertySettings.php');
+
+use Models\PropertySettings as PropertySettings;
+
 require_once('Models/User.php');
 
 use Models\User as User;
@@ -43,6 +47,7 @@ class Payment extends BaseController
         new Property();
         new User();
         new PropertyReserved();
+        new PropertySettings();
     }
 
     public function get()
@@ -159,6 +164,10 @@ class Payment extends BaseController
                             'property_id' => $_POST['custom_1'],
                             'user_id' => $stmt->fetch()['userId']
                         ]));
+
+                        DB::execute(PropertySettings::update([
+                            'reserved' => 1
+                        ], "property_id='{$_POST['custom_1']}'" ));
                         // $fp = fopen('data.txt', 'a'); //opens file in append mode  
                         // fwrite($fp, ' this is additional text');
                         // fwrite($fp, PropertyReserved::save([
