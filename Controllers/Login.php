@@ -15,7 +15,7 @@ class Login extends Controller
     public function GetAllUsers()
     {
         try {
-            $stmt = static::execute(static::getAll('login', ['user_id', 'email', 'mobile']));
+            $stmt = $this->execute($this->get('login', ['user_id', 'email', 'mobile']));
             $this->resolve(json_encode($stmt->fetchAll()));
             
         } catch (Exception $err) {
@@ -28,9 +28,44 @@ class Login extends Controller
     }
 
 
-    public function RequestLogin() {
+    public function RequestLogin($a,$param) {
         try {
-            //code...
+            $userName = $param['userName'];
+            $password = md5($param['password']); //Encode the password
+            $stmt = $this->execute($this->get('login', [
+                    'user_id as userId',
+                    'email', 
+                    'user_status as userStatus', 
+                    'user_type as userType'], 
+                 "(email='{$userName}' OR mobile='{$userName}') AND password='{$password}'"));
+            $rows = $stmt->rowCount(); 
+            $result = $stmt->fetch();
+            if($rows == 1) {
+                $payload = "{
+                                id: " . $result['userId'] . ",
+                                email: '" . $result['email'] . "'
+                            }";
+
+                $this->setToken($payload, $result['userId']);
+                
+                $result['token'] = $this->getToken();
+                $result['login'] = true;
+
+                $this->resolve(json_encode($result), 200);
+
+            } elseif ($stmt->rowCount() > 1) {
+                $this->reject('{
+                    "status": "500",
+                    "login": "false",
+                    "message": "Database error! Contact administration."
+                }', 200);
+            } else {
+                $this->reject('{
+                    "status": "404",
+                    "login": "false",
+                    "message": "Login failed! <br> Invalid Email, Mobile, Password or Blocked."
+                }', 200);
+            }
         } catch (Exception $err) {
             //throw $th;
         }
@@ -54,7 +89,7 @@ class Login extends Controller
 //                         $this->secureParams['userName'] = $this->secureParams['email'];
 //                         $newPassword = md5($this->secureParams['new']);
 //                         if (!$this->userLogin()) throw new Exception("Current password is invalid!");
-//                         $stmt = DB::execute(LoginModel::update(['password' => $newPassword], ("user_id = '{$this->secureParams['userId']}'")));
+//                         $stmt = static::execute(static::update('login', ['password' => $newPassword], ("user_id = '{$this->secureParams['userId']}'")));
 //                         http_response_code(201);
 //                         echo $resolve = '{
 //                             "message": "Password has been changed."
