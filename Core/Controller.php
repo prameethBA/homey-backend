@@ -6,7 +6,7 @@ require_once('Token.php');
 
 use \Core\Token as Token;
 
-class BaseController extends Token {
+class Controller extends Token {
     
     protected $params = [];
     protected $secureParams = [];
@@ -15,17 +15,17 @@ class BaseController extends Token {
     
     protected $state = [];
 
-    public function __construct($params, $secureParams) {
-        $this->params = $params;
-        $this->secureParams = $secureParams;
-    }
+    //echo resolve
+    protected function resolve($data, $status = 200 ) {
+        http_response_code($status);
+        echo $data;
+    }//end of echio resolve
 
-    public function get() {}
-    public function post() {}
-    public function put() {}
-    public function head() {}
-    public function delete() {}
-    public function patch() {}
+    //echo reject
+    protected function reject($data, $status = 500) {
+        http_response_code($status);
+        die($data);
+    }//end of rejecct
 
     // Generate unique key
 
