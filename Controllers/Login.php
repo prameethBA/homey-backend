@@ -27,6 +27,15 @@ class Login extends Controller
         }
     }
 
+
+    public function RequestLogin() {
+        try {
+            //code...
+        } catch (Exception $err) {
+            //throw $th;
+        }
+    }
+
 //     //Login method
 //     public function post()
 //     {
