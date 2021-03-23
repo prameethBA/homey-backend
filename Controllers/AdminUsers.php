@@ -21,7 +21,7 @@ class AdminUsers extends Controller
                 switch ($this->params[0]) {
                     case 'all-users':
 
-                        $stmt = DB::execute(Login::join(
+                        $stmt = $this->execute(Login::join(
                             [
                                 'user.user_id as userId',
                                 'login.email',
@@ -38,7 +38,7 @@ class AdminUsers extends Controller
 
                     case 'all-admins':
 
-                        $stmt = DB::execute(Login::join(
+                        $stmt = $this->execute(Login::join(
                             [
                                 'user.user_id as userId',
                                 'login.email',
@@ -55,7 +55,7 @@ class AdminUsers extends Controller
 
                     case 'get':
 
-                        $stmt = DB::execute(Login::join(
+                        $stmt = $this->execute(Login::join(
                             [
                                 'login.email',
                                 'login.mobile',
@@ -68,7 +68,7 @@ class AdminUsers extends Controller
 
                         $result['userData'] = $stmt->fetch();
 
-                        $stmt = DB::execute(Property::get(['_id', 'title', 'created'], ("user_id = {$this->secureParams['profile']} AND privated = 0")));
+                        $stmt = $this->execute($this->get('property',['_id', 'title', 'created'], ("user_id = {$this->secureParams['profile']} AND privated = 0")));
 
                         $result['ownPropertyData'] = $stmt->fetchAll();
 

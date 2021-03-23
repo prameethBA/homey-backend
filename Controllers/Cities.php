@@ -16,10 +16,10 @@ class Cities extends Controller {
     public function get() {
         try {
             if(isset($this->params[0], $this->params[1])) {
-                if($this->params[0] == 'districtId') $stmt = DB::execute(City::get(['_id', 'name_en as city'], ("district_id = {$this->params[1]}")));
+                if($this->params[0] == 'districtId') $stmt = $this->execute($this->get('city',['_id', 'name_en as city'], ("district_id = {$this->params[1]}")));
                 else throw new Exception("Invalid parameter");
             } else if(isset($this->params[0])) throw new Exception("Invalid parameter");
-            else $stmt = DB::execute(City::getAll(['_id', 'name_en as name']));
+            else $stmt = $this->execute($this->getAll('city',['_id', 'name_en as name']));
             
             http_response_code(200);
             echo $resolve = json_encode($stmt->fetchAll());
@@ -45,7 +45,7 @@ class Cities extends Controller {
                         $ltd = (double)$this->secureParams['ltd'];
                         $lng = (double)$this->secureParams['lng'];
 
-                        $stmt = DB::execute(City::getHaving(['district_id as district', 'name_en as city', '(6371 * ACOS(COS(RADIANS(' . $ltd . ')) * COS(RADIANS(latitude)) * COS(RADIANS(longitude) - RADIANS(' . $lng . ')) + SIN(RADIANS(' . $ltd . ')) * SIN(RADIANS(latitude)))) AS distance'], ("distance < 25 ORDER BY distance"), 5));
+                        $stmt = $this->execute($this->getHaving('city',['district_id as district', 'name_en as city', '(6371 * ACOS(COS(RADIANS(' . $ltd . ')) * COS(RADIANS(latitude)) * COS(RADIANS(longitude) - RADIANS(' . $lng . ')) + SIN(RADIANS(' . $ltd . ')) * SIN(RADIANS(latitude)))) AS distance'], ("distance < 25 ORDER BY distance"), 5));
 
                         http_response_code(200);
                         echo $resolve = json_encode($stmt->fetchAll());

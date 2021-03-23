@@ -34,7 +34,7 @@ class AdminPropertyPreview extends Controller
                         // 'city_id',
                         // 'property_type_id',
 
-                        $stmt = DB::execute(Property::get($data, ("_id = '{$this->secureParams['id']}' AND property_status = 0")));
+                        $stmt = $this->execute($this->get('property',$data, ("_id = '{$this->secureParams['id']}' AND property_status = 0")));
 
                         http_response_code(200);
                         echo $resolve = json_encode($stmt->fetch());
