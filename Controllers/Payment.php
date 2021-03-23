@@ -4,51 +4,18 @@ namespace Controllers;
 
 use Exception;
 
-require_once('Core/BaseController.php');
+require_once('Core/Controller.php');
 
-use Core\BaseController as BaseController;
-
-require_once('Models/Payment.php');
-
-use Models\Payment as PaymentModel;
-
-require_once('Models/Property.php');
-
-use Models\Property as Property;
-
-require_once('Models/PropertyReserved.php');
-
-use Models\PropertyReserved as PropertyReserved;
-
-require_once('Models/PropertySettings.php');
-
-use Models\PropertySettings as PropertySettings;
-
-require_once('Models/User.php');
-
-use Models\User as User;
-
-require_once('Core/DB/DB.php');
-
-use Core\DB\DB as DB;
+use Core\Controller as Controller;
 
 // require payment configurations
 require_once('Core/Config/PaymentGateway.php');
   
 use Core\Config\PaymentGateway as PaymentGateway;
 
-class Payment extends BaseController
+class Payment extends Controller
 {
 
-    public function __construct($params, $secureParams)
-    {
-        parent::__construct($params, $secureParams);
-        new PaymentModel();
-        new Property();
-        new User();
-        new PropertyReserved();
-        new PropertySettings();
-    }
 
     public function get()
     {
