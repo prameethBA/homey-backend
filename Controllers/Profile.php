@@ -4,31 +4,13 @@ namespace Controllers;
 
 use Exception;
 
-require_once('Core/BaseController.php');
+require_once('Core/Controller.php');
 
-use Core\BaseController as BaseController;
+use Core\Controller as Controller;
 
-require_once('Models/Login.php');
-
-use Models\Login as Login;
-
-require_once('Models/User.php');
-
-use Models\User as User;
-
-require_once('Core/DB/DB.php');
-
-use Core\DB\DB as DB;
-
-class Profile extends BaseController
+class Profile extends Controller
 {
 
-    public function __construct($params, $secureParams)
-    {
-        parent::__construct($params, $secureParams);
-        new Login();
-        new User();
-    }
 
     public function post()
     {
