@@ -5,41 +5,13 @@ namespace Controllers;
 use PDO;
 use Exception;
 
-require_once('Core/BaseController.php');
+require_once('Core/Controller.php');
 
-use Core\BaseController as BaseController;
+use Core\Controller as Controller;
 
-require_once('Models/Property.php');
-
-use Models\Property as PropertyModel;
-
-require_once('Models/ServiceFees.php');
-
-use Models\ServiceFees as ServiceFees;
-
-require_once('Models/PropertyUpdate.php');
-
-use Models\PropertyUpdate as PropertyUpdateModel;
-
-require_once('Models/Favourite.php');
-
-use Models\Favourite as Favourite;
-
-require_once('Core/DB/DB.php');
-
-use Core\DB\DB as DB;
-
-class PropertyUpdate extends BaseController
+class PropertyUpdate extends Controller
 {
 
-    public function __construct($params, $secureParams)
-    {
-        parent::__construct($params, $secureParams);
-        new PropertyModel();
-        new ServiceFees();
-        new PropertyUpdateModel();
-        // new Favourite();
-    }
 
     public function get()
     {
