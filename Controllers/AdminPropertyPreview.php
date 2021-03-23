@@ -36,8 +36,8 @@ class AdminPropertyPreview extends Controller
 
                         $stmt = $this->execute($this->get('property',$data, ("_id = '{$this->secureParams['id']}' AND property_status = 0")));
 
-                        http_response_code(200);
-                        echo $resolve = json_encode($stmt->fetch());
+                        $this->resolve(json_encode($stmt->fetch()),200);
+
                         break;
 
                     default:
@@ -45,12 +45,12 @@ class AdminPropertyPreview extends Controller
                 }
             } else throw new Exception("Invalid Parmeters");
         } catch (Exception $err) {
-            http_response_code(200);
-            die($reject = '{
-                    "status": "500",
-                    "error": "true",
-                    "message": "' . $err->getMessage() . '"
-            }');
+            $this->reject('{
+                "status": "500",
+                "error": "true",
+                "message": "' . $err->getMessage() . '"
+        }',200);
+
         } //End of try catch
 
     } //End of GET

@@ -21,28 +21,28 @@ class AdminPropertySummary extends Controller
                     case 'pending-approval':
                         $stmt = $this->execute($this->get('property',['_id', 'title', 'user_id', 'created'], ("property_status = 0 ORDER BY created")));
 
-                        http_response_code(200);
-                        echo $resolve = json_encode($stmt->fetchAll());
+                        $this->resolve(json_encode($stmt->fetchAll()),200);
                         break;
 
                     case 'approve':
                         $stmt = $this->execute($this->update('property',['property_status' => 1], ("_id = '{$this->secureParams['propertyId']}'")));
 
-                        http_response_code(200);
-                        echo $resolve = '{
-                            "status": "204",
-                            "message": "Approved"
-                    }';
+
+                    $this->resolve('{
+                        "status": "204",
+                        "message": "Approved"
+                }',200);
                         break;
 
                     case 'reject':
                         $stmt = $this->execute($this->update('property',['property_status' => 2], ("_id = '{$this->secureParams['propertyId']}'")));
 
-                        http_response_code(200);
-                        echo $resolve = '{
-                                "status": "204",
-                                "message": "Rejected"
-                        }';
+
+                        $this->resolve('{
+                            "status": "204",
+                            "message": "Rejected"
+                    }',200);
+
                         break;
 
                     default:
@@ -50,12 +50,13 @@ class AdminPropertySummary extends Controller
                 }
             } else throw new Exception("Invalid Parmeters");
         } catch (Exception $err) {
-            http_response_code(200);
-            die($reject = '{
-                    "status": "500",
-                    "error": "true",
-                    "message": "' . $err->getMessage() . '"
-            }');
+
+            $this->reject('{
+                "status": "500",
+                "error": "true",
+                "message": "' . $err->getMessage() . '"
+        }',200);
+
         } //End of try catch
 
     } //End of GET
