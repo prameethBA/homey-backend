@@ -102,9 +102,7 @@ class Payment extends Controller
                                 'property_id' => $propertyId,
                                 'status_code' => 3
                             ]));
-
-                            http_response_code(200);
-                            echo (json_encode($result));
+                            $this->resolve(json_encode($result),200);
                         }
                         break;
 
@@ -149,12 +147,12 @@ class Payment extends Controller
 
             } else throw new Exception("Invalid request.No parameters given");
         } catch (Exception $err) {
-            http_response_code(200);
-            die($reject = '{
+
+                $this->reject('{
                     "status": "500",
                     "error": "true",
                     "message": "' . $err->getMessage() . '"
-                }');
+                }',500);
         }
     } //End of POST
 

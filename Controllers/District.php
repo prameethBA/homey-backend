@@ -13,20 +13,19 @@ class District extends Controller {
     public function get() {
         try {
             $stmt = $this->execute($this->getAll('districts',['_id', 'name_en as district']));
-            http_response_code(200);
-            echo $resolve = '{
+           
+            $this->resolve('{
                 "data":' . json_encode($stmt->fetchAll()) . '
-            }
-            ';
+            }',200);
 
         } catch(Exception $err) {
-            http_response_code(500);
-            die($reject = '{
+
+            $this->reject('{
                 "data": {
                     "error": "true",
                     "message": "' . $err->getMessage() . '"
                 }
-            }');
+            }',500);
         }
             
     }//End of GET
