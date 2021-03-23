@@ -4,56 +4,21 @@ namespace Controllers;
 
 use Exception;
 
-require_once('Core/BaseController.php');
+require_once('Core/Controller.php');
 
-use Core\BaseController as BaseController;
-
-require_once('Models/Payment.php');
-
-use Models\Payment as PaymentModel;
-
-require_once('Models/Property.php');
-
-use Models\Property as Property;
-
-require_once('Models/PropertyReserved.php');
-
-use Models\PropertyReserved as PropertyReserved;
-
-require_once('Models/PropertySettings.php');
-
-use Models\PropertySettings as PropertySettings;
-
-require_once('Models/User.php');
-
-use Models\User as User;
-
-require_once('Core/DB/DB.php');
-
-use Core\DB\DB as DB;
+use Core\Controller as Controller;
 
 // require payment configurations
 require_once('Core/Config/PaymentGateway.php');
   
 use Core\Config\PaymentGateway as PaymentGateway;
 
-class Payment extends BaseController
+class Payment extends Controller
 {
-
-    public function __construct($params, $secureParams)
-    {
-        parent::__construct($params, $secureParams);
-        new PaymentModel();
-        new Property();
-        new User();
-        new PropertyReserved();
-        new PropertySettings();
-    }
-
     public function get()
     {
         // try {
-        //     $stmt = DB::execute(PaymentModel::getAll());
+        //     $stmt = $this->execute($this->getAll('payment'));
 
         //     http_response_code(200);
         //     echo $resolve = '{
@@ -87,12 +52,12 @@ class Payment extends BaseController
 
                             $result['order_id'] = 'reserve' . time();
 
-                            $stmt = DB::execute(Property::get('title, user_id as payee_id', ("_id = '" . $propertyId . "'")));
+                            $stmt = $this->execute($this->get('property','title, user_id as payee_id', ("_id = '" . $propertyId . "'")));
                             $resultSet = $stmt->fetch();
                             $result['items'] = 'Reserve: ' . $resultSet['title'];
                             $payeeId = $resultSet['payee_id'];
 
-                            $stmt = DB::execute(User::join('
+                            $stmt = $this->execute($this->join('user','
                                     user.first_name as first_name,
                                     user.last_name as last_name,
                                     login.email as email,
@@ -110,7 +75,7 @@ class Payment extends BaseController
                             $result['address'] = ($resultSet['address1'] != NULL) ? $resultSet['address1'] . ", " . $resultSet['address2'] . ", " . $resultSet['address3'] : "";
                             $result['city'] = $resultSet['city'];
 
-                            $stmt = DB::execute(User::get('
+                            $stmt = $this->execute($this->get('user','
                                     address1,
                                     address2,
                                     address3,
@@ -130,7 +95,7 @@ class Payment extends BaseController
                             $result['amount'] = $amount;
                             $result['custom_1'] = $propertyId;
 
-                            DB::execute(PaymentModel::save([
+                            $this->execute($this->save('payment',[
                                 'request' => json_encode($result),
                                 'order_id' => $result['order_id'],
                                 'user_id' => $userId,
@@ -144,7 +109,7 @@ class Payment extends BaseController
                         break;
 
                     case 'notify':
-                        DB::execute(PaymentModel::update([
+                        $this->execute($this->update(['payment',
                             'payment_id' => $_POST['payment_id'],
                             'payhere_amount' => $_POST['payhere_amount'],
                             'payhere_currency' => $_POST['payhere_currency'],
@@ -158,14 +123,14 @@ class Payment extends BaseController
                             'recurring' => $_POST['recurring'],
                         ], "order_id = '{$_POST['order_id']}'"));
 
-                        $stmt = DB::execute(PaymentModel::get("user_id as userId", "order_id = '{$_POST['order_id']}'"));
+                        $stmt = $this->execute($this->get('payment',"user_id as userId", "order_id = '{$_POST['order_id']}'"));
 
-                        DB::execute(PropertyReserved::save([
+                        $this->execute($this->save('propertyreserved',[
                             'property_id' => $_POST['custom_1'],
                             'user_id' => $stmt->fetch()['userId']
                         ]));
 
-                        DB::execute(PropertySettings::update([
+                        $this->execute($this->update('propertysettings',[
                             'reserved' => 1
                         ], "property_id='{$_POST['custom_1']}'" ));
                         // $fp = fopen('data.txt', 'a'); //opens file in append mode  

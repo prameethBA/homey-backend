@@ -5,41 +5,13 @@ namespace Controllers;
 use PDO;
 use Exception;
 
-require_once('Core/BaseController.php');
+require_once('Core/Controller.php');
 
-use Core\BaseController as BaseController;
+use Core\Controller as Controller;
 
-require_once('Models/Property.php');
-
-use Models\Property as PropertyModel;
-
-require_once('Models/ServiceFees.php');
-
-use Models\ServiceFees as ServiceFees;
-
-require_once('Models/PropertyUpdate.php');
-
-use Models\PropertyUpdate as PropertyUpdateModel;
-
-require_once('Models/Favourite.php');
-
-use Models\Favourite as Favourite;
-
-require_once('Core/DB/DB.php');
-
-use Core\DB\DB as DB;
-
-class PropertyUpdate extends BaseController
+class PropertyUpdate extends Controller
 {
 
-    public function __construct($params, $secureParams)
-    {
-        parent::__construct($params, $secureParams);
-        new PropertyModel();
-        new ServiceFees();
-        new PropertyUpdateModel();
-        // new Favourite();
-    }
 
     public function get()
     {
@@ -47,14 +19,14 @@ class PropertyUpdate extends BaseController
             if (isset($this->params[0])) {
                 // switch ($this->params[0]) {
                 //     case 'all':
-                //         $stmt = DB::execute(PropertyModel::join('*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.privated = 0 AND property.property_status = 1 ORDER BY property.created DESC")));
-                //         // $stmt = DB::execute(PropertyModel::get(['_id', 'title', 'price', 'description'], (int)$this->params[1], (int)$this->params[1] * (int)$this->params[2]));
+                //         $stmt = $this->execute($this->join('property','*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.privated = 0 AND property.property_status = 1 ORDER BY property.created DESC")));
+                //         // $stmt = $this->execute($this->get('property',['_id', 'title', 'price', 'description'], (int)$this->params[1], (int)$this->params[1] * (int)$this->params[2]));
                 //         http_response_code(200);
                 //         echo $resolve = json_encode($stmt->fetchAll());
                 //         break;
                 //     case 'search':
-                //         $stmt = DB::execute(PropertyModel::join('*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE (property.title LIKE '%{$this->params[1]}%' OR property.description LIKE '%{$this->params[1]}%') AND property.privated = 0 AND property.property_status = 1 ORDER BY property.created DESC")));
-                //         // $stmt = DB::execute(PropertyModel::get(['_id', 'title', 'price', 'description'], (int)$this->params[1], (int)$this->params[1] * (int)$this->params[2]));
+                //         $stmt = $this->execute($this->join('property','*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE (property.title LIKE '%{$this->params[1]}%' OR property.description LIKE '%{$this->params[1]}%') AND property.privated = 0 AND property.property_status = 1 ORDER BY property.created DESC")));
+                //         // $stmt = $this->execute($this->get('property',['_id', 'title', 'price', 'description'], (int)$this->params[1], (int)$this->params[1] * (int)$this->params[2]));
                 //         http_response_code(200);
                 //         echo $resolve = json_encode($stmt->fetchAll());
                 //         break;
@@ -87,21 +59,21 @@ class PropertyUpdate extends BaseController
                         $token = $this->secureParams['token'];
                         $propertyId = $this->secureParams['propertyId'];
                         if ($this->authenticateUser($userId, $token)) {
-                            $stmt = DB::execute(PropertyModel::get('key_money as keyMoney, title', ("_id = '" . $propertyId . "'")));
+                            $stmt = $this->execute($this->get('property','key_money as keyMoney, title', ("_id = '" . $propertyId . "'")));
                             
                             $results = $stmt->fetch();
 
                             $result['title'] = $results['title'];
                             $result['keyMoney'] = $results['keyMoney'];
                             
-                            $stmt = DB::execute(ServiceFees::get('fee', ("service = 'reserve'")));
+                            $stmt = $this->execute($this->get('servicefees','fee', ("service = 'reserve'")));
                             $result['fee'] = $stmt->fetch()['fee'];
 
-                            $stmt = DB::execute(PropertyUpdateModel::get( "user_id", "property_id ='" . $propertyId . "' AND user_id =" . $userId));
-                            if($stmt->rowCount() == 0) DB::execute(PropertyUpdateModel::save(['property_id' => $propertyId, 'user_id' => $userId]));
-                            else if($stmt->rowCount() >= 1) DB::execute(PropertyUpdateModel::update(['created' => 'CURRENT_TIMESTAMP'], "property_id = '" . $propertyId . "' AND user_id ='" . $userId ."'"));
+                            $stmt = $this->execute($this->get('propertyupdate',"user_id", "property_id ='" . $propertyId . "' AND user_id =" . $userId));
+                            if($stmt->rowCount() == 0) $this->execute($this->save('propertyupdate',['property_id' => $propertyId, 'user_id' => $userId]));
+                            else if($stmt->rowCount() >= 1) $this->execute($this->update('propertyupdate',['created' => 'CURRENT_TIMESTAMP'], "property_id = '" . $propertyId . "' AND user_id ='" . $userId ."'"));
 
-                            $stmt = DB::execute(PropertyUpdateModel::get('COUNT(property_id) as count', ("property_id = '" . $propertyId . "'")));
+                            $stmt = $this->execute($this->get('propertyupdate','COUNT(property_id) as count', ("property_id = '" . $propertyId . "'")));
                             $result['userCount'] = $stmt->fetch()['count'];
 
                             http_response_code(200);
@@ -114,7 +86,7 @@ class PropertyUpdate extends BaseController
                             $token = $this->secureParams['token'];
                             $propertyId = $this->secureParams['propertyId'];
                             if ($this->authenticateUser($userId, $token)) {
-                                $stmt = DB::exec(PropertyUpdateModel::delete("property_id = '" . $propertyId . "' AND user_id ='" . $userId ."'"));
+                                $stmt = $this->exec($this->delete('propertyupdate',"property_id = '" . $propertyId . "' AND user_id ='" . $userId ."'"));
                                 http_response_code(200);
                                 
                                 echo '{

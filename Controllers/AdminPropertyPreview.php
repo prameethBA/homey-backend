@@ -4,26 +4,12 @@ namespace Controllers;
 
 use Exception;
 
-require_once('Core/BaseController.php');
+require_once('Core/Controller.php');
 
-use Core\BaseController as BaseController;
+use Core\Controller as Controller;
 
-require_once('Models/Property.php');
-
-use Models\Property as Property;
-
-require_once('Core/DB/DB.php');
-
-use Core\DB\DB as DB;
-
-class AdminPropertyPreview extends BaseController
+class AdminPropertyPreview extends Controller
 {
-
-    public function __construct($params, $secureParams)
-    {
-        parent::__construct($params, $secureParams);
-        new Property();
-    }
 
     public function post()
     {
@@ -48,7 +34,7 @@ class AdminPropertyPreview extends BaseController
                         // 'city_id',
                         // 'property_type_id',
 
-                        $stmt = DB::execute(Property::get($data, ("_id = '{$this->secureParams['id']}' AND property_status = 0")));
+                        $stmt = $this->execute($this->get('property',$data, ("_id = '{$this->secureParams['id']}' AND property_status = 0")));
 
                         http_response_code(200);
                         echo $resolve = json_encode($stmt->fetch());
