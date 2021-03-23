@@ -4,17 +4,12 @@ namespace Controllers;
 
 use Exception;
 
-require_once('Core/BaseController.php');
-use Core\BaseController as BaseController;
+require_once('Core/Controller.php');
+use Core\Controller as Controller;
 
-require_once('Core/DB/DB.php');
-use Core\DB\DB as DB;
+class Dev extends Controller {
 
-class Dev extends BaseController {
-
-    public function __construct($params, $secureParams) {
-        parent::__construct($params, $secureParams);
-    }
+    
 
     public function get() {
         try {
