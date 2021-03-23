@@ -70,7 +70,7 @@ class Login extends Controller
                 }', 200);
             }
         } catch (Exception $err) {
-            $this->addLog("Login attempt failed", "login-attepmt-failed", $err->getMessage());
+            $this->addLog("Login attempt failed", "login-attepmt-failed", (string)$err->getMessage());
         }
     }
 
