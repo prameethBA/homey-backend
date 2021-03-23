@@ -34,11 +34,12 @@ class Profile extends Controller
                             'nic'
                         ], ("user_id = '{$this->secureParams['userId']}'")));
                         $userData = json_encode($stmt->fetch());
-                        http_response_code(200);
-                        echo $resolve = '{
+                        
+
+                        $this->resolve('{
                             "authData": ' . $authData . ',
                             "userData": ' . $userData . '
-                        }';
+                        }',200);
                         break;
 
                     case 'update':
@@ -62,10 +63,11 @@ class Profile extends Controller
 
                         $stmt = $this->execute($this->update('login',$loginData, ("user_id = '{$this->secureParams['userId']}'")));
                         $stmt = $this->execute($this->update('user',$userData, ("user_id = '{$this->secureParams['userId']}'")));
-                        http_response_code(201);
-                        echo $resolve = '{
+                        
+                        $this->resolve('{
                             "message" : "Profile update successfully"
-                        }';
+                        }',201);
+
                         break;
 
                     case 'validate':
@@ -85,8 +87,7 @@ class Profile extends Controller
                                             "message" : "Mobile not number updated"
                                         }';
                                 }
-                                http_response_code(200);
-                                echo $resolve;
+                                $this->resolve($resolve,200);
                                 break;
                         }
                         break;
@@ -96,12 +97,11 @@ class Profile extends Controller
                 }
             } else throw new Exception("Invalid Parmeters");
         } catch (Exception $err) {
-            http_response_code(200);
-            die($reject = '{
-                    "status": "500",
-                    "error": "true",
-                    "message": "' . $err->getMessage() . '"
-            }');
+            $this->reject('{
+                "status": "500",
+                "error": "true",
+                "message": "' . $err->getMessage() . '"
+        }',200);
         } //End of try catch
 
     } //End of post

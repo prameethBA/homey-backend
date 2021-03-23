@@ -17,19 +17,16 @@ class PropertyType extends Controller
         try {
             $stmt = $this->execute(Property::getAll('property'));
 
-            http_response_code(200);
-            echo $resolve = '{
+            $this->resolve('{
                 "data":' . json_encode($stmt->fetchAll()) . '
-            }
-            ';
+            }', 200);
         } catch (Exception $err) {
-            http_response_code(500);
-            die($reject = '{
+            $this->reject('{
                 "data": {
                     "error": "true",
                     "message": "' . $err->getMessage() . '"
                 }
-            }');
+            }', 500);
         }
     } //End of GET
 
