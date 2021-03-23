@@ -95,7 +95,7 @@ class Images extends Controller
     {
         try {
             $path  = $_SERVER["DOCUMENT_ROOT"] . "/data/propertyImages/" . $param[0];
-
+            $data = '';
             if ($this->dirExits($path)) {
                 $dir = new DirectoryIterator($path);
                 $data = "[";
