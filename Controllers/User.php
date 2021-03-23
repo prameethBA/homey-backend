@@ -8,15 +8,6 @@ require_once('Core/Controller.php');
 use Core\Controller as Controller;
 
 class User extends Controller {
-min();
-    }
-
-    public function get() {
-        http_response_code(406);
-            die($reject = '{
-                "message": "Invalid Request"
-            }');    
-    }
 
     //SignUp method
     public function post() {
@@ -28,7 +19,7 @@ min();
                     // deactivate a user
                     case 'deactivate':
                         if(!$this->authenticateAdmin($this->secureParams['userId'], $this->secureParams['token'])) throw 'Unauthorized request';
-                        DB::execute(Login::update(['user_status' =>  2/*2 for blocked*/],'user_id = ' . $this->params['1']));
+                        $this->execute($this->update('login',['user_status' =>  2/*2 for blocked*/],'user_id = ' . $this->params['1']));
                         http_response_code(200);
                         echo '{
                             "status":"200",
@@ -40,7 +31,7 @@ min();
                         // activate a user
                     case 'activate':
                         if(!$this->authenticateAdmin($this->secureParams['userId'], $this->secureParams['token'])) throw 'Unauthorized request';
-                        DB::execute(Login::update(['user_status' =>  1/*1 for activate*/],'user_id = ' . $this->params['1']));
+                        $this->execute($this->update('update',['user_status' =>  1/*1 for activate*/],'user_id = ' . $this->params['1']));
                         http_response_code(200);
                         echo '{
                             "status":"200",
@@ -69,7 +60,7 @@ min();
             }');
         } //End of try catch
 
-        // $stmt = User::execute(User::get("(email='{$username}' OR mobile='{$username}') AND password='{$password}'"));
+        // $stmt = User::execute($this->get('user',"(email='{$username}' OR mobile='{$username}') AND password='{$password}'"));
 
         // if($stmt->rowCount() == 1) {
         //     $result = $stmt->fetch();
@@ -87,7 +78,7 @@ min();
         //         }
         //     }';
 
-        //     User::update(['access_token' => $this->getToken(), "next" =>"val"], "user_id = {$result['user_id']}");
+        //     $this->update('user',['access_token' => $this->getToken(), "next" =>"val"], "user_id = {$result['user_id']}");
             
         // } else {
         //     http_response_code(404);

@@ -18,14 +18,14 @@ class Property extends Controller
             if (isset($this->params[0])) {
                 switch ($this->params[0]) {
                     case 'all':
-                        $stmt = DB::execute(PropertyModel::join('*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.privated = 0 AND property.property_status = 1 ORDER BY property.created DESC")));
-                        // $stmt = DB::execute(PropertyModel::get(['_id', 'title', 'price', 'description'], (int)$this->params[1], (int)$this->params[1] * (int)$this->params[2]));
+                        $stmt = $this->execute($this->join('property','*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.privated = 0 AND property.property_status = 1 ORDER BY property.created DESC")));
+                        // $stmt = $this->execute($this->get('property',['_id', 'title', 'price', 'description'], (int)$this->params[1], (int)$this->params[1] * (int)$this->params[2]));
                         http_response_code(200);
                         echo $resolve = json_encode($stmt->fetchAll());
                         break;
                     case 'search':
-                        $stmt = DB::execute(PropertyModel::join('*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE (property.title LIKE '%{$this->params[1]}%' OR property.description LIKE '%{$this->params[1]}%') AND property.privated = 0 AND property.property_status = 1 ORDER BY property.created DESC")));
-                        // $stmt = DB::execute(PropertyModel::get(['_id', 'title', 'price', 'description'], (int)$this->params[1], (int)$this->params[1] * (int)$this->params[2]));
+                        $stmt = $this->execute($this->join('property','*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE (property.title LIKE '%{$this->params[1]}%' OR property.description LIKE '%{$this->params[1]}%') AND property.privated = 0 AND property.property_status = 1 ORDER BY property.created DESC")));
+                        // $stmt = $this->execute($this->get('property',['_id', 'title', 'price', 'description'], (int)$this->params[1], (int)$this->params[1] * (int)$this->params[2]));
                         http_response_code(200);
                         echo $resolve = json_encode($stmt->fetchAll());
                         break;
@@ -81,7 +81,7 @@ class Property extends Controller
                                 'facilities' => $facilities
                             ];
 
-                            $stmt = DB::execute(PropertyModel::save($data));
+                            $stmt = $this->execute($this->save('property',$data));
 
                             // save images
                             if (isset($this->secureParams['images'])) {
@@ -123,15 +123,15 @@ class Property extends Controller
                                 $userId = $this->secureParams['userId'];
                                 $token = $this->secureParams['token'];
                                 if ($this->authenticateUser($userId, $token)) {
-                                    $stmt = DB::execute(PropertyModel::get('*', ("_id = '" . $this->secureParams['propertyId'] . "'")));
+                                    $stmt = $this->execute($this->get('property','*', ("_id = '" . $this->secureParams['propertyId'] . "'")));
                                     http_response_code(200);
                                     echo json_encode($stmt->fetch());
                                 } else throw new Exception("Authentication failed. Unauthorized request.");
                                 break;
 
                             case 'own':
-                                // $stmt = DB::execute(PropertyModel::join('*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property._id = '{$this->secureParams['propertyId']}'")));
-                                $stmt = DB::execute(PropertyModel::join('*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.user_id = '{$this->secureParams['userId']}' ORDER BY property.created DESC")));
+                                // $stmt = $this->execute(PropertyModel::join('*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property._id = '{$this->secureParams['propertyId']}'")));
+                                $stmt = $this->execute($this->join('property','*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.user_id = '{$this->secureParams['userId']}' ORDER BY property.created DESC")));
                                 http_response_code(200);
                                 echo json_encode($stmt->fetchAll());
                                 break;
@@ -142,8 +142,8 @@ class Property extends Controller
 
                         break;
                     case 'remove':
-                        DB::exec(PropertyModel::delete("_id = '{$this->secureParams['propertyId']}'"));
-                        DB::exec(PropertySettings::delete("property_id = '{$this->secureParams['propertyId']}'"));
+                        $this->exec($this->delete('property',"_id = '{$this->secureParams['propertyId']}'"));
+                        $this->exec($this->delete('propertysettings',"property_id = '{$this->secureParams['propertyId']}'"));
                         http_response_code(200);
                         echo $resolve = '{
                                     "status": "204",
@@ -154,7 +154,7 @@ class Property extends Controller
                     case 'favourite':
                         switch ($this->params[1]) {
                             case 'get':
-                                $stmt = DB::execute(Favourite::get('COUNT(_id) as count', ("user_id = {$this->secureParams['userId']} AND property_id = '{$this->secureParams['propertyId']}'")));
+                                $stmt = $this->execute($this->get('favourite','COUNT(_id) as count', ("user_id = {$this->secureParams['userId']} AND property_id = '{$this->secureParams['propertyId']}'")));
 
                                 http_response_code(200);
                                 echo ('{
@@ -167,14 +167,14 @@ class Property extends Controller
                                 $userId = $this->secureParams['userId'];
                                 $token = $this->secureParams['token'];
                                 if ($this->authenticateUser($userId, $token)) {
-                                    $stmt = DB::execute(PropertyModel::join('*', ("INNER JOIN favourite  ON property._id = favourite.property_id WHERE NOT property.user_id = '" . $this->secureParams['userId'] . "' AND favourite.user_id = '" . $this->secureParams['userId'] . "'")));
+                                    $stmt = $this->execute($this->join('property','*', ("INNER JOIN favourite  ON property._id = favourite.property_id WHERE NOT property.user_id = '" . $this->secureParams['userId'] . "' AND favourite.user_id = '" . $this->secureParams['userId'] . "'")));
                                     http_response_code(200);
                                     echo json_encode($stmt->fetchAll());
                                 } else throw new Exception("Authentication failed. Unauthorized request.");
                                 break;
 
                             case 'add':
-                                $stmt = DB::execute(Favourite::save(['user_id' => $this->secureParams['userId'], 'property_id' => $this->secureParams['propertyId']]));
+                                $stmt = $this->execute($this->save('favourite',['user_id' => $this->secureParams['userId'], 'property_id' => $this->secureParams['propertyId']]));
                                 http_response_code(200);
                                 echo ('{
                                     "status": "204",
@@ -183,7 +183,7 @@ class Property extends Controller
                                 break;
 
                             case 'remove':
-                                $stmt = DB::execute(Favourite::delete(("property_id = '{$this->secureParams['propertyId']}' AND user_id = '{$this->secureParams['userId']}'")));
+                                $stmt = $this->execute($this->delete('favourite',("property_id = '{$this->secureParams['propertyId']}' AND user_id = '{$this->secureParams['userId']}'")));
                                 http_response_code(200);
                                 echo ('{
                                     "status": "204",
@@ -205,25 +205,25 @@ class Property extends Controller
                                 //filter filter option switch
                                 switch ($this->params[3]) {
                                     case 'boosted':
-                                        $stmt = DB::execute(PropertyModel::join('*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.user_id = '{$userId}' AND propertysetting.boosted = 1 ORDER BY property.created DESC")));
+                                        $stmt = $this->execute($this->join('property','*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.user_id = '{$userId}' AND propertysetting.boosted = 1 ORDER BY property.created DESC")));
                                         break;
                                     case 'pending':
-                                        $stmt = DB::execute(PropertyModel::join('*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.user_id = '{$userId}' AND property.property_status = 0 ORDER BY property.created DESC")));
+                                        $stmt = $this->execute($this->join('property','*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.user_id = '{$userId}' AND property.property_status = 0 ORDER BY property.created DESC")));
                                         break;
                                     case 'private':
-                                        $stmt = DB::execute(PropertyModel::join('*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.user_id = '{$userId}' AND property.privated = 1 ORDER BY property.created DESC")));
+                                        $stmt = $this->execute($this->join('property','*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.user_id = '{$userId}' AND property.privated = 1 ORDER BY property.created DESC")));
                                         break;
                                     case 'public':
-                                        $stmt = DB::execute(PropertyModel::join('*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.user_id = '{$userId}' AND property.privated = 0 ORDER BY property.created DESC")));
+                                        $stmt = $this->execute($this->join('property','*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.user_id = '{$userId}' AND property.privated = 0 ORDER BY property.created DESC")));
                                         break;
                                     case 'rejected':
-                                        $stmt = DB::execute(PropertyModel::join('*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.user_id = '{$userId}' AND property.property_status = 2 ORDER BY property.created DESC")));
+                                        $stmt = $this->execute($this->join('property','*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.user_id = '{$userId}' AND property.property_status = 2 ORDER BY property.created DESC")));
                                         break;
                                     case 'blocked':
-                                        $stmt = DB::execute(PropertyModel::join('*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.user_id = '{$userId}' AND property.property_status = 3 ORDER BY property.created DESC")));
+                                        $stmt = $this->execute($this->join('property','*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.user_id = '{$userId}' AND property.property_status = 3 ORDER BY property.created DESC")));
                                         break;
                                     default:
-                                        $stmt = DB::execute(PropertyModel::join('*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.user_id = '{$userId}' ORDER BY property.created DESC")));
+                                        $stmt = $this->execute($this->join('property','*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.user_id = '{$userId}' ORDER BY property.created DESC")));
                                         break;
                                 } //End of filter option switch
                                 http_response_code(200);
@@ -237,7 +237,7 @@ class Property extends Controller
                                     $userId = $this->secureParams['userId'];
                                     $token = $this->secureParams['token'];
                                     if ($this->authenticateUser($userId, $token)) {
-                                        $stmt = DB::execute(PropertyModel::join('*', ("
+                                        $stmt = $this->execute($this->join('property','*', ("
                                         p, propertysettings s, propertyreserved r  
                                             WHERE p._id = s.property_id 
                                             AND p._id = r.property_id
@@ -284,8 +284,8 @@ class Property extends Controller
                             'schedule_time' => $this->secureParams['scheduleTime'],
                             'sharing' => (bool)$this->secureParams['sharing'] ? 1 : 0,
                         ];
-                        DB::execute(PropertySettings::save($data));
-                        DB::execute(PropertyModel::update(['privated' => (bool)$this->secureParams['privated'] ? 1 : 0], ("_id = '{$this->secureParams['propertyId']}'")));
+                        $this->execute($this->save('propertysettings',$data));
+                        $this->execute($this->update('property',['privated' => (bool)$this->secureParams['privated'] ? 1 : 0], ("_id = '{$this->secureParams['propertyId']}'")));
                         http_response_code(201);
                         echo $resolve = '{
                             "message": "Property Settings Applied."
@@ -294,7 +294,7 @@ class Property extends Controller
 
                     case 'online-payment':
 
-                        DB::exec(PropertySettings::update(['accept_online_payment' => (int)$this->secureParams['onlinePayment']], ("property_id = '{$this->secureParams['propertyId']}'")));
+                        $this->exec($this->update('property',['accept_online_payment' => (int)$this->secureParams['onlinePayment']], ("property_id = '{$this->secureParams['propertyId']}'")));
                         http_response_code(200);
                         echo $resolve = '{
                                 "status": "204",
@@ -304,7 +304,7 @@ class Property extends Controller
 
                     case 'visibility':
 
-                        DB::exec(PropertyModel::update(['privated' => (int)$this->secureParams['visibility']], ("_id = '{$this->secureParams['propertyId']}'")));
+                        $this->exec($this->update('property',['privated' => (int)$this->secureParams['visibility']], ("_id = '{$this->secureParams['propertyId']}'")));
                         http_response_code(200);
                         echo $resolve = '{
                                     "status": "204",

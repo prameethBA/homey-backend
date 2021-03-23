@@ -5,22 +5,24 @@ namespace Controllers;
 use Exception;
 
 require_once('Core/Controller.php');
+
 use Core\Controller as Controller;
 
-class PropertyType extends Controller {
+class PropertyType extends Controller
+{
 
 
-    public function get() {
+    public function get()
+    {
         try {
-            $stmt = DB::execute(Property::getAll());
-            
+            $stmt = $this->execute(Property::getAll('property'));
+
             http_response_code(200);
             echo $resolve = '{
                 "data":' . json_encode($stmt->fetchAll()) . '
             }
             ';
-
-        } catch(Exception $err) {
+        } catch (Exception $err) {
             http_response_code(500);
             die($reject = '{
                 "data": {
@@ -29,7 +31,6 @@ class PropertyType extends Controller {
                 }
             }');
         }
-            
-    }//End of GET
+    } //End of GET
 
 }//End of Class

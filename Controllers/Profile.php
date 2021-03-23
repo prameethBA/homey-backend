@@ -20,9 +20,9 @@ class Profile extends Controller
                 switch ($this->params[0]) {
                     case 'info':
 
-                        $stmt = DB::execute(Login::get(['email', 'mobile', 'updated as lastLogin'], ("user_id = '{$this->secureParams['userId']}'")));
+                        $stmt = $this->execute($this->get('login',['email', 'mobile', 'updated as lastLogin'], ("user_id = '{$this->secureParams['userId']}'")));
                         $authData = json_encode($stmt->fetch());
-                        $stmt = DB::execute(User::get([
+                        $stmt = $this->execute($this->get('user',[
                             'first_name as firstName',
                             'last_name as lastName',
                             'address1',
@@ -60,8 +60,8 @@ class Profile extends Controller
                             'dob' => $this->secureParams['dob'],
                         ];
 
-                        $stmt = DB::execute(Login::update($loginData, ("user_id = '{$this->secureParams['userId']}'")));
-                        $stmt = DB::execute(User::update($userData, ("user_id = '{$this->secureParams['userId']}'")));
+                        $stmt = $this->execute($this->update('login',$loginData, ("user_id = '{$this->secureParams['userId']}'")));
+                        $stmt = $this->execute($this->update('user',$userData, ("user_id = '{$this->secureParams['userId']}'")));
                         http_response_code(201);
                         echo $resolve = '{
                             "message" : "Profile update successfully"
@@ -71,7 +71,7 @@ class Profile extends Controller
                     case 'validate':
                         switch ($this->params[1]) {
                             case 'mobile':
-                                $stmt = DB::execute(Login::get('mobile', ("user_id = '{$this->secureParams['userId']}'")));
+                                $stmt = $this->execute($this->get('login','mobile', ("user_id = '{$this->secureParams['userId']}'")));
                                 $mobile = $stmt->fetch()['mobile'];
                                 if ($mobile != NULL) {
                                     $resolve = '{

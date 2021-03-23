@@ -15,7 +15,7 @@ class RentalPeriod extends Controller
     public function get()
     {
         try {
-            $stmt = DB::execute(Rental::getAll());
+            $stmt = $this->execute($this->getAll('rental'));
 
             http_response_code(200);
             echo $resolve = json_encode($stmt->fetchAll());

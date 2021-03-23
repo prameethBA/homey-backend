@@ -69,15 +69,15 @@ class Forum extends Controller
                                     'message' => $this->secureParams['message']
                                 ];
 
-                                $stmt = $this->execute(Report::save($data));
+                                $stmt = $this->execute($this->save('report',$data));
                                 http_response_code(201);
                                 echo $reject = '{
                                     "action": "true",
                                     "message": "Property reported."
                                 }';
                                 break;
-                            case 'all':
-                                $stmt = $this->execute(Report::getAll());
+                            case 'all':''
+                                $stmt = $this->execute('payment',getAll('report'));
                                 http_response_code(200);
                                 echo json_encode($stmt->fetchAll());
                                 break;

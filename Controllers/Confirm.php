@@ -17,11 +17,11 @@ class Confirm extends Controller {
                 $userId = base64_decode($this->params[0]);
                 $hash = $this->params[1];
 
-                $stmt = DB::execute(Hash::get(['_id'], ("user_id = {$userId} AND hash = '{$hash}'")));
+                $stmt = $this->execute($this->get('hash',['_id'], ("user_id = {$userId} AND hash = '{$hash}'")));
 
                 if($stmt->rowCount() == 1) {
-                    DB::exec(Hash::delete("user_id = {$userId}"));
-                    DB::exec(Login::update(['user_status' => 1], ("user_id = {$userId}")));
+                    $this->exec($this->delete('hash',"user_id = {$userId}"));
+                    $this->exec($this->update('login',['user_status' => 1], ("user_id = {$userId}")));
 
                     http_response_code(200);
                     echo $resolve = '{
