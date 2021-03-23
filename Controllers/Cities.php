@@ -4,20 +4,14 @@ namespace Controllers;
 
 use Exception;
 
-require_once('Core/BaseController.php');
-use Core\BaseController as BaseController;
-require_once('Models/Cities.php');
-use Models\Cities as City;
+require_once('Core/Controller.php');
+use Core\Controller as Controller;
 
 require_once('Core/DB/DB.php');
 use Core\DB\DB as DB;
 
-class Cities extends BaseController {
+class Cities extends Controller {
 
-    public function __construct($params, $secureParams) {
-        parent::__construct($params, $secureParams);
-        new City();
-    }
 
     public function get() {
         try {
