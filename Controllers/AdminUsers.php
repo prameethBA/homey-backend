@@ -32,8 +32,8 @@ class AdminUsers extends Controller
                             ],
                             (", user WHERE login.user_id = user.user_id AND login.user_type = 0")
                         ));
-                        http_response_code(200);
-                        echo $resolve = json_encode($stmt->fetchAll());
+
+                        $this->resolve(json_encode($stmt->fetchAll()),200);
                         break;
 
                     case 'all-admins':
@@ -49,8 +49,9 @@ class AdminUsers extends Controller
                             ],
                             (", user WHERE login.user_id = user.user_id AND login.user_type = 1")
                         ));
-                        http_response_code(200);
-                        echo $resolve = json_encode($stmt->fetchAll());
+
+
+                        $this->resolve(json_encode($stmt->fetchAll()),200);
                         break;
 
                     case 'get':
@@ -72,8 +73,8 @@ class AdminUsers extends Controller
 
                         $result['ownPropertyData'] = $stmt->fetchAll();
 
-                        http_response_code(200);
-                        echo $resolve = json_encode($result);
+                        $this->resolve(json_encode($result),200);
+
                         break;
 
 
@@ -82,12 +83,12 @@ class AdminUsers extends Controller
                 }
             } else throw new Exception("Invalid Parmeters");
         } catch (Exception $err) {
-            http_response_code(200);
-            die($reject = '{
-                    "status": "500",
-                    "error": "true",
-                    "message": "' . $err->getMessage() . '"
-            }');
+
+            $this->reject('{
+                "status": "500",
+                "error": "true",
+                "message": "' . $err->getMessage() . '"
+        }',200);
         } //End of try catch
 
     } //End of GET

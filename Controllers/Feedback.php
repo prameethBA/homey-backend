@@ -26,11 +26,11 @@ class Feedback extends Controller
                         ];
 
                         $stmt = $this->execute($this->save('feed',$data));
-                        http_response_code(201);
-                        echo $resolve = '{
+                        $this->resolve('{
                             "action": "true",
                             "message": "comment saved"
-                        }';
+                        }',201);
+
                         break;
                     case 'get':
 
@@ -38,8 +38,9 @@ class Feedback extends Controller
                             case 'all':
 
                                 $stmt = $this->execute($this->get('feed','_id as id', "property_id='{$this->secureParams['propertyId']}'"));
-                                http_response_code(201);
-                                echo json_encode($stmt->fetchAll());
+                                
+                                $this->resolve(json_encode($stmt->fetchAll()),200);
+
                                 break;
                             default:
                                 $data = [
@@ -50,8 +51,8 @@ class Feedback extends Controller
                                     'user.last_name as lastName'
                                 ];
                                 $stmt = $this->execute($this->join('feed',$data, "LEFT JOIN user ON feedback.user_id=user._id WHERE feedback._id='{$this->params[1]}'"));
-                                http_response_code(201);
-                                echo json_encode($stmt->fetch());
+                                
+                                $this->resolve(json_encode($stmt->fetch()),201);
                                 break;
                         }
                         break;
@@ -69,16 +70,16 @@ class Feedback extends Controller
                                 ];
 
                                 $stmt = $this->execute($this->save('report',$data));
-                                http_response_code(201);
-                                echo $reject = '{
+                                
+                                $this->reject('{
                                     "action": "true",
                                     "message": "Property reported."
-                                }';
+                                }',201);
+
                                 break;
                             case 'all':
                                 $stmt = $this->execute($this->getAll('report'));
-                                http_response_code(200);
-                                echo json_encode($stmt->fetchAll());
+                                $this->resolve(json_encode($stmt->fetchAll()),200);
                                 break;
                         }
                         break;
@@ -88,12 +89,13 @@ class Feedback extends Controller
                 }
             } else throw new Exception("Invalid Parmeters");
         } catch (Exception $err) {
-            http_response_code(200);
-            die($reject = '{
-                    "status": "500",
-                    "error": "true",
-                    "message": "' . $err->getMessage() . '"
-            }');
+            
+            $this->reject('{
+                "status": "500",
+                "error": "true",
+                "message": "' . $err->getMessage() . '"
+        }',200);
+        
         } //End of try catch
 
     } //End of post

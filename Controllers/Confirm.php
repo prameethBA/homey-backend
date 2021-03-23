@@ -23,30 +23,28 @@ class Confirm extends Controller {
                     $this->exec($this->delete('hash',"user_id = {$userId}"));
                     $this->exec($this->update('login',['user_status' => 1], ("user_id = {$userId}")));
 
-                    http_response_code(200);
-                    echo $resolve = '{
+                    $this->resolve('{
                         "verified": "true",
                         "message": "Account activated successfully."
-                    }';
+                    }',200);
 
                 } else throw new Exception("Link may expired or invalid.");
 
             } else throw new Exception("Invalid request.");
             
-            http_response_code(200);
-            echo $resolve = '{
+            $this->resolve('{
                 "data":' . json_encode($stmt->fetchAll()) . '
             }
-            ';
+            ',200);
 
         } catch(Exception $err) {
-            http_response_code(500);
-            die($reject = '{
+
+            $this->reject('{
                 "data": {
                     "error": "true",
                     "message": "' . $err->getMessage() . '"
                 }
-            }');
+            }',500);
         }
             
     }//End of GET

@@ -18,32 +18,31 @@ class Property extends Controller
             if (isset($this->params[0])) {
                 switch ($this->params[0]) {
                     case 'all':
-                        $stmt = $this->execute($this->join('property','*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.privated = 0 AND property.property_status = 1 ORDER BY property.created DESC")));
+                        $stmt = $this->execute($this->join('property', '*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.privated = 0 AND property.property_status = 1 ORDER BY property.created DESC")));
                         // $stmt = $this->execute($this->get('property',['_id', 'title', 'price', 'description'], (int)$this->params[1], (int)$this->params[1] * (int)$this->params[2]));
-                        http_response_code(200);
-                        echo $resolve = json_encode($stmt->fetchAll());
+
+                        $this->resolve(json_encode($stmt->fetchAll()), 200);
+
                         break;
                     case 'search':
-                        $stmt = $this->execute($this->join('property','*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE (property.title LIKE '%{$this->params[1]}%' OR property.description LIKE '%{$this->params[1]}%') AND property.privated = 0 AND property.property_status = 1 ORDER BY property.created DESC")));
+                        $stmt = $this->execute($this->join('property', '*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE (property.title LIKE '%{$this->params[1]}%' OR property.description LIKE '%{$this->params[1]}%') AND property.privated = 0 AND property.property_status = 1 ORDER BY property.created DESC")));
                         // $stmt = $this->execute($this->get('property',['_id', 'title', 'price', 'description'], (int)$this->params[1], (int)$this->params[1] * (int)$this->params[2]));
-                        http_response_code(200);
-                        echo $resolve = json_encode($stmt->fetchAll());
+
+                        $this->resolve(json_encode($stmt->fetchAll()), 200);
                         break;
                     default:
-                        http_response_code(200);
-                        die($reject = '{
-                                "status": "400",
-                                "message": "Invalid request."
-                        }');
+                        $this->reject('{
+                            "status": "400",
+                            "message": "Invalid request."
+                        }', 200);
                         break;
                 }
             }
         } catch (Exception $err) {
-            http_response_code(200);
-            die($reject = '{
-                    "status": "500",
-                    "message": "' . $err->getMessage() . '"
-            }');
+            $this->reject('{
+                "status": "500",
+                "message": "' . $err->getMessage() . '"
+        }', 200);
         }
     } //End of GET
 
@@ -81,7 +80,7 @@ class Property extends Controller
                                 'facilities' => $facilities
                             ];
 
-                            $stmt = $this->execute($this->save('property',$data));
+                            $stmt = $this->execute($this->save('property', $data));
 
                             // save images
                             if (isset($this->secureParams['images'])) {
@@ -95,24 +94,23 @@ class Property extends Controller
                                     foreach ($this->secureParams['images'] as $img) {
                                         // if file not saved correctly throw an error
                                         if (!$this->base64ToImage($img, $path . "/" . $index++)) {
-                                            http_response_code(200);
-                                            die($reject = '{
+
+                                            $this->reject('{
                                                 "status": "424",
                                                 "error": "true",
                                                 "message": "Failed to put images into database"
                                                 }
-                                            }');
+                                            }', 200);
                                         }
                                     }
                                 } else throw new Exception("Permission Denied. Server side failure.");
                             } //End of save images
-                            http_response_code(201);
-                            echo $resolve = '{
+
+                            $this->resolve('{
                                 "action": "true",
                                 "propertyId": "' . $id . '",
                                 "message": "The advertisement saved successfully."
-                            }
-                            ';
+                            }', 201);
                         } else throw new Exception("Authentication failed. Unauthorized request.");
 
                         break;
@@ -123,17 +121,17 @@ class Property extends Controller
                                 $userId = $this->secureParams['userId'];
                                 $token = $this->secureParams['token'];
                                 if ($this->authenticateUser($userId, $token)) {
-                                    $stmt = $this->execute($this->get('property','*', ("_id = '" . $this->secureParams['propertyId'] . "'")));
-                                    http_response_code(200);
-                                    echo json_encode($stmt->fetch());
+                                    $stmt = $this->execute($this->get('property', '*', ("_id = '" . $this->secureParams['propertyId'] . "'")));
+
+                                    $this->resolve(json_encode($stmt->fetch()), 200);
                                 } else throw new Exception("Authentication failed. Unauthorized request.");
                                 break;
 
                             case 'own':
                                 // $stmt = $this->execute(PropertyModel::join('*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property._id = '{$this->secureParams['propertyId']}'")));
-                                $stmt = $this->execute($this->join('property','*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.user_id = '{$this->secureParams['userId']}' ORDER BY property.created DESC")));
-                                http_response_code(200);
-                                echo json_encode($stmt->fetchAll());
+                                $stmt = $this->execute($this->join('property', '*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.user_id = '{$this->secureParams['userId']}' ORDER BY property.created DESC")));
+
+                                $this->resolve(json_encode($stmt->fetchAll()), 200);
                                 break;
 
                             default:
@@ -142,53 +140,55 @@ class Property extends Controller
 
                         break;
                     case 'remove':
-                        $this->exec($this->delete('property',"_id = '{$this->secureParams['propertyId']}'"));
-                        $this->exec($this->delete('propertysettings',"property_id = '{$this->secureParams['propertyId']}'"));
-                        http_response_code(200);
-                        echo $resolve = '{
-                                    "status": "204",
-                                    "message": "Property Removed"
-                                }';
+                        $this->exec($this->delete('property', "_id = '{$this->secureParams['propertyId']}'"));
+                        $this->exec($this->delete('propertysettings', "property_id = '{$this->secureParams['propertyId']}'"));
+
+
+                        $this->resolve('{
+                            "status": "204",
+                            "message": "Property Removed"
+                        }', 200);
                         break;
 
                     case 'favourite':
                         switch ($this->params[1]) {
                             case 'get':
-                                $stmt = $this->execute($this->get('favourite','COUNT(_id) as count', ("user_id = {$this->secureParams['userId']} AND property_id = '{$this->secureParams['propertyId']}'")));
+                                $stmt = $this->execute($this->get('favourite', 'COUNT(_id) as count', ("user_id = {$this->secureParams['userId']} AND property_id = '{$this->secureParams['propertyId']}'")));
 
-                                http_response_code(200);
-                                echo ('{
+                                $this->resolve('{
                                     "action": "' . $stmt->fetch()['count'] . '",
                                     "message": "retived"
-                                }');
+                                }', 200);
+                                break;
+
                                 break;
 
                             case 'getAll':
                                 $userId = $this->secureParams['userId'];
                                 $token = $this->secureParams['token'];
                                 if ($this->authenticateUser($userId, $token)) {
-                                    $stmt = $this->execute($this->join('property','*', ("INNER JOIN favourite  ON property._id = favourite.property_id WHERE NOT property.user_id = '" . $this->secureParams['userId'] . "' AND favourite.user_id = '" . $this->secureParams['userId'] . "'")));
-                                    http_response_code(200);
-                                    echo json_encode($stmt->fetchAll());
+                                    $stmt = $this->execute($this->join('property', '*', ("INNER JOIN favourite  ON property._id = favourite.property_id WHERE NOT property.user_id = '" . $this->secureParams['userId'] . "' AND favourite.user_id = '" . $this->secureParams['userId'] . "'")));
+
+                                    $this->resolve(json_encode($stmt->fetchAll()), 200);
                                 } else throw new Exception("Authentication failed. Unauthorized request.");
                                 break;
 
                             case 'add':
-                                $stmt = $this->execute($this->save('favourite',['user_id' => $this->secureParams['userId'], 'property_id' => $this->secureParams['propertyId']]));
-                                http_response_code(200);
-                                echo ('{
+                                $stmt = $this->execute($this->save('favourite', ['user_id' => $this->secureParams['userId'], 'property_id' => $this->secureParams['propertyId']]));
+
+                                $this->resolve('{
                                     "status": "204",
                                     "message": "Added to favourite"
-                                }');
+                                }', 200);
                                 break;
 
                             case 'remove':
-                                $stmt = $this->execute($this->delete('favourite',("property_id = '{$this->secureParams['propertyId']}' AND user_id = '{$this->secureParams['userId']}'")));
-                                http_response_code(200);
-                                echo ('{
+                                $stmt = $this->execute($this->delete('favourite', ("property_id = '{$this->secureParams['propertyId']}' AND user_id = '{$this->secureParams['userId']}'")));
+
+                                $this->resolve('{
                                     "status": "204",
                                     "message": "Remove from favourite"
-                                }');
+                                }', 200);
                                 break;
                             default:
                                 throw new Exception("Authentication failed. Unauthorized request.");
@@ -205,65 +205,63 @@ class Property extends Controller
                                 //filter filter option switch
                                 switch ($this->params[3]) {
                                     case 'boosted':
-                                        $stmt = $this->execute($this->join('property','*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.user_id = '{$userId}' AND propertysetting.boosted = 1 ORDER BY property.created DESC")));
+                                        $stmt = $this->execute($this->join('property', '*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.user_id = '{$userId}' AND propertysetting.boosted = 1 ORDER BY property.created DESC")));
                                         break;
                                     case 'pending':
-                                        $stmt = $this->execute($this->join('property','*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.user_id = '{$userId}' AND property.property_status = 0 ORDER BY property.created DESC")));
+                                        $stmt = $this->execute($this->join('property', '*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.user_id = '{$userId}' AND property.property_status = 0 ORDER BY property.created DESC")));
                                         break;
                                     case 'private':
-                                        $stmt = $this->execute($this->join('property','*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.user_id = '{$userId}' AND property.privated = 1 ORDER BY property.created DESC")));
+                                        $stmt = $this->execute($this->join('property', '*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.user_id = '{$userId}' AND property.privated = 1 ORDER BY property.created DESC")));
                                         break;
                                     case 'public':
-                                        $stmt = $this->execute($this->join('property','*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.user_id = '{$userId}' AND property.privated = 0 ORDER BY property.created DESC")));
+                                        $stmt = $this->execute($this->join('property', '*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.user_id = '{$userId}' AND property.privated = 0 ORDER BY property.created DESC")));
                                         break;
                                     case 'rejected':
-                                        $stmt = $this->execute($this->join('property','*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.user_id = '{$userId}' AND property.property_status = 2 ORDER BY property.created DESC")));
+                                        $stmt = $this->execute($this->join('property', '*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.user_id = '{$userId}' AND property.property_status = 2 ORDER BY property.created DESC")));
                                         break;
                                     case 'blocked':
-                                        $stmt = $this->execute($this->join('property','*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.user_id = '{$userId}' AND property.property_status = 3 ORDER BY property.created DESC")));
+                                        $stmt = $this->execute($this->join('property', '*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.user_id = '{$userId}' AND property.property_status = 3 ORDER BY property.created DESC")));
                                         break;
                                     default:
-                                        $stmt = $this->execute($this->join('property','*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.user_id = '{$userId}' ORDER BY property.created DESC")));
+                                        $stmt = $this->execute($this->join('property', '*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.user_id = '{$userId}' ORDER BY property.created DESC")));
                                         break;
                                 } //End of filter option switch
-                                http_response_code(200);
-                                echo json_encode($stmt->fetchAll());
+
+                                $this->resolve(json_encode($stmt->fetchAll()), 200);
                                 break;
                         } //End of second switch
                         break;
-                        case 'reserved':
-                            switch ($this->params[1]) {
-                                case 'own':
-                                    $userId = $this->secureParams['userId'];
-                                    $token = $this->secureParams['token'];
-                                    if ($this->authenticateUser($userId, $token)) {
-                                        $stmt = $this->execute($this->join('property','*', ("
+                    case 'reserved':
+                        switch ($this->params[1]) {
+                            case 'own':
+                                $userId = $this->secureParams['userId'];
+                                $token = $this->secureParams['token'];
+                                if ($this->authenticateUser($userId, $token)) {
+                                    $stmt = $this->execute($this->join('property', '*', ("
                                         p, propertysettings s, propertyreserved r  
                                             WHERE p._id = s.property_id 
                                             AND p._id = r.property_id
                                             AND r.user_id = '${userId}' 
                                         ")));
-                                        http_response_code(200);
-                                        echo json_encode($stmt->fetchAll());
-                                    } else throw new Exception("Authentication failed. Unauthorized request.");
-                                    break;
+                                    $this->resolve(json_encode($stmt->fetchAll()), 200);
+                                } else throw new Exception("Authentication failed. Unauthorized request.");
+                                break;
 
-                                default:
-                                    throw new Exception("Authentication failed. Unauthorized request.");
-                            }
-                            break;
+                            default:
+                                throw new Exception("Authentication failed. Unauthorized request.");
+                        }
+                        break;
                     default:
                         throw new Exception("Invalid parameter");
                 } //End of the switch
 
             } else throw new Exception("Invalid request.No parameters given");
         } catch (Exception $err) {
-            http_response_code(200);
-            die($reject = '{
+            $this->reject('{
                 "status": "500",
                 "error": "true",
                 "message": "' . $err->getMessage() . '"
-            }');
+            }', 200);
         }
     } //End of POST
 
@@ -284,44 +282,44 @@ class Property extends Controller
                             'schedule_time' => $this->secureParams['scheduleTime'],
                             'sharing' => (bool)$this->secureParams['sharing'] ? 1 : 0,
                         ];
-                        $this->execute($this->save('propertysettings',$data));
-                        $this->execute($this->update('property',['privated' => (bool)$this->secureParams['privated'] ? 1 : 0], ("_id = '{$this->secureParams['propertyId']}'")));
-                        http_response_code(201);
-                        echo $resolve = '{
+                        $this->execute($this->save('propertysettings', $data));
+                        $this->execute($this->update('property', ['privated' => (bool)$this->secureParams['privated'] ? 1 : 0], ("_id = '{$this->secureParams['propertyId']}'")));
+
+                        $this->resolve('{
                             "message": "Property Settings Applied."
-                        }';
+                        }', 200);
                         break;
 
                     case 'online-payment':
 
-                        $this->exec($this->update('property',['accept_online_payment' => (int)$this->secureParams['onlinePayment']], ("property_id = '{$this->secureParams['propertyId']}'")));
-                        http_response_code(200);
-                        echo $resolve = '{
+                        $this->exec($this->update('property', ['accept_online_payment' => (int)$this->secureParams['onlinePayment']], ("property_id = '{$this->secureParams['propertyId']}'")));
+
+                        $this->resolve('{
                                 "status": "204",
                                 "message": "Updated"
-                            }';
+                            }', 200);
                         break;
 
                     case 'visibility':
 
-                        $this->exec($this->update('property',['privated' => (int)$this->secureParams['visibility']], ("_id = '{$this->secureParams['propertyId']}'")));
-                        http_response_code(200);
-                        echo $resolve = '{
+                        $this->exec($this->update('property', ['privated' => (int)$this->secureParams['visibility']], ("_id = '{$this->secureParams['propertyId']}'")));
+
+                        $this->resolve('{
                                     "status": "204",
                                     "message": "Updated"
-                                }';
+                                }', 200);
+
                         break;
                     default:
                         throw new Exception("Invalid Request");
                 }
             } else throw new Exception("Invalid Parmeters");
         } catch (Exception $err) {
-            http_response_code(200);
-            die($reject = '{
-                    "status": "500",
-                    "error": "true",
-                    "message": "' . $err->getMessage() . '"
-            }');
+            $this->reject('{
+                "status": "500",
+                "error": "true",
+                "message": "' . $err->getMessage() . '"
+        }', 200);
         } //End of try catch
     } //End of patch
 

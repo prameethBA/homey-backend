@@ -26,11 +26,11 @@ class Forum extends Controller
                         ];
 
                         $stmt = $this->execute($this->save('forum',$data));
-                        http_response_code(201);
-                        echo $resolve = '{
+                        
+                        $this->resolve('{
                             "action": "true",
                             "message": "Post created"
-                        }';
+                        }',201);
                         break;
                         /*
                     case 'get':
@@ -89,12 +89,12 @@ class Forum extends Controller
                 }
             } else throw new Exception("Invalid Parmeters");
         } catch (Exception $err) {
-            http_response_code(200);
-            die($reject = '{
-                    "status": "500",
-                    "error": "true",
-                    "message": "' . $err->getMessage() . '"
-            }');
+
+            $this->reject('{
+                "status": "500",
+                "error": "true",
+                "message": "' . $err->getMessage() . '"
+        }',200);
         } //End of try catch
 
     } //End of post
