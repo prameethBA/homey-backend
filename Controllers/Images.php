@@ -18,7 +18,7 @@ class Images extends Controller
         try {
             $userId = (string)$param['userId'];
 
-            if (!$this->authenticateUser($param['token'], $userId)) throw "Authentication failed.";
+            if (!$this->authenticateUser($param['token'], $userId)) throw new Exception("Authentication failed.");
             if (isset($a[0]))
                 $path  = $_SERVER["DOCUMENT_ROOT"] . "/data/profileImages/" . $a[0];
             else
