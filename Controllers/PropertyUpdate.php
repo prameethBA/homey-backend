@@ -54,9 +54,9 @@ class PropertyUpdate extends Controller
                 if (!$this->authenticate()) throw new Exception("Unautherized request.");
                 switch ($this->params[0]) {
                     case 'add':
-                        $userId = $this->secureParams['userId'];
-                        $token = $this->secureParams['token'];
-                        $propertyId = $this->secureParams['propertyId'];
+                        $userId = $param['userId'];
+                        $token = $param['token'];
+                        $propertyId = $param['propertyId'];
                         if ($this->authenticateUser($userId, $token)) {
                             $stmt = $this->execute($this->get('property','key_money as keyMoney, title', ("_id = '" . $propertyId . "'")));
                             
@@ -80,9 +80,9 @@ class PropertyUpdate extends Controller
                         break;
 
                         case 'remove':
-                            $userId = $this->secureParams['userId'];
-                            $token = $this->secureParams['token'];
-                            $propertyId = $this->secureParams['propertyId'];
+                            $userId = $param['userId'];
+                            $token = $param['token'];
+                            $propertyId = $param['propertyId'];
                             if ($this->authenticateUser($userId, $token)) {
                                 $stmt = $this->exec($this->delete('propertyupdate',"property_id = '" . $propertyId . "' AND user_id ='" . $userId ."'"));
                                 
@@ -113,8 +113,8 @@ class PropertyUpdate extends Controller
     // Authenticate User 
     private function authenticate()
     {
-        if (isset($this->secureParams['userId'], $this->secureParams['token'])) {
-            if ($this->authenticateUser($this->secureParams['userId'], $this->secureParams['token'])) return true;
+        if (isset($param['userId'], $param['token'])) {
+            if ($this->authenticateUser($param['userId'], $param['token'])) return true;
             else return false;
         } else return false;
     } //end of authenticateUser()

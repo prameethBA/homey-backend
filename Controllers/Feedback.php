@@ -161,10 +161,10 @@ class Feedback extends Controller
                             case 'save':
 
                                 $data = [
-                                    'user_id' => $this->secureParams['userId'],
-                                    'property_id' => $this->secureParams['propertyId'],
-                                    'reason' => $this->secureParams['reason'],
-                                    'message' => $this->secureParams['message']
+                                    'user_id' => $param['userId'],
+                                    'property_id' => $param['propertyId'],
+                                    'reason' => $param['reason'],
+                                    'message' => $param['message']
                                 ];
 
                                 $stmt = $this->execute($this->save('report',$data));
@@ -201,8 +201,8 @@ class Feedback extends Controller
     // Authenticate User 
     private function authenticate()
     {
-        if (isset($this->secureParams['userId'], $this->secureParams['token'])) {
-            if ($this->authenticateUser($this->secureParams['userId'], $this->secureParams['token'])) return true;
+        if (isset($param['userId'], $param['token'])) {
+            if ($this->authenticateUser($param['userId'], $param['token'])) return true;
             else return false;
         } else return false;
     } //end of authenticateUser()

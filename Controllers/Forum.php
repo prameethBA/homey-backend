@@ -20,9 +20,9 @@ class Forum extends Controller
                     case 'create':
 
                         $data = [
-                            'user_id' => $this->secureParams['userId'] ,
-                            'title' => $this->secureParams['title'],
-                            'content' => $this->secureParams['content'],
+                            'user_id' => $param['userId'] ,
+                            'title' => $param['title'],
+                            'content' => $param['content'],
                         ];
 
                         $stmt = $this->execute($this->save('forum',$data));
@@ -38,7 +38,7 @@ class Forum extends Controller
                         switch ($this->params[1]) {
                             case 'all':
 
-                                $stmt = $this->execute($this->get('feed','_id as id', "property_id='{$this->secureParams['propertyId']}'"));
+                                $stmt = $this->execute($this->get('feed','_id as id', "property_id='{$param['propertyId']}'"));
                                 http_response_code(201);
                                 echo json_encode($stmt->fetchAll());
                                 break;
@@ -63,10 +63,10 @@ class Forum extends Controller
                             case 'save':
 
                                 $data = [
-                                    'user_id' => $this->secureParams['userId'],
-                                    'property_id' => $this->secureParams['propertyId'],
-                                    'reason' => $this->secureParams['reason'],
-                                    'message' => $this->secureParams['message']
+                                    'user_id' => $param['userId'],
+                                    'property_id' => $param['propertyId'],
+                                    'reason' => $param['reason'],
+                                    'message' => $param['message']
                                 ];
 
                                 $stmt = $this->execute($this->save('report',$data));
@@ -102,8 +102,8 @@ class Forum extends Controller
     // Authenticate User 
     private function authenticate()
     {
-        if (isset($this->secureParams['userId'], $this->secureParams['token'])) {
-            if ($this->authenticateUser($this->secureParams['userId'], $this->secureParams['token'])) return true;
+        if (isset($param['userId'], $param['token'])) {
+            if ($this->authenticateUser($param['userId'], $param['token'])) return true;
             else return false;
         } else return false;
     } //end of authenticateUser()

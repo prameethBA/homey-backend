@@ -43,10 +43,10 @@ class Payment extends Controller
                 switch ($this->params[0]) {
                     case 'request':
                         if (!$this->authenticate()) throw new Exception("Unautherized request.");
-                        $userId = $this->secureParams['userId'];
-                        $token = $this->secureParams['token'];
-                        $propertyId = $this->secureParams['propertyId'];
-                        $amount = $this->secureParams['amount'];
+                        $userId = $param['userId'];
+                        $token = $param['token'];
+                        $propertyId = $param['propertyId'];
+                        $amount = $param['amount'];
 
                         if ($this->authenticateUser($userId, $token)) {
 
@@ -159,8 +159,8 @@ class Payment extends Controller
     // Authenticate User 
     private function authenticate()
     {
-        if (isset($this->secureParams['userId'], $this->secureParams['token'])) {
-            if ($this->authenticateUser($this->secureParams['userId'], $this->secureParams['token'])) return true;
+        if (isset($param['userId'], $param['token'])) {
+            if ($this->authenticateUser($param['userId'], $param['token'])) return true;
             else return false;
         } else return false;
     } //end of authenticateUser()

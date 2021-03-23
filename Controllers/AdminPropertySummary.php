@@ -25,7 +25,7 @@ class AdminPropertySummary extends Controller
                         break;
 
                     case 'approve':
-                        $stmt = $this->execute($this->update('property',['property_status' => 1], ("_id = '{$this->secureParams['propertyId']}'")));
+                        $stmt = $this->execute($this->update('property',['property_status' => 1], ("_id = '{$param['propertyId']}'")));
 
 
                     $this->resolve('{
@@ -35,7 +35,7 @@ class AdminPropertySummary extends Controller
                         break;
 
                     case 'reject':
-                        $stmt = $this->execute($this->update('property',['property_status' => 2], ("_id = '{$this->secureParams['propertyId']}'")));
+                        $stmt = $this->execute($this->update('property',['property_status' => 2], ("_id = '{$param['propertyId']}'")));
 
 
                         $this->resolve('{
@@ -64,8 +64,8 @@ class AdminPropertySummary extends Controller
     // Authenticate Admin 
     private function authenticate()
     {
-        if (isset($this->secureParams['userId'], $this->secureParams['token'])) {
-            if ($this->authenticateAdmin($this->secureParams['userId'], $this->secureParams['token'])) return true;
+        if (isset($param['userId'], $param['token'])) {
+            if ($this->authenticateAdmin($param['userId'], $param['token'])) return true;
             else return false;
         } else return false;
     }

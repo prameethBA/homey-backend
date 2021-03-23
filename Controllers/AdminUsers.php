@@ -64,12 +64,12 @@ class AdminUsers extends Controller
                                 'user.first_name as firstName',
                                 'user.last_name as lastName'
                             ],
-                            (", user WHERE login.user_id = user.user_id AND user.user_id = {$this->secureParams['profile']}")
+                            (", user WHERE login.user_id = user.user_id AND user.user_id = {$param['profile']}")
                         ));
 
                         $result['userData'] = $stmt->fetch();
 
-                        $stmt = $this->execute($this->get('property',['_id', 'title', 'created'], ("user_id = {$this->secureParams['profile']} AND privated = 0")));
+                        $stmt = $this->execute($this->get('property',['_id', 'title', 'created'], ("user_id = {$param['profile']} AND privated = 0")));
 
                         $result['ownPropertyData'] = $stmt->fetchAll();
 
@@ -96,8 +96,8 @@ class AdminUsers extends Controller
     // Authenticate Admin 
     private function authenticate()
     {
-        if (isset($this->secureParams['userId'], $this->secureParams['token'])) {
-            if ($this->authenticateAdmin($this->secureParams['userId'], $this->secureParams['token'])) return true;
+        if (isset($param['userId'], $param['token'])) {
+            if ($this->authenticateAdmin($param['userId'], $param['token'])) return true;
             else return false;
         } else return false;
     }
