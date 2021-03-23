@@ -76,6 +76,55 @@ class Signup extends Controller
         }
     } //End of User()
 
+
+    public function Confirm($a, $param)
+    {
+        try {
+            if (!isset($param['hash'], $param['userId'])) throw new Exception ("Incorrect request");
+            $hash = $param['hash'];
+            $userId = (int)base64_decode($param['userId']); //derive userId
+            $stmt = $this->execute($this->get('hash', 'user_id', "user_id = '{$userId}' AND hash = '{$hash}'"));
+
+            if ($stmt->rowCount() == 1) {
+                $stmt = $this->execute($this->delete('hash', "user_id = {$userId}"));
+                $stmt = $this->execute($this->get('login', ['user_status'], ("user_id = {$userId}")));
+                $result = $stmt->fetch();
+                if ($result['user_status'] == 0) {
+                    $stmt = $this->execute($this->update('login', ['user_status' => 1], ("user_id = {$userId}")));
+                    $this->resolve('{
+                                    "signup": "true",
+                                    "message": "User account succesfully Activated"
+                                }', 201);
+                    $this->addLog($userId . " email confirmed", "email-confirm", "User account activated");
+                } else {
+                    $this->addLog($userId . " email confirmation attepmt rejected.", "email-confirm-rejected");
+                    $this->reject('{
+                        "status": "403",
+                        "signup": "false",
+                        "message": "Blocked or banned user."
+                }', 203);
+                }
+            } else {
+                $this->reject('{
+                                    "status": "203",
+                                    "signup": "false",
+                                    "message": "Invalid request or Link has been expired."
+                                    "test": "Done"
+                            }', 203);
+            }
+        } catch (Exception $err) {
+            $this->addLog("System Error", "email-confirmation-failed", (string)$err->getMessage());
+            $this->reject('{
+                "status": "500",
+                "signup": "false",
+                "message": "' . $err->getMessage() . '"
+            }', 200);
+        }
+    } //End of User()
+
+
+
+
     // //SignUp method
     // public function post() {
 
@@ -91,7 +140,7 @@ class Signup extends Controller
     //             case 'admin':
     //                 if(isset( $param['Firstname'], $param['Lastname'], $param['Email'],  $param['Password'], $param['Nic'])) {
     //                     $email = $param['Email'];
-    //                     $stmt = DB::execute(Login::get('user_id', "email = '{$email}'"));
+    //                     $stmt = $this->execute(Login::get('user_id', "email = '{$email}'"));
 
     //                     if ($stmt->rowCount() == 0) {
     //                         $firstName = $param['Firstname'];
@@ -99,11 +148,11 @@ class Signup extends Controller
     //                         $nic = $param['Nic'];
     //                         $password = md5($param['Password']); //Encrypt password
 
-    //                         $stmt = DB::execute(Login::save(['email' => $email, 'password' => $password]));
-    //                         $stmt = DB::execute(Login::get('user_id', "email = '{$email}' AND password = '{$password}'"));
+    //                         $stmt = $this->execute(Login::save(['email' => $email, 'password' => $password]));
+    //                         $stmt = $this->execute(Login::get('user_id', "email = '{$email}' AND password = '{$password}'"));
     //                         $userId = ($stmt->fetch())['user_id'];
-    //                         $stmt = DB::execute(Admin::save(['user_id' => $userId, 'first_name' => $firstName, 'last_name' => $lastName, 'nic' => $nic]));
-    //                         $stmt = DB::execute(Hash::save(['user_id' => $userId, 'Hash' => $password]));
+    //                         $stmt = $this->execute(Admin::save(['user_id' => $userId, 'first_name' => $firstName, 'last_name' => $lastName, 'nic' => $nic]));
+    //                         $stmt = $this->execute(Hash::save(['user_id' => $userId, 'Hash' => $password]));
 
     //                         http_response_code(201);
     //                         echo $resolve  = '{
@@ -129,66 +178,7 @@ class Signup extends Controller
     //                 break;//End of signup method for User
 
     //             case 'confirm':
-    //                 if(isset( $param['hash'], $param['userId'])) {
-    //                     $hash = $param['hash'];
-    //                     $userId = (int)base64_decode($param['userId']);//derive userId
-
-    //                     $stmt = DB::execute(Hash::get('user_id', "user_id = '{$userId}' AND hash = '{$hash}'"));
-
-    //                     if ($stmt->rowCount() == 1) {
-    //                         $stmt = DB::execute(Hash::delete("user_id = {$userId}"));
-    //                         $stmt = DB::execute(Login::get(['user_status'], ("user_id = {$userId}")));
-    //                         $result = $stmt->fetch();
-    //                         if($result['user_status'] == 0) {
-    //                             $stmt = DB::execute(Login::update(['user_status' => 1], ("user_id = {$userId}")));
-    //                             http_response_code(201);
-    //                             echo $resolve  = '{
-    //                                 "signup": "true",
-    //                                 "message": "User account succesfully Activated."
-    //                                 }';
-    //                         } else {
-    //                             http_response_code(200);
-    //                             die($reject  = '{
-    //                                 "status": "403",
-    //                                 "signup": "false",
-    //                                 "message": "Banned user!"
-    //                             }');
-    //                         }
-    //                     } else {
-    //                         http_response_code(203);
-    //                         die($reject  = '{
-    //                             "status": "203",
-    //                             "signup": "false",
-    //                             "message": "Invalid request or Link has been expired."
-    //                         }');
-    //                     }
-    //                 } else {
-    //                     http_response_code(200);
-    //                     die($reject  = '{
-    //                         "status": "406",
-    //                         "signup": "false",
-    //                         "message": "Invalid parameters."
-    //                     }');
-    //                 }
-    //                 break;
-
-    //             default:
-    //                 http_response_code(200);
-    //                 die($reject  = '{
-    //                     "status": "400",
-    //                     "signup": "false",
-    //                     "message": "Invalid user type."
-    //                 }');
-    //                 //End of Default
-    //         }//End of Switch
-    //     } else {
-
-    //             http_response_code(200);
-    //             die($reject  = '{
-    //                 "status": "400",
-    //                 "signup": "false",
-    //                 "message": "Invalid parameters."
-    //             }');
+    //                 
 
     //     }//End of POST
 
