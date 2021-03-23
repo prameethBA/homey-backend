@@ -130,36 +130,36 @@ class Property extends Controller
     //             switch ($this->params[0]) {
     //                 case 'add-new':
 
-    //                     $userId = $this->secureParams['userId'];
-    //                     $token = $this->secureParams['token'];
+    //                     $userId = $param['userId'];
+    //                     $token = $param['token'];
 
 
     //                     if ($this->authenticateUser($userId, $token)) {
     //                         $id = $this->uniqueKey($userId);
-    //                         $location = json_encode($this->secureParams['location']);
-    //                         $facilities = json_encode($this->secureParams['facilities']);
+    //                         $location = json_encode($param['location']);
+    //                         $facilities = json_encode($param['facilities']);
 
     //                         $data = [
     //                             '_id' => $id,
-    //                             'user_id' => $this->secureParams['userId'],
-    //                             'title' => $this->secureParams['title'],
+    //                             'user_id' => $param['userId'],
+    //                             'title' => $param['title'],
     //                             'location' => $location,
-    //                             'rental_period' => $this->secureParams['rentalperiod'],
-    //                             'price' => (int)$this->secureParams['price'],
-    //                             'key_money' => (int)$this->secureParams['keyMoney'],
-    //                             'minimum_period' => (int)$this->secureParams['minimumPeriod'],
-    //                             'available_from' => $this->secureParams['availableFrom'],
-    //                             'property_type_id' => $this->secureParams['propertyType'],
-    //                             'description' => $this->secureParams['description'],
-    //                             'district_id' => $this->secureParams['district'], //This is unnecceary, can be removed
-    //                             'city_id' => $this->secureParams['city'],
+    //                             'rental_period' => $param['rentalperiod'],
+    //                             'price' => (int)$param['price'],
+    //                             'key_money' => (int)$param['keyMoney'],
+    //                             'minimum_period' => (int)$param['minimumPeriod'],
+    //                             'available_from' => $param['availableFrom'],
+    //                             'property_type_id' => $param['propertyType'],
+    //                             'description' => $param['description'],
+    //                             'district_id' => $param['district'], //This is unnecceary, can be removed
+    //                             'city_id' => $param['city'],
     //                             'facilities' => $facilities
     //                         ];
 
     //                         $stmt = $this->execute($this->save('property', $data));
 
     //                         // save images
-    //                         if (isset($this->secureParams['images'])) {
+    //                         if (isset($param['images'])) {
 
     //                             $path  = $_SERVER["DOCUMENT_ROOT"] . "/data/propertyImages/" . $id;
 
@@ -167,7 +167,7 @@ class Property extends Controller
     //                             if ($this->makeDir($path, 0777, false)) {
     //                                 // Save each image for the created directory
     //                                 $index = 1;
-    //                                 foreach ($this->secureParams['images'] as $img) {
+    //                                 foreach ($param['images'] as $img) {
     //                                     // if file not saved correctly throw an error
     //                                     if (!$this->base64ToImage($img, $path . "/" . $index++)) {
 
@@ -194,18 +194,18 @@ class Property extends Controller
     //                 case 'get':
     //                     switch ($this->params[1]) {
     //                         case 'property':
-    //                             $userId = $this->secureParams['userId'];
-    //                             $token = $this->secureParams['token'];
+    //                             $userId = $param['userId'];
+    //                             $token = $param['token'];
     //                             if ($this->authenticateUser($userId, $token)) {
-    //                                 $stmt = $this->execute($this->get('property', '*', ("_id = '" . $this->secureParams['propertyId'] . "'")));
+    //                                 $stmt = $this->execute($this->get('property', '*', ("_id = '" . $param['propertyId'] . "'")));
 
     //                                 $this->resolve(json_encode($stmt->fetch()), 200);
     //                             } else throw new Exception("Authentication failed. Unauthorized request.");
     //                             break;
 
     //                         case 'own':
-    //                             // $stmt = $this->execute(PropertyModel::join('*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property._id = '{$this->secureParams['propertyId']}'")));
-    //                             $stmt = $this->execute($this->join('property', '*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.user_id = '{$this->secureParams['userId']}' ORDER BY property.created DESC")));
+    //                             // $stmt = $this->execute(PropertyModel::join('*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property._id = '{$param['propertyId']}'")));
+    //                             $stmt = $this->execute($this->join('property', '*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.user_id = '{$param['userId']}' ORDER BY property.created DESC")));
 
     //                             $this->resolve(json_encode($stmt->fetchAll()), 200);
     //                             break;
@@ -216,8 +216,8 @@ class Property extends Controller
 
     //                     break;
     //                 case 'remove':
-    //                     $this->exec($this->delete('property', "_id = '{$this->secureParams['propertyId']}'"));
-    //                     $this->exec($this->delete('propertysettings', "property_id = '{$this->secureParams['propertyId']}'"));
+    //                     $this->exec($this->delete('property', "_id = '{$param['propertyId']}'"));
+    //                     $this->exec($this->delete('propertysettings', "property_id = '{$param['propertyId']}'"));
 
 
     //                     $this->resolve('{
@@ -229,7 +229,7 @@ class Property extends Controller
     //                 case 'favourite':
     //                     switch ($this->params[1]) {
     //                         case 'get':
-    //                             $stmt = $this->execute($this->get('favourite', 'COUNT(_id) as count', ("user_id = {$this->secureParams['userId']} AND property_id = '{$this->secureParams['propertyId']}'")));
+    //                             $stmt = $this->execute($this->get('favourite', 'COUNT(_id) as count', ("user_id = {$param['userId']} AND property_id = '{$param['propertyId']}'")));
 
     //                             $this->resolve('{
     //                                 "action": "' . $stmt->fetch()['count'] . '",
@@ -240,17 +240,17 @@ class Property extends Controller
     //                             break;
 
     //                         case 'getAll':
-    //                             $userId = $this->secureParams['userId'];
-    //                             $token = $this->secureParams['token'];
+    //                             $userId = $param['userId'];
+    //                             $token = $param['token'];
     //                             if ($this->authenticateUser($userId, $token)) {
-    //                                 $stmt = $this->execute($this->join('property', '*', ("INNER JOIN favourite  ON property._id = favourite.property_id WHERE NOT property.user_id = '" . $this->secureParams['userId'] . "' AND favourite.user_id = '" . $this->secureParams['userId'] . "'")));
+    //                                 $stmt = $this->execute($this->join('property', '*', ("INNER JOIN favourite  ON property._id = favourite.property_id WHERE NOT property.user_id = '" . $param['userId'] . "' AND favourite.user_id = '" . $param['userId'] . "'")));
 
     //                                 $this->resolve(json_encode($stmt->fetchAll()), 200);
     //                             } else throw new Exception("Authentication failed. Unauthorized request.");
     //                             break;
 
     //                         case 'add':
-    //                             $stmt = $this->execute($this->save('favourite', ['user_id' => $this->secureParams['userId'], 'property_id' => $this->secureParams['propertyId']]));
+    //                             $stmt = $this->execute($this->save('favourite', ['user_id' => $param['userId'], 'property_id' => $param['propertyId']]));
 
     //                             $this->resolve('{
     //                                 "status": "204",
@@ -259,7 +259,7 @@ class Property extends Controller
     //                             break;
 
     //                         case 'remove':
-    //                             $stmt = $this->execute($this->delete('favourite', ("property_id = '{$this->secureParams['propertyId']}' AND user_id = '{$this->secureParams['userId']}'")));
+    //                             $stmt = $this->execute($this->delete('favourite', ("property_id = '{$param['propertyId']}' AND user_id = '{$param['userId']}'")));
 
     //                             $this->resolve('{
     //                                 "status": "204",
@@ -275,8 +275,8 @@ class Property extends Controller
     //                     switch ($this->params[2]) {
 
     //                         case 'own':
-    //                             $userId = $this->secureParams['userId'];
-    //                             $token = $this->secureParams['token'];
+    //                             $userId = $param['userId'];
+    //                             $token = $param['token'];
     //                             if (!$this->authenticateUser($userId, $token)) throw new Exception("Authentication failed. Unauthorized request.");
     //                             //filter filter option switch
     //                             switch ($this->params[3]) {
@@ -310,8 +310,8 @@ class Property extends Controller
     //                 case 'reserved':
     //                     switch ($this->params[1]) {
     //                         case 'own':
-    //                             $userId = $this->secureParams['userId'];
-    //                             $token = $this->secureParams['token'];
+    //                             $userId = $param['userId'];
+    //                             $token = $param['token'];
     //                             if ($this->authenticateUser($userId, $token)) {
     //                                 $stmt = $this->execute($this->join('property', '*', ("
     //                                     p, propertysettings s, propertyreserved r  
@@ -351,15 +351,15 @@ class Property extends Controller
     //             switch ($this->params[0]) {
     //                 case 'settings':
     //                     $data = [
-    //                         'property_id' => $this->secureParams['propertyId'],
-    //                         'boost' => (bool)$this->secureParams['boost'] ? 1 : 0,
-    //                         'schedule' => (bool)$this->secureParams['schedule'] ? 1 : 0,
-    //                         'schedule_date' => $this->secureParams['scheduleDate'],
-    //                         'schedule_time' => $this->secureParams['scheduleTime'],
-    //                         'sharing' => (bool)$this->secureParams['sharing'] ? 1 : 0,
+    //                         'property_id' => $param['propertyId'],
+    //                         'boost' => (bool)$param['boost'] ? 1 : 0,
+    //                         'schedule' => (bool)$param['schedule'] ? 1 : 0,
+    //                         'schedule_date' => $param['scheduleDate'],
+    //                         'schedule_time' => $param['scheduleTime'],
+    //                         'sharing' => (bool)$param['sharing'] ? 1 : 0,
     //                     ];
     //                     $this->execute($this->save('propertysettings', $data));
-    //                     $this->execute($this->update('property', ['privated' => (bool)$this->secureParams['privated'] ? 1 : 0], ("_id = '{$this->secureParams['propertyId']}'")));
+    //                     $this->execute($this->update('property', ['privated' => (bool)$param['privated'] ? 1 : 0], ("_id = '{$param['propertyId']}'")));
 
     //                     $this->resolve('{
     //                         "message": "Property Settings Applied."
@@ -368,7 +368,7 @@ class Property extends Controller
 
     //                 case 'online-payment':
 
-    //                     $this->exec($this->update('property', ['accept_online_payment' => (int)$this->secureParams['onlinePayment']], ("property_id = '{$this->secureParams['propertyId']}'")));
+    //                     $this->exec($this->update('property', ['accept_online_payment' => (int)$param['onlinePayment']], ("property_id = '{$param['propertyId']}'")));
 
     //                     $this->resolve('{
     //                             "status": "204",
@@ -378,7 +378,7 @@ class Property extends Controller
 
     //                 case 'visibility':
 
-    //                     $this->exec($this->update('property', ['privated' => (int)$this->secureParams['visibility']], ("_id = '{$this->secureParams['propertyId']}'")));
+    //                     $this->exec($this->update('property', ['privated' => (int)$param['visibility']], ("_id = '{$param['propertyId']}'")));
 
     //                     $this->resolve('{
     //                                 "status": "204",
@@ -404,8 +404,8 @@ class Property extends Controller
     // // Authenticate User 
     // private function authenticate()
     // {
-    //     if (isset($this->secureParams['userId'], $this->secureParams['token'])) {
-    //         if ($this->authenticateUser($this->secureParams['userId'], $this->secureParams['token'])) return true;
+    //     if (isset($param['userId'], $param['token'])) {
+    //         if ($this->authenticateUser($param['userId'], $param['token'])) return true;
     //         else return false;
     //     } else return false;
     // } //end of authenticateUser()

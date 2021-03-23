@@ -34,7 +34,7 @@ class AdminPropertyPreview extends Controller
                         // 'city_id',
                         // 'property_type_id',
 
-                        $stmt = $this->execute($this->get('property',$data, ("_id = '{$this->secureParams['id']}' AND property_status = 0")));
+                        $stmt = $this->execute($this->get('property',$data, ("_id = '{$param['id']}' AND property_status = 0")));
 
                         $this->resolve(json_encode($stmt->fetch()),200);
 
@@ -58,8 +58,8 @@ class AdminPropertyPreview extends Controller
     // Authenticate Admin 
     private function authenticate()
     {
-        if (isset($this->secureParams['userId'], $this->secureParams['token'])) {
-            if ($this->authenticateAdmin($this->secureParams['userId'], $this->secureParams['token'])) return true;
+        if (isset($param['userId'], $param['token'])) {
+            if ($this->authenticateAdmin($param['userId'], $param['token'])) return true;
             else return false;
         } else return false;
     }

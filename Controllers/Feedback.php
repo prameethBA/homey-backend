@@ -20,9 +20,9 @@ class Feedback extends Controller
                     case 'add':
 
                         $data = [
-                            'user_id' => (int)$this->secureParams['anonymous'] == 0 ? $this->secureParams['userId'] : 0,
-                            'property_id' => $this->secureParams['propertyId'],
-                            'feedback' => $this->secureParams['feedback']
+                            'user_id' => (int)$param['anonymous'] == 0 ? $param['userId'] : 0,
+                            'property_id' => $param['propertyId'],
+                            'feedback' => $param['feedback']
                         ];
 
                         $stmt = $this->execute($this->save('feed',$data));
@@ -37,7 +37,7 @@ class Feedback extends Controller
                         switch ($this->params[1]) {
                             case 'all':
 
-                                $stmt = $this->execute($this->get('feed','_id as id', "property_id='{$this->secureParams['propertyId']}'"));
+                                $stmt = $this->execute($this->get('feed','_id as id', "property_id='{$param['propertyId']}'"));
                                 
                                 $this->resolve(json_encode($stmt->fetchAll()),200);
 
@@ -63,10 +63,10 @@ class Feedback extends Controller
                             case 'save':
 
                                 $data = [
-                                    'user_id' => $this->secureParams['userId'],
-                                    'property_id' => $this->secureParams['propertyId'],
-                                    'reason' => $this->secureParams['reason'],
-                                    'message' => $this->secureParams['message']
+                                    'user_id' => $param['userId'],
+                                    'property_id' => $param['propertyId'],
+                                    'reason' => $param['reason'],
+                                    'message' => $param['message']
                                 ];
 
                                 $stmt = $this->execute($this->save('report',$data));
@@ -103,8 +103,8 @@ class Feedback extends Controller
     // Authenticate User 
     private function authenticate()
     {
-        if (isset($this->secureParams['userId'], $this->secureParams['token'])) {
-            if ($this->authenticateUser($this->secureParams['userId'], $this->secureParams['token'])) return true;
+        if (isset($param['userId'], $param['token'])) {
+            if ($this->authenticateUser($param['userId'], $param['token'])) return true;
             else return false;
         } else return false;
     } //end of authenticateUser()

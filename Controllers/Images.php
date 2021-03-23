@@ -230,8 +230,8 @@ class Images extends Controller
     // // Authenticate User 
     // private function authenticate()
     // {
-    //     if (isset($this->secureParams['userId'], $this->secureParams['token'])) {
-    //         if ($this->authenticateUser($this->secureParams['userId'], $this->secureParams['token'])) return true;
+    //     if (isset($param['userId'], $param['token'])) {
+    //         if ($this->authenticateUser($param['userId'], $param['token'])) return true;
     //         else return false;
     //     } else return false;
     // } //end of authenticateUser()
