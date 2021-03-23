@@ -9,26 +9,23 @@ require_once('DB/DB.php');
 
 use \Core\DB\DB as DB;
 
-class BaseModel extends DB
+class Model extends DB
 {
 
-    protected static $table;
-    protected $schema = [];
-
-    public static function getAll($select = '*', $limit = '', $offset = 0)
+    public static function getAll($table, $select = '*', $limit = '', $offset = 0)
     {
 
         // set limits
         $limit = is_int($limit) ? " LIMIT " . $offset . ", " . $limit : "";
 
         if (is_string($select))
-            $sql = "SELECT " . $select . " FROM " . static::$table . $limit;
+            $sql = "SELECT " . $select . " FROM " . $table . $limit;
         else
-            $sql = "SELECT " . implode(', ', $select) . " FROM " . static::$table . $limit;
+            $sql = "SELECT " . implode(', ', $select) . " FROM " . $table . $limit;
         return $sql;
     }
 
-    public static function get($select = '*', $condition = '', $limit = '', $offset = 0)
+    public static function get($table, $select = '*', $condition = '', $limit = '', $offset = 0)
     {
 
         // set limits
@@ -37,14 +34,14 @@ class BaseModel extends DB
         $condition = $condition === '' ? '' : ' WHERE ' . $condition;
 
         if (is_string($select))
-            $sql = "SELECT " . $select . " FROM " . static::$table . $condition . $limit;
+            $sql = "SELECT " . $select . " FROM " . $table . $condition . $limit;
         else
-            $sql = "SELECT " . implode(', ', $select) . " FROM " . static::$table . $condition . $limit;
+            $sql = "SELECT " . implode(', ', $select) . " FROM " . $table . $condition . $limit;
 
         return $sql;
     }
 
-    public static function getHaving($select = '*', $condition = '', $limit = '', $offset = 0)
+    public static function getHaving($table, $select = '*', $condition = '', $limit = '', $offset = 0)
     {
 
         // set limits
@@ -53,14 +50,14 @@ class BaseModel extends DB
         $condition = $condition === '' ? '' : ' HAVING ' . $condition;
 
         if (is_string($select))
-            $sql = "SELECT " . $select . " FROM " . static::$table . $condition . $limit;
+            $sql = "SELECT " . $select . " FROM " . $table . $condition . $limit;
         else
-            $sql = "SELECT " . implode(', ', $select) . " FROM " . static::$table . $condition . $limit;
+            $sql = "SELECT " . implode(', ', $select) . " FROM " . $table . $condition . $limit;
 
         return $sql;
     }
 
-    public static function join($select = '*', $condition = '', $limit = '', $offset = 0)
+    public static function join($table, $select = '*', $condition = '', $limit = '', $offset = 0)
     {
 
         // set limits
@@ -69,18 +66,18 @@ class BaseModel extends DB
         $condition = $condition === '' ? '' :  $condition;
 
         if (is_string($select))
-            $sql = "SELECT " . $select . " FROM " . static::$table . " " . $condition . $limit;
+            $sql = "SELECT " . $select . " FROM " . $table . " " . $condition . $limit;
         else
-            $sql = "SELECT " . implode(', ', $select) . " FROM " . static::$table . " " . $condition . $limit;
+            $sql = "SELECT " . implode(', ', $select) . " FROM " . $table . " " . $condition . $limit;
 
         return $sql;
     }
 
-    public static function save($data)
+    public static function save($table, $data)
     {
 
-        $keys;
-        $values;
+        $keys = '';
+        $values = '';
 
         foreach ($data as $key => $value) {
             $keys .= $key . ", ";
@@ -88,20 +85,20 @@ class BaseModel extends DB
             $values .= is_int($value) ? $value . ", " : "'" . $value . "', ";
         }
 
-        $sql = "INSERT INTO " . static::$table  . "(" . rtrim($keys, ', ') . ") VALUES(" . rtrim($values, ', ') . ")";
+        $sql = "INSERT INTO " . $table  . "(" . rtrim($keys, ', ') . ") VALUES(" . rtrim($values, ', ') . ")";
 
         return $sql;
     }
 
-    public static function delete($condition)
+    public static function delete($table, $condition)
     {
-        $sql = "DELETE FROM " . static::$table . " WHERE " . $condition;
+        $sql = "DELETE FROM " . $table . " WHERE " . $condition;
         return $sql;
     }
 
-    public static function update($columns, $condition)
+    public static function update($table, $columns, $condition)
     {
-        $sql = "UPDATE " . static::$table . " SET ";
+        $sql = "UPDATE " . $table . " SET ";
 
         foreach ($columns as $key => $value) {
             if (is_int($value))
