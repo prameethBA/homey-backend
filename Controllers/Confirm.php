@@ -4,23 +4,12 @@ namespace Controllers;
 
 use Exception;
 
-require_once('Core/BaseController.php');
-use Core\BaseController as BaseController;
-require_once('Models/ConfirmationInfo.php');
-use Models\ConfirmationInfo as Hash;
-require_once('Models/Login.php');
-use Models\Login as Login;
+require_once('Core/Controller.php');
+use Core\Controller as Controller;
 
-require_once('Core/DB/DB.php');
-use Core\DB\DB as DB;
+class Confirm extends Controller {
 
-class Confirm extends BaseController {
-
-    public function __construct($params, $secureParams) {
-        parent::__construct($params, $secureParams);
-        new Hash();
-        new Login();
-    }
+   
 
     public function get() {
         try {
