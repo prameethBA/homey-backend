@@ -14,10 +14,10 @@ class Profile extends Controller
     public function GetInfo($a, $param)
     {
         try {
-            $userId = $param['userId'];
-            $token = $param['token'];
-            if (!$this->authenticateUser($param['token'], $userId)) throw new Exception("Authentication failed.");
-            $stmt = $this->execute($this->get('login', ['email', 'mobile', 'updated as lastLogin'], ("user_id = '{$this->param['userId']}'")));
+            $userId = (int)$param['userId'];
+            $token = (string)$param['token'];
+            if (!$this->authenticateUser($token, $userId)) throw new Exception("Authentication failed.");
+            $stmt = $this->execute($this->get('login', ['email', 'mobile', 'updated as lastLogin'], ("user_id = '{$userId}'")));
             $authData = json_encode($stmt->fetch());
             $stmt = $this->execute($this->get('user', [
                 'first_name as firstName',
@@ -29,7 +29,7 @@ class Profile extends Controller
                 'district',
                 'dob',
                 'nic'
-            ], ("user_id = '{$this->param['userId']}'")));
+            ], ("user_id = '{$userId}'")));
             $userData = json_encode($stmt->fetch());
 
 
@@ -47,89 +47,128 @@ class Profile extends Controller
         }
     }
 
-
-    public function post()
+    //Update Profile
+    public function UpdateProfile($a, $param)
     {
         try {
-            if (isset($this->params[0])) {
-                if (!$this->authenticate()) throw new Exception("Unautherized request.");
-                switch ($this->params[0]) {
-                    case 'info':
+            $userId = (int)$param['userId'];
+            $token = (string)$param['token'];
+            if (!$this->authenticateUser($token, $userId)) throw new Exception("Authentication failed.");
+            $loginData = [
+                'email' => $param['email'],
+                'mobile' => $param['mobile'] == '' ? NULL : $param['mobile'],
+            ];
 
+            $userData = [
+                'first_name' => $param['firstName'],
+                'last_name' => $param['lastName'],
+                'nic' => $param['nic'],
+                'address1' => $param['address1'],
+                'address2' => $param['address2'],
+                'address3' => $param['address3'],
+                'city' => $param['city'],
+                'district' => $param['district'],
+                'dob' => $param['dob'],
+            ];
 
-                        break;
+            $this->execute($this->update('login', $loginData, ("user_id = '{$userId}'")));
+            $this->execute($this->update('user', $userData, ("user_id = '{$userId}'")));
 
-                    case 'update':
-
-                        $loginData = [
-                            'email' => $this->param['email'],
-                            'mobile' => $this->param['mobile'] == '' ? NULL : $this->param['mobile'],
-                        ];
-
-                        $userData = [
-                            'first_name' => $this->param['firstName'],
-                            'last_name' => $this->param['lastName'],
-                            'nic' => $this->param['nic'],
-                            'address1' => $this->param['address1'],
-                            'address2' => $this->param['address2'],
-                            'address3' => $this->param['address3'],
-                            'city' => $this->param['city'],
-                            'district' => $this->param['district'],
-                            'dob' => $this->param['dob'],
-                        ];
-
-                        $stmt = $this->execute($this->update('login', $loginData, ("user_id = '{$this->param['userId']}'")));
-                        $stmt = $this->execute($this->update('user', $userData, ("user_id = '{$this->param['userId']}'")));
-
-                        $this->resolve('{
-                            "message" : "Profile update successfully"
-                        }', 201);
-
-                        break;
-
-                    case 'validate':
-                        switch ($this->params[1]) {
-                            case 'mobile':
-                                $stmt = $this->execute($this->get('login', 'mobile', ("user_id = '{$this->param['userId']}'")));
-                                $mobile = $stmt->fetch()['mobile'];
-                                if ($mobile != NULL) {
-                                    $resolve = '{
-                                            "action":"true",
-                                            "mobile":"' . $mobile . '",
-                                            "message" : "Mobile number updated"
-                                        }';
-                                } else {
-                                    $resolve = '{
-                                            "action":"false",
-                                            "message" : "Mobile not number updated"
-                                        }';
-                                }
-                                $this->resolve($resolve, 200);
-                                break;
-                        }
-                        break;
-
-                    default:
-                        throw new Exception("Invalid Request");
-                }
-            } else throw new Exception("Invalid Parmeters");
+            $this->resolve('{
+                                "message" : "Profile update successfully"
+                            }', 201);
         } catch (Exception $err) {
             $this->reject('{
-                "status": "500",
-                "error": "true",
-                "message": "' . $err->getMessage() . '"
-        }', 200);
-        } //End of try catch
+                            "status": "500",
+                            "error": "true",
+                            "message": "' . $err->getMessage() . '"
+                        }
+                    }', 200);
+        }
+    }
 
-    } //End of post
+    // public function post()
+    // {
+    //     try {
+    //         if (isset($params[0])) {
+    //             if (!$this->authenticate()) throw new Exception("Unautherized request.");
+    //             switch ($params[0]) {
+    //                 case 'info':
 
-    // Authenticate User 
-    private function authenticate()
-    {
-        if (isset($this->param['userId'], $this->param['token'])) {
-            if ($this->authenticateUser($this->param['userId'], $this->param['token'])) return true;
-            else return false;
-        } else return false;
-    } //end of authenticateUser()
+
+    //                     break;
+
+    //                 case 'update':
+
+    //                     $loginData = [
+    //                         'email' => $param['email'],
+    //                         'mobile' => $param['mobile'] == '' ? NULL : $param['mobile'],
+    //                     ];
+
+    //                     $userData = [
+    //                         'first_name' => $param['firstName'],
+    //                         'last_name' => $param['lastName'],
+    //                         'nic' => $param['nic'],
+    //                         'address1' => $param['address1'],
+    //                         'address2' => $param['address2'],
+    //                         'address3' => $param['address3'],
+    //                         'city' => $param['city'],
+    //                         'district' => $param['district'],
+    //                         'dob' => $param['dob'],
+    //                     ];
+
+    //                     $stmt = $this->execute($this->update('login', $loginData, ("user_id = '{$userId}'")));
+    //                     $stmt = $this->execute($this->update('user', $userData, ("user_id = '{$userId}'")));
+
+    //                     $this->resolve('{
+    //                         "message" : "Profile update successfully"
+    //                     }', 201);
+
+    //                     break;
+
+    //                 case 'validate':
+    //                     switch ($params[1]) {
+    //                         case 'mobile':
+    //                             $stmt = $this->execute($this->get('login', 'mobile', ("user_id = '{$userId}'")));
+    //                             $mobile = $stmt->fetch()['mobile'];
+    //                             if ($mobile != NULL) {
+    //                                 $resolve = '{
+    //                                         "action":"true",
+    //                                         "mobile":"' . $mobile . '",
+    //                                         "message" : "Mobile number updated"
+    //                                     }';
+    //                             } else {
+    //                                 $resolve = '{
+    //                                         "action":"false",
+    //                                         "message" : "Mobile not number updated"
+    //                                     }';
+    //                             }
+    //                             $this->resolve($resolve, 200);
+    //                             break;
+    //                     }
+    //                     break;
+
+    //                 default:
+    //                     throw new Exception("Invalid Request");
+    //             }
+    //         } else throw new Exception("Invalid Parmeters");
+    //     } catch (Exception $err) {
+    //         $this->reject('{
+    //             "status": "500",
+    //             "error": "true",
+    //             "message": "' . $err->getMessage() . '"
+    //     }', 200);
+    //     } //End of try catch
+
+    // } //End of post
+
+    // // Authenticate User 
+    // private function authenticate()
+    // {
+    //     if (isset($userId, $param['token'])) {
+    //         if ($this->authenticateUser($userId, $param['token'])) return true;
+    //         else return false;
+    //     } else return false;
+    // } //end of authenticateUser()
 
 }//End of Class

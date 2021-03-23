@@ -111,6 +111,33 @@ class Login extends Controller
                 "message": "' . $err->getMessage() . '"
             }', 200);
         }
+    } //End of request Login
+
+    //Change password
+    public function changePassword($a, $param)
+    {
+        try {
+            $userId = (int)$param['userId'];
+            $token = (string)$param['token'];
+            if (!$this->authenticateUser($token, $userId)) throw new Exception("Authentication failed.");
+            $password = md5($param['old']);
+            $newPassword = (string)md5($param['new']);
+            $stmt = $this->execute($this->get('login', 'password', "user_id='" . $userId . "' AND password = '{$password}'"));
+            if ($stmt->rowCount() != 1) throw new Exception("Current password is invalid!");
+            $stmt = $this->execute($this->update('login', ['password' => $newPassword], ("user_id = '{$userId}'")));
+            $this->resolve('{
+                                        "message": "Password has been changed."
+                                    }', 201);
+            $this->addLog($userId . " has changed the password.", "password-change-success");
+        } catch (Exception $err) {
+            $this->addLog(" Atempt of password changing failed.", "password-change-failed", (string)$err->getMessage());
+            $this->reject('{
+                            "status": "500",
+                            "error": "true",
+                            "message": "' . $err->getMessage() . '"
+                        }
+                    }', 200);
+        }
     }
 
     //     //Login method
@@ -127,11 +154,11 @@ class Login extends Controller
     //                 if (!$this->authenticate()) throw new Exception("Unauthorized request.");
     //                 switch ($this->params[0]) {
     //                     case 'password':
-    //                         $this->secureParams['password'] = $this->secureParams['old'];
-    //                         $this->secureParams['userName'] = $this->secureParams['email'];
-    //                         $newPassword = md5($this->secureParams['new']);
+    //                         $param['password'] = $param['old'];
+    //                         $param['userName'] = $param['email'];
+    //                         $newPassword = md5($param['new']);
     //                         if (!$this->userLogin()) throw new Exception("Current password is invalid!");
-    //                         $stmt = static::execute(static::update('login', ['password' => $newPassword], ("user_id = '{$this->secureParams['userId']}'")));
+    //                         $stmt = static::execute(static::update('login', ['password' => $newPassword], ("user_id = '{$param['userId']}'")));
     //                         http_response_code(201);
     //                         echo $resolve = '{
     //                             "message": "Password has been changed."
@@ -185,8 +212,8 @@ class Login extends Controller
     //     // Authenticate User 
     //     private function authenticate()
     //     {
-    //         if (isset($this->secureParams['userId'], $this->secureParams['token'])) {
-    //             if ($this->authenticateUser($this->secureParams['userId'], $this->secureParams['token'])) return true;
+    //         if (isset($param['userId'], $param['token'])) {
+    //             if ($this->authenticateUser($param['userId'], $param['token'])) return true;
     //             else return false;
     //         } else return false;
     //     } //end of authenticateUser()
@@ -194,9 +221,9 @@ class Login extends Controller
     //     // Login method for non logged user
     //     private function userLogin()
     //     {
-    //         if (isset($this->secureParams['userName'], $this->secureParams['password'])) {
-    //             $userName = $this->secureParams['userName'];
-    //             $password = md5($this->secureParams['password']); //Encode the password
+    //         if (isset($param['userName'], $param['password'])) {
+    //             $userName = $param['userName'];
+    //             $password = md5($param['password']); //Encode the password
     //             $stmt = DB::execute(LoginModel::get(['user_id', 'email', 'user_status', 'user_type'], "(email='{$userName}' OR mobile='{$userName}') AND password='{$password}'"));
     //             if ($stmt->rowCount() == 1) {
     //                 $this->state['result'] = $stmt->fetch();
@@ -222,9 +249,9 @@ class Login extends Controller
     //     // validate already logged user with token and userName
     //     private function validateLoggedUser()
     //     {
-    //         if (isset($this->secureParams['userId'], $this->secureParams['token'])) {
-    //             $userId = $this->secureParams['userId'];
-    //             $token = $this->secureParams['token'];
+    //         if (isset($param['userId'], $param['token'])) {
+    //             $userId = $param['userId'];
+    //             $token = $param['token'];
     //             $stmt = DB::execute(LoginModel::get(['user_id', 'email', 'access_token', 'user_status', 'user_type'], "access_token='{$token}' AND user_id='{$userId}'"));
     //             if ($stmt->rowCount() == 1) {
     //                 $this->state['result'] = $stmt->fetch();
