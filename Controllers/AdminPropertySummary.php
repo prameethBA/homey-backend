@@ -6,7 +6,7 @@ use Exception;
 
 require_once('Core/Controller.php');
 
-use Core\BaseController as Controller;
+use Core\Controller as Controller;
 
 
 class AdminPropertySummary extends Controller
