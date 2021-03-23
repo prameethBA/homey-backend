@@ -9,8 +9,6 @@ use Core\Controller as Controller;
 
 class Dev extends Controller {
 
-    
-
     public function get() {
         try {
             if(isset($this->params[0])) {

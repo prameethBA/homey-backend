@@ -45,6 +45,40 @@ class Login extends Controller
             $rows = $stmt->rowCount();
             $result = $stmt->fetch();
             if ($rows == 1) {
+                //Check wheather user able to login the system
+                switch ($result['userStatus']) {
+                    case '0':
+                        $this->reject('{
+                            "status": "401",
+                            "signup": "false",
+                            "message": "Confirm the email before login"
+                        }', 200);
+                        break;
+                    case '2':
+                        $this->reject('{
+                                "status": "403",
+                                "signup": "false",
+                                "message": "User temporarily blocked by admin"
+                            }', 200);
+                        break;
+                    case '3':
+                        $this->reject('{
+                                    "status": "403",
+                                    "signup": "false",
+                                    "message": "User permanently banned"
+                                }', 200);
+                        break;
+                    case '4':
+                        $this->reject('{
+                                        "status": "401",
+                                        "signup": "false",
+                                        "message": "Confirm the email before login.As admin requested."
+                                    }', 200);
+                        break;
+                    default:
+                        //No default
+                        break;
+                }
                 $payload = "{id:" . $result['userId'] . ",email:'" . $result['email'] . "'}";
 
                 $this->setToken($payload, $result['userId']);
@@ -66,11 +100,16 @@ class Login extends Controller
                 $this->reject('{
                     "status": "404",
                     "login": "false",
-                    "message": "Login failed! <br> Invalid Email, Mobile, Password or Blocked."
+                    "message": "Login failed! <br> Invalid Email, Mobile, Password"
                 }', 200);
             }
         } catch (Exception $err) {
-            $this->addLog("Login attempt failed", "login-attepmt-failed", $err->getMessage());
+            $this->addLog("Login attempt failed", "login-attepmt-failed", (string)$err->getMessage());
+            $this->reject('{
+                "status": "500",
+                "login": "false",
+                "message": "' . $err->getMessage() . '"
+            }', 200);
         }
     }
 
