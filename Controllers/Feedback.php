@@ -4,31 +4,12 @@ namespace Controllers;
 
 use Exception;
 
-require_once('Core/BaseController.php');
+require_once('Core/Controller.php');
 
-use Core\BaseController as BaseController;
+use Core\Controller as Controller;
 
-require_once('Models/Feedback.php');
-
-use Models\Feedback as Feed;
-
-require_once('Models/Report.php');
-
-use Models\Report as Report;
-
-require_once('Core/DB/DB.php');
-
-use Core\DB\DB as DB;
-
-class Feedback extends BaseController
+class Feedback extends Controller
 {
-
-    public function __construct($params, $secureParams)
-    {
-        parent::__construct($params, $secureParams);
-        new Feed();
-        new Report();
-    }
 
     public function post()
     {
@@ -44,7 +25,7 @@ class Feedback extends BaseController
                             'feedback' => $this->secureParams['feedback']
                         ];
 
-                        $stmt = DB::execute(Feed::save($data));
+                        $stmt = $this->execute($this->save('feed',$data));
                         http_response_code(201);
                         echo $resolve = '{
                             "action": "true",
@@ -56,7 +37,7 @@ class Feedback extends BaseController
                         switch ($this->params[1]) {
                             case 'all':
 
-                                $stmt = DB::execute(Feed::get('_id as id', "property_id='{$this->secureParams['propertyId']}'"));
+                                $stmt = $this->execute($this->get('feed','_id as id', "property_id='{$this->secureParams['propertyId']}'"));
                                 http_response_code(201);
                                 echo json_encode($stmt->fetchAll());
                                 break;
@@ -68,7 +49,7 @@ class Feedback extends BaseController
                                     'user.first_name as firstName',
                                     'user.last_name as lastName'
                                 ];
-                                $stmt = DB::execute(Feed::join($data, "LEFT JOIN user ON feedback.user_id=user._id WHERE feedback._id='{$this->params[1]}'"));
+                                $stmt = $this->execute($this->join('feed',$data, "LEFT JOIN user ON feedback.user_id=user._id WHERE feedback._id='{$this->params[1]}'"));
                                 http_response_code(201);
                                 echo json_encode($stmt->fetch());
                                 break;
@@ -87,7 +68,7 @@ class Feedback extends BaseController
                                     'message' => $this->secureParams['message']
                                 ];
 
-                                $stmt = DB::execute(Report::save($data));
+                                $stmt = $this->execute($this->save('report',$data));
                                 http_response_code(201);
                                 echo $reject = '{
                                     "action": "true",
@@ -95,7 +76,7 @@ class Feedback extends BaseController
                                 }';
                                 break;
                             case 'all':
-                                $stmt = DB::execute(Report::getAll());
+                                $stmt = $this->execute($this->getAll('report'));
                                 http_response_code(200);
                                 echo json_encode($stmt->fetchAll());
                                 break;

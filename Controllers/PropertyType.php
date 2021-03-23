@@ -4,32 +4,25 @@ namespace Controllers;
 
 use Exception;
 
-require_once('Core/BaseController.php');
-use Core\BaseController as BaseController;
-require_once('Models/PropertyType.php');
-use Models\PropertyType as Property;
+require_once('Core/Controller.php');
 
-require_once('Core/DB/DB.php');
-use Core\DB\DB as DB;
+use Core\Controller as Controller;
 
-class PropertyType extends BaseController {
+class PropertyType extends Controller
+{
 
-    public function __construct($params, $secureParams) {
-        parent::__construct($params, $secureParams);
-        new Property();
-    }
 
-    public function get() {
+    public function get()
+    {
         try {
-            $stmt = DB::execute(Property::getAll());
-            
+            $stmt = $this->execute(Property::getAll('property'));
+
             http_response_code(200);
             echo $resolve = '{
                 "data":' . json_encode($stmt->fetchAll()) . '
             }
             ';
-
-        } catch(Exception $err) {
+        } catch (Exception $err) {
             http_response_code(500);
             die($reject = '{
                 "data": {
@@ -38,7 +31,6 @@ class PropertyType extends BaseController {
                 }
             }');
         }
-            
-    }//End of GET
+    } //End of GET
 
 }//End of Class

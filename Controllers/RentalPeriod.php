@@ -4,31 +4,18 @@ namespace Controllers;
 
 use Exception;
 
-require_once('Core/BaseController.php');
+require_once('Core/Controller.php');
 
-use Core\BaseController as BaseController;
+use Core\Controller as Controller;
 
-require_once('Models/RentalPeriod.php');
-
-use Models\RentalPeriod as Rental;
-
-require_once('Core/DB/DB.php');
-
-use Core\DB\DB as DB;
-
-class RentalPeriod extends BaseController
+class RentalPeriod extends Controller
 {
 
-    public function __construct($params, $secureParams)
-    {
-        parent::__construct($params, $secureParams);
-        new Rental();
-    }
 
     public function get()
     {
         try {
-            $stmt = DB::execute(Rental::getAll());
+            $stmt = $this->execute($this->getAll('rental'));
 
             http_response_code(200);
             echo $resolve = json_encode($stmt->fetchAll());

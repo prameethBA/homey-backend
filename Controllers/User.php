@@ -4,33 +4,10 @@ namespace Controllers;
 
 use Exception;
 
-require_once('Core/BaseController.php');
-use Core\BaseController as BaseController;
+require_once('Core/Controller.php');
+use Core\Controller as Controller;
 
-require_once('Models/Login.php');
-use Models\Login as Login;
-require_once('Models/User.php');
-use Models\User as UserModel;
-require_once('Models/Admin.php');
-use Models\Admin as Admin;
-require_once('Core/DB/DB.php');
-use Core\DB\DB as DB;
-
-class User extends BaseController {
-
-    public function __construct($params, $secureParams) {
-        parent::__construct($params, $secureParams);
-        new Login();
-        new UserModel();
-        new Admin();
-    }
-
-    public function get() {
-        http_response_code(406);
-            die($reject = '{
-                "message": "Invalid Request"
-            }');    
-    }
+class User extends Controller {
 
     //SignUp method
     public function post() {
@@ -42,7 +19,7 @@ class User extends BaseController {
                     // deactivate a user
                     case 'deactivate':
                         if(!$this->authenticateAdmin($this->secureParams['userId'], $this->secureParams['token'])) throw 'Unauthorized request';
-                        DB::execute(Login::update(['user_status' =>  2/*2 for blocked*/],'user_id = ' . $this->params['1']));
+                        $this->execute($this->update('login',['user_status' =>  2/*2 for blocked*/],'user_id = ' . $this->params['1']));
                         http_response_code(200);
                         echo '{
                             "status":"200",
@@ -54,7 +31,7 @@ class User extends BaseController {
                         // activate a user
                     case 'activate':
                         if(!$this->authenticateAdmin($this->secureParams['userId'], $this->secureParams['token'])) throw 'Unauthorized request';
-                        DB::execute(Login::update(['user_status' =>  1/*1 for activate*/],'user_id = ' . $this->params['1']));
+                        $this->execute($this->update('update',['user_status' =>  1/*1 for activate*/],'user_id = ' . $this->params['1']));
                         http_response_code(200);
                         echo '{
                             "status":"200",
@@ -83,7 +60,7 @@ class User extends BaseController {
             }');
         } //End of try catch
 
-        // $stmt = User::execute(User::get("(email='{$username}' OR mobile='{$username}') AND password='{$password}'"));
+        // $stmt = User::execute($this->get('user',"(email='{$username}' OR mobile='{$username}') AND password='{$password}'"));
 
         // if($stmt->rowCount() == 1) {
         //     $result = $stmt->fetch();
@@ -101,7 +78,7 @@ class User extends BaseController {
         //         }
         //     }';
 
-        //     User::update(['access_token' => $this->getToken(), "next" =>"val"], "user_id = {$result['user_id']}");
+        //     $this->update('user',['access_token' => $this->getToken(), "next" =>"val"], "user_id = {$result['user_id']}");
             
         // } else {
         //     http_response_code(404);

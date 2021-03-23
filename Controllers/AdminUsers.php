@@ -4,36 +4,14 @@ namespace Controllers;
 
 use Exception;
 
-require_once('Core/BaseController.php');
+require_once('Core/Controller.php');
 
-use Core\BaseController as BaseController;
+use Core\Controller as Controller;
 
-require_once('Models/Login.php');
 
-use Models\Login as Login;
 
-require_once('Models/User.php');
-
-use Models\User as User;
-
-require_once('Models/Property.php');
-
-use Models\Property as Property;
-
-require_once('Core/DB/DB.php');
-
-use Core\DB\DB as DB;
-
-class AdminUsers extends BaseController
+class AdminUsers extends Controller
 {
-
-    public function __construct($params, $secureParams)
-    {
-        parent::__construct($params, $secureParams);
-        new Login();
-        new User();
-        new property();
-    }
 
     public function post()
     {
@@ -43,7 +21,7 @@ class AdminUsers extends BaseController
                 switch ($this->params[0]) {
                     case 'all-users':
 
-                        $stmt = DB::execute(Login::join(
+                        $stmt = $this->execute(Login::join(
                             [
                                 'user.user_id as userId',
                                 'login.email',
@@ -60,7 +38,7 @@ class AdminUsers extends BaseController
 
                     case 'all-admins':
 
-                        $stmt = DB::execute(Login::join(
+                        $stmt = $this->execute(Login::join(
                             [
                                 'user.user_id as userId',
                                 'login.email',
@@ -77,7 +55,7 @@ class AdminUsers extends BaseController
 
                     case 'get':
 
-                        $stmt = DB::execute(Login::join(
+                        $stmt = $this->execute(Login::join(
                             [
                                 'login.email',
                                 'login.mobile',
@@ -90,7 +68,7 @@ class AdminUsers extends BaseController
 
                         $result['userData'] = $stmt->fetch();
 
-                        $stmt = DB::execute(Property::get(['_id', 'title', 'created'], ("user_id = {$this->secureParams['profile']} AND privated = 0")));
+                        $stmt = $this->execute($this->get('property',['_id', 'title', 'created'], ("user_id = {$this->secureParams['profile']} AND privated = 0")));
 
                         $result['ownPropertyData'] = $stmt->fetchAll();
 

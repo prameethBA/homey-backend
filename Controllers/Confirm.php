@@ -4,23 +4,12 @@ namespace Controllers;
 
 use Exception;
 
-require_once('Core/BaseController.php');
-use Core\BaseController as BaseController;
-require_once('Models/ConfirmationInfo.php');
-use Models\ConfirmationInfo as Hash;
-require_once('Models/Login.php');
-use Models\Login as Login;
+require_once('Core/Controller.php');
+use Core\Controller as Controller;
 
-require_once('Core/DB/DB.php');
-use Core\DB\DB as DB;
+class Confirm extends Controller {
 
-class Confirm extends BaseController {
-
-    public function __construct($params, $secureParams) {
-        parent::__construct($params, $secureParams);
-        new Hash();
-        new Login();
-    }
+   
 
     public function get() {
         try {
@@ -28,11 +17,11 @@ class Confirm extends BaseController {
                 $userId = base64_decode($this->params[0]);
                 $hash = $this->params[1];
 
-                $stmt = DB::execute(Hash::get(['_id'], ("user_id = {$userId} AND hash = '{$hash}'")));
+                $stmt = $this->execute($this->get('hash',['_id'], ("user_id = {$userId} AND hash = '{$hash}'")));
 
                 if($stmt->rowCount() == 1) {
-                    DB::exec(Hash::delete("user_id = {$userId}"));
-                    DB::exec(Login::update(['user_status' => 1], ("user_id = {$userId}")));
+                    $this->exec($this->delete('hash',"user_id = {$userId}"));
+                    $this->exec($this->update('login',['user_status' => 1], ("user_id = {$userId}")));
 
                     http_response_code(200);
                     echo $resolve = '{

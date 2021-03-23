@@ -4,26 +4,13 @@ namespace Controllers;
 
 use Exception;
 
-require_once('Core/BaseController.php');
+require_once('Core/Controller.php');
 
-use Core\BaseController as BaseController;
+use Core\Controller as Controller;
 
-require_once('Models/Property.php');
 
-use Models\Property as Property;
-
-require_once('Core/DB/DB.php');
-
-use Core\DB\DB as DB;
-
-class AdminPropertySummary extends BaseController
+class AdminPropertySummary extends Controller
 {
-
-    public function __construct($params, $secureParams)
-    {
-        parent::__construct($params, $secureParams);
-        new Property();
-    }
 
     public function post()
     {
@@ -32,14 +19,14 @@ class AdminPropertySummary extends BaseController
                 if (!$this->authenticate()) throw new Exception("Unautherized request.");
                 switch ($this->params[0]) {
                     case 'pending-approval':
-                        $stmt = $this->execute($this->get('property', ['_id', 'title', 'user_id', 'created'], ("property_status = 0 ORDER BY created")));
+                        $stmt = $this->execute($this->get('property',['_id', 'title', 'user_id', 'created'], ("property_status = 0 ORDER BY created")));
 
                         http_response_code(200);
                         echo $resolve = json_encode($stmt->fetchAll());
                         break;
 
                     case 'approve':
-                        $stmt = $this->execute(Property::update(['property_status' => 1], ("_id = '{$this->secureParams['propertyId']}'")));
+                        $stmt = $this->execute($this->update('property',['property_status' => 1], ("_id = '{$this->secureParams['propertyId']}'")));
 
                         http_response_code(200);
                         echo $resolve = '{
@@ -49,7 +36,7 @@ class AdminPropertySummary extends BaseController
                         break;
 
                     case 'reject':
-                        $stmt = $this->execute(Property::update(['property_status' => 2], ("_id = '{$this->secureParams['propertyId']}'")));
+                        $stmt = $this->execute($this->update('property',['property_status' => 2], ("_id = '{$this->secureParams['propertyId']}'")));
 
                         http_response_code(200);
                         echo $resolve = '{
