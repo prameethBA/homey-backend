@@ -4,25 +4,11 @@ namespace Controllers;
 
 use Exception;
 
-require_once('Core/BaseController.php');
-use Core\BaseController as BaseController;
+require_once('Core/Controller.php');
+use Core\Controller as Controller;
 
-require_once('Models/Login.php');
-use Models\Login as Login;
-require_once('Models/User.php');
-use Models\User as UserModel;
-require_once('Models/Admin.php');
-use Models\Admin as Admin;
-require_once('Core/DB/DB.php');
-use Core\DB\DB as DB;
-
-class User extends BaseController {
-
-    public function __construct($params, $secureParams) {
-        parent::__construct($params, $secureParams);
-        new Login();
-        new UserModel();
-        new Admin();
+class User extends Controller {
+min();
     }
 
     public function get() {
