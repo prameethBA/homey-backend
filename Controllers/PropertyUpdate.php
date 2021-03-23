@@ -40,11 +40,10 @@ class PropertyUpdate extends Controller
                 // }
             }
         } catch (Exception $err) {
-            http_response_code(200);
-            die($reject = '{
-                    "status": "500",
-                    "message": "' . $err->getMessage() . '"
-            }');
+            $this->reject('{
+                "status": "500",
+                "message": "' . $err->getMessage() . '"
+        }',200);
         }
     } //End of GET
 
@@ -76,8 +75,7 @@ class PropertyUpdate extends Controller
                             $stmt = $this->execute($this->get('propertyupdate','COUNT(property_id) as count', ("property_id = '" . $propertyId . "'")));
                             $result['userCount'] = $stmt->fetch()['count'];
 
-                            http_response_code(200);
-                            echo json_encode($result);
+                            $this->resolve($result,200);
                         } else throw new Exception("Authentication failed. Unauthorized request.");
                         break;
 
@@ -87,12 +85,11 @@ class PropertyUpdate extends Controller
                             $propertyId = $this->secureParams['propertyId'];
                             if ($this->authenticateUser($userId, $token)) {
                                 $stmt = $this->exec($this->delete('propertyupdate',"property_id = '" . $propertyId . "' AND user_id ='" . $userId ."'"));
-                                http_response_code(200);
                                 
-                                echo '{
+                                $this->resolve('{
                                     "action":"true",
                                     "message":"removed"
-                                }';
+                                }',200);
                             } else throw new Exception("Authentication failed. Unauthorized request.");
                             break;
     
@@ -103,12 +100,11 @@ class PropertyUpdate extends Controller
 
             } else throw new Exception("Invalid request.No parameters given");
         } catch (Exception $err) {
-            http_response_code(500);
-            die($reject = '{
+            $this->reject('{
                 "status": "500",
                 "error": "true",
                 "message": "' . $err->getMessage() . '"
-            }');
+            }',500);
         }
     } //End of POST
 

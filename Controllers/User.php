@@ -20,44 +20,45 @@ class User extends Controller {
                     case 'deactivate':
                         if(!$this->authenticateAdmin($this->secureParams['userId'], $this->secureParams['token'])) throw 'Unauthorized request';
                         $this->execute($this->update('login',['user_status' =>  2/*2 for blocked*/],'user_id = ' . $this->params['1']));
-                        http_response_code(200);
-                        echo '{
+                        
+                        $this->resolve('{
                             "status":"200",
                             "action":"true",
                             "message":"user blocked"
-                        }';
+                        }',200);
+
                         break;
 
                         // activate a user
                     case 'activate':
                         if(!$this->authenticateAdmin($this->secureParams['userId'], $this->secureParams['token'])) throw 'Unauthorized request';
                         $this->execute($this->update('update',['user_status' =>  1/*1 for activate*/],'user_id = ' . $this->params['1']));
-                        http_response_code(200);
-                        echo '{
+                        
+                        $this->resolve('{
                             "status":"200",
                             "action":"true",
                             "message":"user activated"
-                        }';
+                        }',200);
+
+
                         break;
     
                     default:
-                        http_response_code(200);
-                        die($reject  = '{
+                        $this->reject('{
                             "status": "400",
                             "signup": "false",
                             "message": "Invalid user type."
-                        }');
+                        }',200);
                         //End of Default
                 }//End of Switch
             } else throw "Invalid parameters";
 
         } catch (Exception $err) {
-            http_response_code(200);
-            die($reject = '{
-                    "status": "500",
-                    "error": "true",
-                    "message": "' . $err->getMessage() . '"
-            }');
+            $this->reject('{
+                "status": "500",
+                "error": "true",
+                "message": "' . $err->getMessage() . '"
+        }',200);
         } //End of try catch
 
         // $stmt = User::execute($this->get('user',"(email='{$username}' OR mobile='{$username}') AND password='{$password}'"));

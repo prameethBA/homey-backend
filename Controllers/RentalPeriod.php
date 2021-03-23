@@ -17,16 +17,16 @@ class RentalPeriod extends Controller
         try {
             $stmt = $this->execute($this->getAll('rental'));
 
-            http_response_code(200);
-            echo $resolve = json_encode($stmt->fetchAll());
+            $this->resolve(json_encode($stmt->fetchAll()),200);
+
         } catch (Exception $err) {
-            http_response_code(500);
-            die($reject = '{
+
+            $this->reject('{
                 "data": {
                     "error": "true",
                     "message": "' . $err->getMessage() . '"
                 }
-            }');
+            }',500);
         }
     } //End of GET
 
