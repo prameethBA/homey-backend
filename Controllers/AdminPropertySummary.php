@@ -4,26 +4,13 @@ namespace Controllers;
 
 use Exception;
 
-require_once('Core/BaseController.php');
+require_once('Core/Controller.php');
 
-use Core\BaseController as BaseController;
+use Core\BaseController as Controller;
 
-require_once('Models/Property.php');
 
-use Models\Property as Property;
-
-require_once('Core/DB/DB.php');
-
-use Core\DB\DB as DB;
-
-class AdminPropertySummary extends BaseController
+class AdminPropertySummary extends Controller
 {
-
-    public function __construct($params, $secureParams)
-    {
-        parent::__construct($params, $secureParams);
-        new Property();
-    }
 
     public function post()
     {
