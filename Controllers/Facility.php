@@ -11,7 +11,7 @@ class Facility extends Controller {
 
     public function get() {
         try {
-            $stmt = DB::execute(Facilities::getAll());
+            $stmt = $this->execute($this->getAll('facilities'));
             
             http_response_code(200);
             echo $resolve = '{

@@ -25,7 +25,7 @@ class Feedback extends Controller
                             'feedback' => $this->secureParams['feedback']
                         ];
 
-                        $stmt = DB::execute(Feed::save($data));
+                        $stmt = $this->execute($this->save('feed',$data));
                         http_response_code(201);
                         echo $resolve = '{
                             "action": "true",
@@ -37,7 +37,7 @@ class Feedback extends Controller
                         switch ($this->params[1]) {
                             case 'all':
 
-                                $stmt = DB::execute(Feed::get('_id as id', "property_id='{$this->secureParams['propertyId']}'"));
+                                $stmt = $this->execute($this->get('feed','_id as id', "property_id='{$this->secureParams['propertyId']}'"));
                                 http_response_code(201);
                                 echo json_encode($stmt->fetchAll());
                                 break;
@@ -49,7 +49,7 @@ class Feedback extends Controller
                                     'user.first_name as firstName',
                                     'user.last_name as lastName'
                                 ];
-                                $stmt = DB::execute(Feed::join($data, "LEFT JOIN user ON feedback.user_id=user._id WHERE feedback._id='{$this->params[1]}'"));
+                                $stmt = $this->execute($this->join('feed',$data, "LEFT JOIN user ON feedback.user_id=user._id WHERE feedback._id='{$this->params[1]}'"));
                                 http_response_code(201);
                                 echo json_encode($stmt->fetch());
                                 break;
@@ -68,7 +68,7 @@ class Feedback extends Controller
                                     'message' => $this->secureParams['message']
                                 ];
 
-                                $stmt = DB::execute(Report::save($data));
+                                $stmt = $this->execute($this->save('report',$data));
                                 http_response_code(201);
                                 echo $reject = '{
                                     "action": "true",
@@ -76,7 +76,7 @@ class Feedback extends Controller
                                 }';
                                 break;
                             case 'all':
-                                $stmt = DB::execute(Report::getAll());
+                                $stmt = $this->execute($this->getAll('report'));
                                 http_response_code(200);
                                 echo json_encode($stmt->fetchAll());
                                 break;
