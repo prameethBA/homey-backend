@@ -11,6 +11,115 @@ use Core\Controller as Controller;
 class Feedback extends Controller
 {
 
+
+    //get alll comments
+    public function GetAllComments($params)
+    {
+        try {
+            $propertyId = (string)$params[0];
+
+            $stmt = $this->execute($this->get('feedback','_id as id', "property_id='{$propertyId}'"));
+                                
+            $this->resolve(json_encode($stmt->fetchAll()),200);
+                                
+        } catch (Exception $err) {
+            $this->reject('{
+             "status": "500",
+             "error": "true",
+             "message": "' . $err->getMessage() . '"
+             }
+         }', 200);
+        }
+    }
+
+
+
+    public function GetProperty($params)
+    {
+        try {
+            $data = [
+                'feedback.feedback as feedback',
+                'feedback.created as created',
+                'feedback.user_id as userId',
+                'user.first_name as firstName',
+                'user.last_name as lastName'
+            ];
+            $stmt = $this->execute($this->join('feedback',$data, "LEFT JOIN user ON feedback.user_id=user._id WHERE feedback._id='{$params[0]}'"));
+            
+            $this->resolve(json_encode($stmt->fetch()),200);
+        } catch (Exception $err) {
+            $this->reject('{
+             "status": "500",
+             "error": "true",
+             "message": "' . $err->getMessage() . '"
+             }
+         }', 200);
+        }
+    }
+
+    //Add new comment
+    public function AddComment($params, $param)
+    {
+        try {
+
+            $userId = (string)$param['userId'];
+            $propertyId = (string)$param['propertyId'];
+
+            if (!$this->authenticateUser($param['token'], $userId)) throw new Exception("Authentication failed.");
+            $data = [
+                'user_id' => (int)$param['anonymous'] == 0 ? $param['userId'] : 0,
+                'property_id' => $propertyId,
+                'feedback' => $param['feedback']
+            ];
+
+            $this->execute($this->save('feedback',$data));
+            $this->resolve('{
+                "action": "true",
+                "message": "comment saved"
+            }',201);
+
+        } catch (Exception $err) {
+            $this->reject('{
+             "status": "500",
+             "error": "true",
+             "message": "' . $err->getMessage() . '"
+             }
+         }', 200);
+        }
+    }
+
+
+    public function SaveReport($params, $param)
+    {
+        try {
+
+            $userId = (string)$param['userId'];
+            $propertyId = (string)$param['propertyId'];
+
+            if (!$this->authenticateUser($param['token'], $userId)) throw new Exception("Authentication failed.");
+            $data = [
+                'user_id' => $userId,
+                'property_id' => $propertyId,
+                'reason' => $param['reason'],
+                'message' => $param['message']
+            ];
+
+            $this->execute($this->save('report',$data));
+            
+            $this->reject('{
+                "action": "true",
+                "message": "Property reported."
+            }',201);
+        } catch (Exception $err) {
+            $this->reject('{
+             "status": "500",
+             "error": "true",
+             "message": "' . $err->getMessage() . '"
+             }
+         }', 200);
+        }
+    }
+
     public function post()
     {
         try {
@@ -19,25 +128,14 @@ class Feedback extends Controller
                 switch ($this->params[0]) {
                     case 'add':
 
-                        $data = [
-                            'user_id' => (int)$this->secureParams['anonymous'] == 0 ? $this->secureParams['userId'] : 0,
-                            'property_id' => $this->secureParams['propertyId'],
-                            'feedback' => $this->secureParams['feedback']
-                        ];
-
-                        $stmt = $this->execute($this->save('feed',$data));
-                        $this->resolve('{
-                            "action": "true",
-                            "message": "comment saved"
-                        }',201);
-
+                        
                         break;
                     case 'get':
 
                         switch ($this->params[1]) {
                             case 'all':
 
-                                $stmt = $this->execute($this->get('feed','_id as id', "property_id='{$this->secureParams['propertyId']}'"));
+                                $stmt = $this->execute($this->get('feedback','_id as id', "property_id='{$this->secureParams['propertyId']}'"));
                                 
                                 $this->resolve(json_encode($stmt->fetchAll()),200);
 
@@ -50,7 +148,7 @@ class Feedback extends Controller
                                     'user.first_name as firstName',
                                     'user.last_name as lastName'
                                 ];
-                                $stmt = $this->execute($this->join('feed',$data, "LEFT JOIN user ON feedback.user_id=user._id WHERE feedback._id='{$this->params[1]}'"));
+                                $stmt = $this->execute($this->join('feedback',$data, "LEFT JOIN user ON feedback.user_id=user._id WHERE feedback._id='{$this->params[1]}'"));
                                 
                                 $this->resolve(json_encode($stmt->fetch()),201);
                                 break;

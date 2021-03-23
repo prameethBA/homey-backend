@@ -13,16 +13,19 @@ use Core\Controller as Controller;
 class Images extends Controller
 {
 
-    public function GetProfileImage($a, $param)
+    public function GetProfileImage($params, $param)
     {
         try {
-            $userId = (string)$param['userId'];
 
-            if (!$this->authenticateUser($param['token'], $userId)) throw new Exception("Authentication failed.");
-            if (isset($a[0]))
-                $path  = $_SERVER["DOCUMENT_ROOT"] . "/data/profileImages/" . $a[0];
-            else
+            if (isset($params[0]))
+                $path  = $_SERVER["DOCUMENT_ROOT"] . "/data/profileImages/" . $params[0];
+            else {
+                $userId = (string)$param['userId'];
+
+                if (!$this->authenticateUser($param['token'], $userId)) throw new Exception("Authentication failed.");
+
                 $path  = $_SERVER["DOCUMENT_ROOT"] . "/data/profileImages/" . $userId;
+            }
 
             if ($this->dirExits($path)) {
                 $dir = new DirectoryIterator($path);
