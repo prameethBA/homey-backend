@@ -2,127 +2,130 @@
 
 namespace Controllers;
 
-use PDO;
 use Exception;
 
 use DirectoryIterator;
 
-require_once('Core/BaseController.php');
+require_once('Core/Controller.php');
 
-use Core\BaseController as BaseController;
+use Core\Controller as Controller;
 
-require_once('Core/DB/DB.php');
-
-use Core\DB\DB as DB;
-
-class Images extends BaseController
+class Images extends Controller
 {
 
-    public function __construct($params, $secureParams)
-    {
-        parent::__construct($params, $secureParams);
-    }
-
-    public function get()
-    {
-    } //End of GET
-
-    public function post()
+    public function GetProfileImage($a, $param)
     {
         try {
-            if (isset($this->params[0])) {
-                if (!$this->authenticate()) throw new Exception("Unauthorized request.");
-                switch ($this->params[0]) {
-                    case 'property':
-                        $path  = $_SERVER["DOCUMENT_ROOT"] . "/data/propertyImages/" . $this->params[1];
+            $userId = (string)$param['userId'];
 
-                        if ($this->dirExits($path)) {
-                            $dir = new DirectoryIterator($path);
-                            $data = "[";
-                            foreach ($dir as $fileinfo) {
-                                if (!$fileinfo->isDot()) {
-                                    if ($result = $this->imageToBase64($fileinfo->getPathname())) {
-                                        $data .= '{"image" : "' . $result . '"},';
-                                    } else die("Invalid");
-                                }
-                            }
-                            $data = rtrim($data, ',') . ']';
-                        }
-                        http_response_code(201);
-                        echo $resolve = $data;
-                        break;
+            if (!$this->authenticateUser($param['token'], $userId)) throw "Authentication failed.";
+            if (isset($a[0]))
+                $path  = $_SERVER["DOCUMENT_ROOT"] . "/data/profileImages/" . $a[0];
+            else
+                $path  = $_SERVER["DOCUMENT_ROOT"] . "/data/profileImages/" . $userId;
 
-                    case 'profile':
-                        switch ($this->params[1]) {
-                            case 'save':
-                                // save images
-                                if (isset($this->secureParams['image'])) {
-
-                                    $path  = $_SERVER["DOCUMENT_ROOT"] . "/data/profileImages/" . $this->secureParams['userId'];
-
-                                    // Make a folder for each property with property ID
-                                    if ($this->makeDir($path, 0777, false)) {
-
-                                        //clear the directory
-                                        $this->clearDir($path);
-                                        // if file not saved correctly throw an error
-                                        if (!$this->base64ToImage($this->secureParams['image'], $path . "/" . $this->secureParams['userId'])) {
-                                            http_response_code(200);
-                                            die($reject = '{
-                                                "status": "424",
-                                                "error": "true",
-                                                "message": "Failed to put images into database"
-                                                }
-                                            }');
-                                        }
-                                        http_response_code(201);
-                                        echo $resolve = '{
-                                            "message": "Profile picture succesfully updated."
-                                        }';
-                                    } else throw new Exception("Permission Denied. Server side failure.");
-                                } //End of save images
-                                break;
-                            case 'get':
-                                if (isset($this->params[2]))
-                                    $path  = $_SERVER["DOCUMENT_ROOT"] . "/data/profileImages/" . $this->params[2];
-                                else
-                                    $path  = $_SERVER["DOCUMENT_ROOT"] . "/data/profileImages/" . $this->secureParams['userId'];
-
-                                if ($this->dirExits($path)) {
-                                    $dir = new DirectoryIterator($path);
-                                    foreach ($dir as $fileinfo) {
-                                        if (!$fileinfo->isDot()) {
-                                            if (!($result = $this->imageToBase64($fileinfo->getPathname())))  throw new Exception("No images found.");
-                                        }
-                                    }
-                                }
-                                http_response_code(201);
-                                echo $resolve = '{
-                                        "image": "' . $result . '"
-                                    }';
-                                break;
-                        }
-
-                        break;
-                    default:
-                        http_response_code(200);
-                        die($reject = '{
-                                "status": "400",
-                                "message": "Invalid request."
-                        }');
-                        break;
+            if ($this->dirExits($path)) {
+                $dir = new DirectoryIterator($path);
+                foreach ($dir as $fileinfo) {
+                    if (!$fileinfo->isDot()) {
+                        if (!($result = $this->imageToBase64($fileinfo->getPathname())))  throw new Exception("No images found.");
+                    }
                 }
             }
+
+            $this->resolve('{
+                    "image": "' . $result . '"
+                }', 200);
         } catch (Exception $err) {
-            http_response_code(200);
-            die($reject = '{
-                "status": "500",
-                "error": "true",
-                "message": "' . $err->getMessage() . '"
-                }
-            }');
+            $this->reject('{
+            "status": "500",
+            "error": "true",
+            "message": "' . $err->getMessage() . '"
+            }
+        }', 200);
         }
-    } //End of POST
+    }
+
+    // public function post()
+    // {
+    //     try {
+    //         if (isset($this->params[0])) {
+    //             if (!$this->authenticate()) throw new Exception("Unauthorized request.");
+    //             switch ($this->params[0]) {
+    //                 case 'property':
+    //                     $path  = $_SERVER["DOCUMENT_ROOT"] . "/data/propertyImages/" . $this->params[1];
+
+    //                     if ($this->dirExits($path)) {
+    //                         $dir = new DirectoryIterator($path);
+    //                         $data = "[";
+    //                         foreach ($dir as $fileinfo) {
+    //                             if (!$fileinfo->isDot()) {
+    //                                 if ($result = $this->imageToBase64($fileinfo->getPathname())) {
+    //                                     $data .= '{"image" : "' . $result . '"},';
+    //                                 } else die("Invalid");
+    //                             }
+    //                         }
+    //                         $data = rtrim($data, ',') . ']';
+    //                     }
+    //                     http_response_code(201);
+    //                     echo $resolve = $data;
+    //                     break;
+
+    //                 case 'profile':
+    //                     switch ($this->params[1]) {
+    //                         case 'save':
+    //                             // save images
+    //                             if (isset($this->secureParams['image'])) {
+
+    //                                 $path  = $_SERVER["DOCUMENT_ROOT"] . "/data/profileImages/" . $this->secureParams['userId'];
+
+    //                                 // Make a folder for each property with property ID
+    //                                 if ($this->makeDir($path, 0777, false)) {
+
+    //                                     //clear the directory
+    //                                     $this->clearDir($path);
+    //                                     // if file not saved correctly throw an error
+    //                                     if (!$this->base64ToImage($this->secureParams['image'], $path . "/" . $this->secureParams['userId'])) {
+    //                                         http_response_code(200);
+    //                                         die($reject = '{
+    //                                             "status": "424",
+    //                                             "error": "true",
+    //                                             "message": "Failed to put images into database"
+    //                                             }
+    //                                         }');
+    //                                     }
+    //                                     http_response_code(201);
+    //                                     echo $resolve = '{
+    //                                         "message": "Profile picture succesfully updated."
+    //                                     }';
+    //                                 } else throw new Exception("Permission Denied. Server side failure.");
+    //                             } //End of save images
+    //                             break;
+    //                         case 'get':
+
+    //                             break;
+    //                     }
+
+    //                     break;
+    //                 default:
+    //                     http_response_code(200);
+    //                     die($reject = '{
+    //                             "status": "400",
+    //                             "message": "Invalid request."
+    //                     }');
+    //                     break;
+    //             }
+    //         }
+    //     } catch (Exception $err) {
+    //         http_response_code(200);
+    //         die($reject = '{
+    //             "status": "500",
+    //             "error": "true",
+    //             "message": "' . $err->getMessage() . '"
+    //             }
+    //         }');
+    //     }
+    // } //End of POST
 
     // Check if a directory exits
     private function dirExits($path)
@@ -179,13 +182,13 @@ class Images extends BaseController
         }
     } //End of clearDir()
 
-    // Authenticate User 
-    private function authenticate()
-    {
-        if (isset($this->secureParams['userId'], $this->secureParams['token'])) {
-            if ($this->authenticateUser($this->secureParams['userId'], $this->secureParams['token'])) return true;
-            else return false;
-        } else return false;
-    } //end of authenticateUser()
+    // // Authenticate User 
+    // private function authenticate()
+    // {
+    //     if (isset($this->secureParams['userId'], $this->secureParams['token'])) {
+    //         if ($this->authenticateUser($this->secureParams['userId'], $this->secureParams['token'])) return true;
+    //         else return false;
+    //     } else return false;
+    // } //end of authenticateUser()
 
 }//End of Class

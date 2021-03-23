@@ -6,36 +6,41 @@ require_once('Token.php');
 
 use \Core\Token as Token;
 
-class Controller extends Token {
-    
+class Controller extends Token
+{
+
     protected $params = [];
     protected $secureParams = [];
 
     private $uniqueKeyString = "THIS_IS_THE_KEY_STRING_TO_GENERATE_UNIQUE_KEY";
-    
+
     protected $state = [];
 
     //echo resolve
-    protected function resolve($data, $status = 200 ) {
+    protected function resolve($data, $status = 200)
+    {
         http_response_code($status);
         echo $data;
-    }//end of echio resolve
+    } //end of echio resolve
 
     //echo reject
-    protected function reject($data, $status = 500) {
+    protected function reject($data, $status = 500)
+    {
         http_response_code($status);
         die($data);
-    }//end of rejecct
+    } //end of rejecct
 
     // Generate unique key
 
-    protected function uniqueKey($key) {
-        return md5(time() . sha1($key . $this->uniqueKeyString ));
+    protected function uniqueKey($key)
+    {
+        return md5(time() . sha1($key . $this->uniqueKeyString));
     }
 
-    protected function sendMail($receiver = [], $subject = 'Message From Admin@homey.lk', $message = "homey.lk") {
+    protected function sendMail($receiver = [], $subject = 'Message From Admin@homey.lk', $message = "homey.lk")
+    {
         // Multiple recipients
-        $to = is_string($receiver) ? $receiver : implode(', ', $select); 
+        $to = is_string($receiver) ? $receiver : implode(', ', $select);
 
         // To send HTML mail, the Content-type header must be set
         $headers[] = 'MIME-Version: 1.0';
@@ -52,5 +57,12 @@ class Controller extends Token {
         return true;
     }
 
-
+    protected function addLog($message, $type, $description = ' ')
+    {
+        $this->execute($this->save('logs',[
+            'message' => $message,
+            'type' => $type,
+            'description' => $description
+        ]));
+    }
 } //End of the class
