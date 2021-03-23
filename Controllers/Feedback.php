@@ -4,31 +4,12 @@ namespace Controllers;
 
 use Exception;
 
-require_once('Core/BaseController.php');
+require_once('Core/Controller.php');
 
-use Core\BaseController as BaseController;
+use Core\Controller as Controller;
 
-require_once('Models/Feedback.php');
-
-use Models\Feedback as Feed;
-
-require_once('Models/Report.php');
-
-use Models\Report as Report;
-
-require_once('Core/DB/DB.php');
-
-use Core\DB\DB as DB;
-
-class Feedback extends BaseController
+class Feedback extends Controller
 {
-
-    public function __construct($params, $secureParams)
-    {
-        parent::__construct($params, $secureParams);
-        new Feed();
-        new Report();
-    }
 
     public function post()
     {
