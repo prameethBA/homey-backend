@@ -87,6 +87,39 @@ class Profile extends Controller
         }
     }
 
+
+    // validate mobile
+    public function ValidateMobile($a, $param)
+    {
+        try {
+            $userId = (int)$param['userId'];
+            $token = (string)$param['token'];
+            if (!$this->authenticateUser($token, $userId)) throw new Exception("Authentication failed.");
+            $stmt = $this->execute($this->get('login', 'mobile', ("user_id = '{$userId}'")));
+            $mobile = $stmt->fetch()['mobile'];
+            if ($mobile != NULL) {
+                $resolve = '{
+                                "action":"true",
+                                "mobile":"' . $mobile . '",
+                                "message" : "Mobile number updated"
+                            }';
+            } else {
+                $resolve = '{
+                                "action":"false",
+                                "message" : "Mobile not number updated"
+                            }';
+            }
+            $this->resolve($resolve, 200);
+        } catch (Exception $err) {
+            $this->reject('{
+                            "status": "500",
+                            "error": "true",
+                            "message": "' . $err->getMessage() . '"
+                        }
+                    }', 200);
+        }
+    }
+
     // public function post()
     // {
     //     try {

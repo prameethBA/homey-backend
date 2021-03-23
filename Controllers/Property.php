@@ -42,23 +42,22 @@ class Property extends Controller
                 $this->execute($this->save('favourite', ['user_id' => $userId, 'property_id' => $propertyId]));
 
                 $this->resolve('{
-                                                "status": "204",
-                                                "message": "Added to favourite"
-                                            }', 200);
+                                    "status": "204",
+                                    "message": "Added to favourite"
+                                }', 200);
             } else   if ($params[0] == 'remove') {
                 $this->execute($this->delete('favourite', ("property_id = '{$propertyId}' AND user_id = '{$userId}'")));
 
                 $this->resolve('{
-                                                "status": "204",
-                                                "message": "Remove from favourite"
-                                            }', 200);
+                                    "status": "204",
+                                    "message": "Remove from favourite"
+                                }', 200);
             }
         } catch (Exception $err) {
             $this->reject('{
              "status": "500",
              "error": "true",
              "message": "' . $err->getMessage() . '"
-             }
          }', 200);
         }
     }
@@ -75,10 +74,163 @@ class Property extends Controller
             $stmt = $this->execute($this->get('favourite', 'COUNT(_id) as count', ("user_id = {$userId} AND property_id = '{$propertyId}'")));
 
             $this->resolve('{
-                            "action": "' . $stmt->fetch()['count'] . '",
+                            "action": "' . (int)$stmt->fetch()['count'] . '",
                             "message": "retived"
                     }', 200);
         } catch (Exception $err) {
+            $this->reject('{
+             "status": "500",
+             "error": "true",
+             "message": "' . $err->getMessage() . '"
+             }
+         }', 200);
+        }
+    }
+
+
+    public function GetProperty($params, $param)
+    {
+        try {
+            $stmt = $this->execute($this->get('property', '*', ("_id = '" . (string)$param['propertyId'] . "'")));
+            $this->resolve(json_encode($stmt->fetch()), 200);
+        } catch (Exception $err) {
+            $this->reject('{
+             "status": "500",
+             "error": "true",
+             "message": "' . $err->getMessage() . '"
+             }
+         }', 200);
+        }
+    }
+
+    //get all favourites
+    public function GetAllFavourites($params, $param)
+    {
+        try {
+            $userId = (string)$param['userId'];
+
+            if (!$this->authenticateUser($param['token'], $userId)) throw new Exception("Authentication failed.");
+
+            $stmt = $this->execute($this->join('property', '*', ("INNER JOIN favourite  ON property._id = favourite.property_id WHERE NOT property.user_id = '" . $userId . "' AND favourite.user_id = '" . $userId . "'")));
+            $this->resolve(json_encode($stmt->fetchAll()), 200);
+        } catch (Exception $err) {
+            $this->reject('{
+             "status": "500",
+             "error": "true",
+             "message": "' . $err->getMessage() . '"
+             }
+         }', 200);
+        }
+    }
+
+    //get reserved properties
+    public function GetReserved($params, $param)
+    {
+        try {
+            $userId = (string)$param['userId'];
+
+            if (!$this->authenticateUser($param['token'], $userId)) throw new Exception("Authentication failed.");
+
+            $stmt = $this->execute($this->join('property', '*', ("
+                                        p, propertysettings s, propertyreserved r  
+                                            WHERE p._id = s.property_id 
+                                            AND p._id = r.property_id
+                                            AND r.user_id = '{$userId}' 
+                                        ")));
+            $this->resolve(json_encode($stmt->fetchAll()), 200);
+        } catch (Exception $err) {
+            $this->reject('{
+             "status": "500",
+             "error": "true",
+             "message": "' . $err->getMessage() . '"
+             }
+         }', 200);
+        }
+    }
+
+    //get own properties
+    public function GetOwn($params, $param)
+    {
+        try {
+            $userId = (string)$param['userId'];
+
+            if (!$this->authenticateUser($param['token'], $userId)) throw new Exception("Authentication failed.");
+
+            $stmt = $this->execute($this->join('property', '*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.user_id = '{$userId}' ORDER BY property.created DESC")));
+            $this->resolve(json_encode($stmt->fetchAll()), 200);
+        } catch (Exception $err) {
+            $this->reject('{
+             "status": "500",
+             "error": "true",
+             "message": "' . $err->getMessage() . '"
+             }
+         }', 200);
+        }
+    }
+
+    //get reserved properties
+    public function AddNew($params, $param)
+    {
+        try {
+            $userId = (string)$param['userId'];
+
+            if (!$this->authenticateUser($param['token'], $userId)) throw new Exception("Authentication failed.");
+
+            $id = $this->uniqueKey($userId);
+            $location = json_encode($param['location']);
+            $facilities = json_encode($param['facilities']);
+
+            $data = [
+                '_id' => $id,
+                'user_id' => $param['userId'],
+                'title' => $param['title'],
+                'location' => $location,
+                'rental_period' => $param['rentalperiod'],
+                'price' => (int)$param['price'],
+                'key_money' => (int)$param['keyMoney'],
+                'minimum_period' => (int)$param['minimumPeriod'],
+                'available_from' => $param['availableFrom'],
+                'property_type_id' => $param['propertyType'],
+                'description' => $param['description'],
+                'district_id' => $param['district'], //This is unnecceary, can be removed
+                'city_id' => $param['city'],
+                'facilities' => $facilities
+            ];
+
+            $this->execute($this->save('property', $data));
+
+            // save images
+            if (isset($param['images'])) {
+
+                $path  = $_SERVER["DOCUMENT_ROOT"] . "/data/propertyImages/" . $id;
+
+                // Make a folder for each property with property ID
+                if ($this->makeDir($path, 0777, false)) {
+                    // Save each image for the created directory
+                    $index = 1;
+                    foreach ($param['images'] as $img) {
+                        // if file not saved correctly throw an error
+                        if (!$this->base64ToImage($img, $path . "/" . $index++)) {
+
+                            $this->reject('{
+                                                "status": "424",
+                                                "error": "true",
+                                                "message": "Failed to put images into database"
+                                                }
+                                            }', 200);
+                        }
+                    }
+                } else throw new Exception("Permission Denied. Server side failure.");
+            } //End of save images
+
+            $this->resolve('{
+                                "action": "true",
+                                "propertyId": "' . $id . '",
+                                "message": "The advertisement saved successfully."
+                            }', 201);
+            $this->addLog("Property addtion succesfull", "add-property-success");
+        } catch (Exception $err) {
+            $this->addLog("Property addtion failed", "add-property-failed", (string)$err->getMessage());
             $this->reject('{
              "status": "500",
              "error": "true",
@@ -135,58 +287,7 @@ class Property extends Controller
 
 
     //                     if ($this->authenticateUser($userId, $token)) {
-    //                         $id = $this->uniqueKey($userId);
-    //                         $location = json_encode($param['location']);
-    //                         $facilities = json_encode($param['facilities']);
-
-    //                         $data = [
-    //                             '_id' => $id,
-    //                             'user_id' => $param['userId'],
-    //                             'title' => $param['title'],
-    //                             'location' => $location,
-    //                             'rental_period' => $param['rentalperiod'],
-    //                             'price' => (int)$param['price'],
-    //                             'key_money' => (int)$param['keyMoney'],
-    //                             'minimum_period' => (int)$param['minimumPeriod'],
-    //                             'available_from' => $param['availableFrom'],
-    //                             'property_type_id' => $param['propertyType'],
-    //                             'description' => $param['description'],
-    //                             'district_id' => $param['district'], //This is unnecceary, can be removed
-    //                             'city_id' => $param['city'],
-    //                             'facilities' => $facilities
-    //                         ];
-
-    //                         $stmt = $this->execute($this->save('property', $data));
-
-    //                         // save images
-    //                         if (isset($param['images'])) {
-
-    //                             $path  = $_SERVER["DOCUMENT_ROOT"] . "/data/propertyImages/" . $id;
-
-    //                             // Make a folder for each property with property ID
-    //                             if ($this->makeDir($path, 0777, false)) {
-    //                                 // Save each image for the created directory
-    //                                 $index = 1;
-    //                                 foreach ($param['images'] as $img) {
-    //                                     // if file not saved correctly throw an error
-    //                                     if (!$this->base64ToImage($img, $path . "/" . $index++)) {
-
-    //                                         $this->reject('{
-    //                                             "status": "424",
-    //                                             "error": "true",
-    //                                             "message": "Failed to put images into database"
-    //                                             }
-    //                                         }', 200);
-    //                                     }
-    //                                 }
-    //                             } else throw new Exception("Permission Denied. Server side failure.");
-    //                         } //End of save images
-
-    //                         $this->resolve('{
-    //                             "action": "true",
-    //                             "propertyId": "' . $id . '",
-    //                             "message": "The advertisement saved successfully."
-    //                         }', 201);
+    //                         
     //                     } else throw new Exception("Authentication failed. Unauthorized request.");
 
     //                     break;
@@ -197,17 +298,13 @@ class Property extends Controller
     //                             $userId = $param['userId'];
     //                             $token = $param['token'];
     //                             if ($this->authenticateUser($userId, $token)) {
-    //                                 $stmt = $this->execute($this->get('property', '*', ("_id = '" . $param['propertyId'] . "'")));
-
-    //                                 $this->resolve(json_encode($stmt->fetch()), 200);
+    //                                 
     //                             } else throw new Exception("Authentication failed. Unauthorized request.");
     //                             break;
 
     //                         case 'own':
     //                             // $stmt = $this->execute(PropertyModel::join('*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property._id = '{$param['propertyId']}'")));
-    //                             $stmt = $this->execute($this->join('property', '*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.user_id = '{$param['userId']}' ORDER BY property.created DESC")));
-
-    //                             $this->resolve(json_encode($stmt->fetchAll()), 200);
+    //                             
     //                             break;
 
     //                         default:
@@ -313,13 +410,7 @@ class Property extends Controller
     //                             $userId = $param['userId'];
     //                             $token = $param['token'];
     //                             if ($this->authenticateUser($userId, $token)) {
-    //                                 $stmt = $this->execute($this->join('property', '*', ("
-    //                                     p, propertysettings s, propertyreserved r  
-    //                                         WHERE p._id = s.property_id 
-    //                                         AND p._id = r.property_id
-    //                                         AND r.user_id = '${userId}' 
-    //                                     ")));
-    //                                 $this->resolve(json_encode($stmt->fetchAll()), 200);
+    //                                 
     //                             } else throw new Exception("Authentication failed. Unauthorized request.");
     //                             break;
 
@@ -399,38 +490,29 @@ class Property extends Controller
     //     } //End of try catch
     // } //End of patch
 
-    // // Private methods
+    // Private methods
 
-    // // Authenticate User 
-    // private function authenticate()
-    // {
-    //     if (isset($param['userId'], $param['token'])) {
-    //         if ($this->authenticateUser($param['userId'], $param['token'])) return true;
-    //         else return false;
-    //     } else return false;
-    // } //end of authenticateUser()
+    // Check if a directory exits or, create new directory
+    private function makeDir($path, $mode, $recursive)
+    {
+        return is_dir($path) || mkdir($path, $mode, $recursive);
+    }
 
-    // // Check if a directory exits or, create new directory
-    // private function makeDir($path, $mode, $recursive)
-    // {
-    //     return is_dir($path) || mkdir($path, $mode, $recursive);
-    // }
+    // Save base64 immage to as a file
+    private function base64ToImage($base64, $file)
+    {
 
-    // // Save base64 immage to as a file
-    // private function base64ToImage($base64, $file)
-    // {
+        // split the string on commas
+        $data = explode(',', $base64); //$data[ 1 ] == <actual base64 string>
 
-    //     // split the string on commas
-    //     $data = explode(',', $base64); //$data[ 1 ] == <actual base64 string>
+        // RegX to get extention
+        $regx = '/(?<=\/)(.*?)(?=;)/'; //$data[ 0 ] == "data:image/png;base64"
+        preg_match($regx, $data[0], $matches);
 
-    //     // RegX to get extention
-    //     $regx = '/(?<=\/)(.*?)(?=;)/'; //$data[ 0 ] == "data:image/png;base64"
-    //     preg_match($regx, $data[0], $matches);
+        $extention = $matches[0];
 
-    //     $extention = $matches[0];
-
-    //     // Save file
-    //     if (file_put_contents($file . "." . $extention, base64_decode($data[1]))) return true;
-    //     return false;
-    // }
+        // Save file
+        if (file_put_contents($file . "." . $extention, base64_decode($data[1]))) return true;
+        return false;
+    }
 }//End of Class

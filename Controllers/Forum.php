@@ -11,6 +11,38 @@ use Core\Controller as Controller;
 class Forum extends Controller
 {
 
+
+    //get own properties
+    public function Create($params, $param)
+    {
+        try {
+            $userId = (string)$param['userId'];
+
+            if (!$this->authenticateUser($param['token'], $userId)) throw new Exception("Authentication failed.");
+
+            
+            $data = [
+                'user_id' => $userId ,
+                'title' => $param['title'],
+                'content' => $param['content'],
+            ];
+
+            $this->execute($this->save('forum',$data));
+            
+            $this->resolve('{
+                "action": "true",
+                "message": "Post created"
+            }',201);
+        } catch (Exception $err) {
+            $this->reject('{
+             "status": "500",
+             "error": "true",
+             "message": "' . $err->getMessage() . '"
+             }
+         }', 200);
+        }
+    }
+
     public function post()
     {
         try {
@@ -19,18 +51,6 @@ class Forum extends Controller
                 switch ($this->params[0]) {
                     case 'create':
 
-                        $data = [
-                            'user_id' => $param['userId'] ,
-                            'title' => $param['title'],
-                            'content' => $param['content'],
-                        ];
-
-                        $stmt = $this->execute($this->save('forum',$data));
-                        
-                        $this->resolve('{
-                            "action": "true",
-                            "message": "Post created"
-                        }',201);
                         break;
                         /*
                     case 'get':
