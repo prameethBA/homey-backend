@@ -12,21 +12,20 @@ class PropertyType extends Controller
 {
 
 
-    public function get()
+    public function All()
     {
         try {
-            $stmt = $this->execute(Property::getAll('property'));
+            $stmt = $this->execute($this->getAll('propertytype'));
 
-            $this->resolve('{
-                "data":' . json_encode($stmt->fetchAll()) . '
-            }', 200);
+            $this->resolve(json_encode($stmt->fetchAll()), 200);
         } catch (Exception $err) {
             $this->reject('{
                 "data": {
+                    "status": "500",
                     "error": "true",
                     "message": "' . $err->getMessage() . '"
                 }
-            }', 500);
+            }', 200);
         }
     } //End of GET
 

@@ -86,6 +86,36 @@ class Images extends Controller
         }
     }
 
+
+    //get property Images 
+    public function GetProperty($param)
+    {
+        try {
+            $path  = $_SERVER["DOCUMENT_ROOT"] . "/data/propertyImages/" . $param[0];
+
+            if ($this->dirExits($path)) {
+                $dir = new DirectoryIterator($path);
+                $data = "[";
+                foreach ($dir as $fileinfo) {
+                    if (!$fileinfo->isDot()) {
+                        if ($result = $this->imageToBase64($fileinfo->getPathname())) {
+                            $data .= '{"image" : "' . $result . '"},';
+                        } else die("Invalid");
+                    }
+                }
+                $data = rtrim($data, ',') . ']';
+            }
+            $this->resolve($data, 200);
+        } catch (Exception $err) {
+            $this->reject('{
+            "status": "500",
+            "error": "true",
+            "message": "' . $err->getMessage() . '"
+            }
+        }', 200);
+        }
+    }
+
     // public function post()
     // {
     //     try {

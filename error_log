@@ -1,0 +1,4 @@
+[23-Mar-2021 01:39:46 America/New_York] PHP Fatal error:  Uncaught Error: Class 'Controllers\Signup' not found in /home/homefbhr/dev.homey.lk/index.php:13
+Stack trace:
+#0 {main}
+  thrown in /home/homefbhr/dev.homey.lk/index.php on line 13
