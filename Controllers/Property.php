@@ -5,36 +5,12 @@ namespace Controllers;
 use PDO;
 use Exception;
 
-require_once('Core/BaseController.php');
+require_once('Core/Controller.php');
 
-use Core\BaseController as BaseController;
+use Core\Controller as Controller;
 
-require_once('Models/Property.php');
-
-use Models\Property as PropertyModel;
-
-require_once('Models/PropertySettings.php');
-
-use Models\PropertySettings as PropertySettings;
-
-require_once('Models/Favourite.php');
-
-use Models\Favourite as Favourite;
-
-require_once('Core/DB/DB.php');
-
-use Core\DB\DB as DB;
-
-class Property extends BaseController
+class Property extends Controller
 {
-
-    public function __construct($params, $secureParams)
-    {
-        parent::__construct($params, $secureParams);
-        new PropertyModel();
-        new PropertySettings();
-        new Favourite();
-    }
 
     public function get()
     {
