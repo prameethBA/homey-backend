@@ -10,7 +10,7 @@ use Core\Controller as Controller;
 class District extends Controller {
 
 
-    public function get() {
+    public function All() {
         try {
             $stmt = $this->execute($this->getAll('districts',['_id', 'name_en as district']));
            

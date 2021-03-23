@@ -46,6 +46,76 @@ class Images extends Controller
         }
     }
 
+    public function ProfileSave($a, $param)
+    {
+        try {
+            $userId = (string)$param['userId'];
+
+            if (!$this->authenticateUser($param['token'], $userId)) throw new Exception("Authentication failed.");
+            // save images
+            if (isset($param['image'])) {
+
+                $path  = $_SERVER["DOCUMENT_ROOT"] . "/data/profileImages/" . $userId;
+
+                // Make a folder for each property with property ID
+                if ($this->makeDir($path, 0777, false)) {
+
+                    //clear the directory
+                    $this->clearDir($path);
+                    // if file not saved correctly throw an error
+                    if (!$this->base64ToImage($param['image'], $path . "/" . $userId)) {
+                        $this->reject('{
+                                        "status": "424",
+                                        "error": "true",
+                                        "message": "Failed to put images into database"
+                                    }
+                                }', 200);
+                    }
+                    $this->resolve('{
+                                    "message": "Profile picture succesfully updated."
+                                }', 201);
+                } else throw new Exception("Permission Denied. Server side failure.");
+            } //End of save images
+        } catch (Exception $err) {
+            $this->reject('{
+            "status": "500",
+            "error": "true",
+            "message": "' . $err->getMessage() . '"
+            }
+        }', 200);
+        }
+    }
+
+
+    //get property Images 
+    public function GetProperty($param)
+    {
+        try {
+            $path  = $_SERVER["DOCUMENT_ROOT"] . "/data/propertyImages/" . $param[0];
+
+            if ($this->dirExits($path)) {
+                $dir = new DirectoryIterator($path);
+                $data = "[";
+                foreach ($dir as $fileinfo) {
+                    if (!$fileinfo->isDot()) {
+                        if ($result = $this->imageToBase64($fileinfo->getPathname())) {
+                            $data .= '{"image" : "' . $result . '"},';
+                        } else die("Invalid");
+                    }
+                }
+                $data = rtrim($data, ',') . ']';
+            }
+            $this->resolve($data, 200);
+        } catch (Exception $err) {
+            $this->reject('{
+            "status": "500",
+            "error": "true",
+            "message": "' . $err->getMessage() . '"
+            }
+        }', 200);
+        }
+    }
+
     // public function post()
     // {
     //     try {
@@ -74,32 +144,7 @@ class Images extends Controller
     //                 case 'profile':
     //                     switch ($this->params[1]) {
     //                         case 'save':
-    //                             // save images
-    //                             if (isset($this->secureParams['image'])) {
-
-    //                                 $path  = $_SERVER["DOCUMENT_ROOT"] . "/data/profileImages/" . $this->secureParams['userId'];
-
-    //                                 // Make a folder for each property with property ID
-    //                                 if ($this->makeDir($path, 0777, false)) {
-
-    //                                     //clear the directory
-    //                                     $this->clearDir($path);
-    //                                     // if file not saved correctly throw an error
-    //                                     if (!$this->base64ToImage($this->secureParams['image'], $path . "/" . $this->secureParams['userId'])) {
-    //                                         http_response_code(200);
-    //                                         die($reject = '{
-    //                                             "status": "424",
-    //                                             "error": "true",
-    //                                             "message": "Failed to put images into database"
-    //                                             }
-    //                                         }');
-    //                                     }
-    //                                     http_response_code(201);
-    //                                     echo $resolve = '{
-    //                                         "message": "Profile picture succesfully updated."
-    //                                     }';
-    //                                 } else throw new Exception("Permission Denied. Server side failure.");
-    //                             } //End of save images
+    //                             
     //                             break;
     //                         case 'get':
 
