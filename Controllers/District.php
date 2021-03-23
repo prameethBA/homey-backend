@@ -4,20 +4,11 @@ namespace Controllers;
 
 use Exception;
 
-require_once('Core/BaseController.php');
-use Core\BaseController as BaseController;
-require_once('Models/Districts.php');
-use Models\Districts as Districts;
+require_once('Core/Controller.php');
+use Core\Controller as Controller;
 
-require_once('Core/DB/DB.php');
-use Core\DB\DB as DB;
+class District extends Controller {
 
-class District extends BaseController {
-
-    public function __construct($params, $secureParams) {
-        parent::__construct($params, $secureParams);
-        new Districts();
-    }
 
     public function get() {
         try {
