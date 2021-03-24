@@ -20,9 +20,29 @@ class Cities extends Controller
         try {
             $stmt = $this->execute($this->getAll('cities', ['_id', 'name_en as name']));
 
-            $this->resolve('{
-                "data":' . json_encode($stmt->fetchAll()) . '
+            $this->resolve(json_encode($stmt->fetchAll()), 200);
+        } catch (Exception $err) {
+
+            $this->reject('{
+                "data": {
+                    "status": "500",
+                    "error": "true",
+                    "message": "' . $err->getMessage() . '"
+                }
             }', 200);
+        }
+    }
+
+    //get nearest city according to location
+
+    public function GetNearestCity($params, $param)
+    {
+        try {
+            $ltd = (float)$param['ltd'];
+            $lng = (float)$param['lng'];
+            $stmt = $this->execute($this->getHaving('cities', ['district_id as district', 'name_en as city', '(6371 * ACOS(COS(RADIANS(' . $ltd . ')) * COS(RADIANS(latitude)) * COS(RADIANS(longitude) - RADIANS(' . $lng . ')) + SIN(RADIANS(' . $ltd . ')) * SIN(RADIANS(latitude)))) AS distance'], ("distance < 25 ORDER BY distance"), 5));
+
+            $this->resolve(json_encode($stmt->fetchAll()), 200);
         } catch (Exception $err) {
 
             $this->reject('{
@@ -62,8 +82,8 @@ class Cities extends Controller
 
     //             switch ($this->params[0]) {
     //                 case 'nearest-city':
-    //                     $ltd = (float)$this->secureParams['ltd'];
-    //                     $lng = (float)$this->secureParams['lng'];
+    //                     $ltd = (float)$param['ltd'];
+    //                     $lng = (float)$param['lng'];
 
     //                     $stmt = $this->execute($this->getHaving('city', ['district_id as district', 'name_en as city', '(6371 * ACOS(COS(RADIANS(' . $ltd . ')) * COS(RADIANS(latitude)) * COS(RADIANS(longitude) - RADIANS(' . $lng . ')) + SIN(RADIANS(' . $ltd . ')) * SIN(RADIANS(latitude)))) AS distance'], ("distance < 25 ORDER BY distance"), 5));
 
