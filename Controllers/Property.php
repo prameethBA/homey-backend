@@ -24,7 +24,6 @@ class Property extends Controller
                              "status": "500",
                              "error": "true",
                              "message": "' . $err->getMessage() . '"
-                         }
                      }', 200);
         }
     }
@@ -82,7 +81,6 @@ class Property extends Controller
              "status": "500",
              "error": "true",
              "message": "' . $err->getMessage() . '"
-             }
          }', 200);
         }
     }
@@ -98,7 +96,6 @@ class Property extends Controller
              "status": "500",
              "error": "true",
              "message": "' . $err->getMessage() . '"
-             }
          }', 200);
         }
     }
@@ -120,7 +117,6 @@ class Property extends Controller
              "status": "500",
              "error": "true",
              "message": "' . $err->getMessage() . '"
-             }
          }', 200);
         }
     }
@@ -145,7 +141,6 @@ class Property extends Controller
              "status": "500",
              "error": "true",
              "message": "' . $err->getMessage() . '"
-             }
          }', 200);
         }
     }
@@ -165,7 +160,6 @@ class Property extends Controller
              "status": "500",
              "error": "true",
              "message": "' . $err->getMessage() . '"
-             }
          }', 200);
         }
     }
@@ -238,7 +232,6 @@ class Property extends Controller
              "status": "500",
              "error": "true",
              "message": "' . $err->getMessage() . '"
-             }
          }', 200);
         }
     }
@@ -273,7 +266,6 @@ class Property extends Controller
              "status": "500",
              "error": "true",
              "message": "' . $err->getMessage() . '"
-             }
          }', 200);
         }
     }
@@ -298,7 +290,6 @@ class Property extends Controller
              "status": "500",
              "error": "true",
              "message": "' . $err->getMessage() . '"
-             }
          }', 200);
         }
     }
@@ -322,7 +313,6 @@ class Property extends Controller
              "status": "500",
              "error": "true",
              "message": "' . $err->getMessage() . '"
-             }
          }', 200);
         }
     }

@@ -27,7 +27,6 @@ class Feedback extends Controller
              "status": "500",
              "error": "true",
              "message": "' . $err->getMessage() . '"
-             }
          }', 200);
         }
     }
@@ -52,7 +51,6 @@ class Feedback extends Controller
              "status": "500",
              "error": "true",
              "message": "' . $err->getMessage() . '"
-             }
          }', 200);
         }
     }
@@ -83,7 +81,6 @@ class Feedback extends Controller
              "status": "500",
              "error": "true",
              "message": "' . $err->getMessage() . '"
-             }
          }', 200);
         }
     }
@@ -115,7 +112,6 @@ class Feedback extends Controller
              "status": "500",
              "error": "true",
              "message": "' . $err->getMessage() . '"
-             }
          }', 200);
         }
     }

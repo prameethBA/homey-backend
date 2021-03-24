@@ -43,7 +43,6 @@ class Confirm extends Controller {
                 "data": {
                     "error": "true",
                     "message": "' . $err->getMessage() . '"
-                }
             }',500);
         }
             
