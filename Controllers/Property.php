@@ -111,7 +111,6 @@ class Property extends Controller
 
             if (!$this->authenticateUser($param['token'], $userId)) throw new Exception("Authentication failed.");
 
-            // $stmt = $this->execute($this->join('property', '*', ("INNER JOIN favourite  ON property._id = favourite.property_id WHERE NOT property.user_id = '" . $userId . "' AND favourite.user_id = '" . $userId . "' AND property.privated = 0 AND property.property_status = 1 ORDER BY property.created DESC")));
             $stmt = $this->execute($this->join('property', '*', ("p, 
             propertysettings s, favourite f WHERE p._id = s.property_id AND 
             p._id = f.property_id AND NOT p.user_id = '" . $userId . "' AND f.user_id = '" . $userId . "' AND p.privated = 0 AND p.property_status = 1 ORDER BY p.created DESC")));
@@ -185,7 +184,7 @@ class Property extends Controller
 
             $data = [
                 '_id' => $id,
-                'user_id' => $param['userId'],
+                'user_id' => $userId,
                 'title' => $param['title'],
                 'location' => $location,
                 'rental_period' => $param['rentalperiod'],
@@ -193,6 +192,7 @@ class Property extends Controller
                 'key_money' => (int)$param['keyMoney'],
                 'minimum_period' => (int)$param['minimumPeriod'],
                 'available_from' => $param['availableFrom'],
+                'location' => json_encode($param['location']),
                 'property_type_id' => $param['propertyType'],
                 'description' => $param['description'],
                 'district_id' => $param['district'], //This is unnecceary, can be removed
@@ -263,8 +263,9 @@ class Property extends Controller
             $this->execute($this->update('property', ['privated' => (bool)$param['privated'] ? 1 : 0], ("_id = '{$param['propertyId']}'")));
 
             $this->resolve('{
+                                "status": "500",
                                 "message": "Property Settings Applied."
-                            }', 200);
+                            }', 201);
             $this->addLog($param['propertyId'] . " Property settings added succesfull", "save-property-settings-success");
         } catch (Exception $err) {
             $this->addLog("Property settings addtion failed", "save-property-settings-failed", (string)$err->getMessage());
@@ -274,6 +275,81 @@ class Property extends Controller
              "message": "' . $err->getMessage() . '"
              }
          }', 200);
+        }
+    }
+
+
+    //Toggle accept online payment
+    public function OnlinePayment($params, $param)
+    {
+        try {
+            $userId = (string)$param['userId'];
+
+            if (!$this->authenticateUser($param['token'], $userId)) throw new Exception("Authentication failed.");
+
+            $this->exec($this->update('propertysettings', ['accept_online_payment' => (int)$param['onlinePayment']], ("property_id = '{$param['propertyId']}'")));
+
+            $this->resolve('{
+                                "status": "204",
+                                "message": "Updated"
+                            }', 200);
+        } catch (Exception $err) {
+            $this->reject('{
+             "status": "500",
+             "error": "true",
+             "message": "' . $err->getMessage() . '"
+             }
+         }', 200);
+        }
+    }
+
+    //Toggle visibility
+    public function Visibility($params, $param)
+    {
+        try {
+            $userId = (string)$param['userId'];
+
+            if (!$this->authenticateUser($param['token'], $userId)) throw new Exception("Authentication failed.");
+
+            $this->exec($this->update('property', ['privated' => (int)$param['visibility']], ("_id = '{$param['propertyId']}'")));
+
+            $this->resolve('{
+                                "status": "204",
+                                "message": "Updated"
+                            }', 200);
+        } catch (Exception $err) {
+            $this->reject('{
+             "status": "500",
+             "error": "true",
+             "message": "' . $err->getMessage() . '"
+             }
+         }', 200);
+        }
+    }
+
+    //Remove own property
+    public function Remove($params, $param)
+    {
+        try {
+            $userId = (string)$param['userId'];
+
+            if (!$this->authenticateUser($param['token'], $userId)) throw new Exception("Authentication failed.");
+
+            $this->exec($this->delete('property', "_id = '{$param['propertyId']}'"));
+            $this->exec($this->delete('propertysettings', "property_id = '{$param['propertyId']}'"));
+
+
+            $this->resolve('{
+                            "status": "204",
+                            "message": "Property Removed"
+                        }', 200);
+        } catch (Exception $err) {
+            $this->reject('{
+              "status": "500",
+              "error": "true",
+              "message": "' . $err->getMessage() . '"
+              }
+          }', 200);
         }
     }
 
