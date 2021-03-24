@@ -90,7 +90,10 @@ class Property extends Controller
     {
         try {
             $stmt = $this->execute($this->get('property', '*', ("_id = '" . (string)$param['propertyId'] . "'")));
-            $this->resolve(json_encode($stmt->fetch()), 200);
+            $result = $stmt->fetch();
+            $stmt = $this->execute($this->get('propertysettings', 'reserved', ("property_id = '" . (string)$param['propertyId'] . "'")));
+            $result['reserved'] = $stmt->fetch()['reserved'];
+            $this->resolve(json_encode($result), 200);
         } catch (Exception $err) {
             $this->reject('{
              "status": "500",
@@ -343,23 +346,58 @@ class Property extends Controller
         }
     }
 
+    //Search property public
+    public function Search($params, $param)
+    {
+        try {
+            $district = isset($param['district']) ? (int)($param['district']) : 0;
+            $city = isset($param['city']) ? (int)($param['city']) : 0;
+            $propertyType = isset($param['propertype']) ? (int)($param['propertype']) : 0;
+
+            if ($district == 0) $district = "";
+            else $district = "AND district_id = " . $district;
+
+            if ($city == 0) $city = "";
+            else $city = "AND city_id = " . $city;
+
+            if ($propertyType == 0) $propertyType = "";
+            else $propertyType = "AND property_type_id = " . $propertyType;
+
+            $stmt = $this->execute($this->join('property', '*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id 
+                WHERE (property.title LIKE '%{$params[0]}%' 
+                    OR property.description LIKE '%{$params[0]}%') 
+                AND property.privated = 0 
+                AND property.property_status = 1 
+                 {$district}
+                 {$city}
+                 {$propertyType}
+                    ORDER BY property.created 
+                    DESC")));
+            $this->resolve(json_encode($stmt->fetchAll()), 200);
+        } catch (Exception $err) {
+            $this->reject('{
+              "status": "500",
+              "error": "true",
+              "message": "' . $err->getMessage() . '"
+              }
+          }', 200);
+        }
+    }
+
     // public function get()
     // {
     //     try {
-    //         if (isset($this->params[0])) {
-    //             switch ($this->params[0]) {
+    //         if (isset($params[0])) {
+    //             switch ($params[0]) {
     //                 case 'all':
     //                     // $stmt = $this->execute($this->join('property', '*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.privated = 0 AND property.property_status = 1 ORDER BY property.created DESC")));
-    //                     // // $stmt = $this->execute($this->get('property',['_id', 'title', 'price', 'description'], (int)$this->params[1], (int)$this->params[1] * (int)$this->params[2]));
+    //                     // // $stmt = $this->execute($this->get('property',['_id', 'title', 'price', 'description'], (int)$params[1], (int)$params[1] * (int)$params[2]));
 
     //                     // $this->resolve(json_encode($stmt->fetchAll()), 200);
 
     //                     // break;
     //                 case 'search':
-    //                     $stmt = $this->execute($this->join('property', '*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE (property.title LIKE '%{$this->params[1]}%' OR property.description LIKE '%{$this->params[1]}%') AND property.privated = 0 AND property.property_status = 1 ORDER BY property.created DESC")));
-    //                     // $stmt = $this->execute($this->get('property',['_id', 'title', 'price', 'description'], (int)$this->params[1], (int)$this->params[1] * (int)$this->params[2]));
-
-    //                     $this->resolve(json_encode($stmt->fetchAll()), 200);
+    //                     
     //                     break;
     //                 default:
     //                     $this->reject('{
@@ -380,9 +418,9 @@ class Property extends Controller
     // public function post()
     // {
     //     try {
-    //         if (isset($this->params[0])) {
+    //         if (isset($params[0])) {
     //             if (!$this->authenticate()) throw new Exception("Unautherized request.");
-    //             switch ($this->params[0]) {
+    //             switch ($params[0]) {
     //                 case 'add-new':
 
     //                     $userId = $param['userId'];
@@ -396,7 +434,7 @@ class Property extends Controller
     //                     break;
 
     //                 case 'get':
-    //                     switch ($this->params[1]) {
+    //                     switch ($params[1]) {
     //                         case 'property':
     //                             $userId = $param['userId'];
     //                             $token = $param['token'];
@@ -427,7 +465,7 @@ class Property extends Controller
     //                     break;
 
     //                 case 'favourite':
-    //                     switch ($this->params[1]) {
+    //                     switch ($params[1]) {
     //                         case 'get':
     //                             $stmt = $this->execute($this->get('favourite', 'COUNT(_id) as count', ("user_id = {$param['userId']} AND property_id = '{$param['propertyId']}'")));
 
@@ -472,14 +510,14 @@ class Property extends Controller
     //                     break;
     //                 case 'filter':
     //                     //2nd switch
-    //                     switch ($this->params[2]) {
+    //                     switch ($params[2]) {
 
     //                         case 'own':
     //                             $userId = $param['userId'];
     //                             $token = $param['token'];
     //                             if (!$this->authenticateUser($userId, $token)) throw new Exception("Authentication failed. Unauthorized request.");
     //                             //filter filter option switch
-    //                             switch ($this->params[3]) {
+    //                             switch ($params[3]) {
     //                                 case 'boosted':
     //                                     $stmt = $this->execute($this->join('property', '*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.user_id = '{$userId}' AND propertysetting.boosted = 1 ORDER BY property.created DESC")));
     //                                     break;
@@ -508,7 +546,7 @@ class Property extends Controller
     //                     } //End of second switch
     //                     break;
     //                 case 'reserved':
-    //                     switch ($this->params[1]) {
+    //                     switch ($params[1]) {
     //                         case 'own':
     //                             $userId = $param['userId'];
     //                             $token = $param['token'];
@@ -540,9 +578,9 @@ class Property extends Controller
     // public function patch()
     // {
     //     try {
-    //         if (isset($this->params[0])) {
+    //         if (isset($params[0])) {
     //             if (!$this->authenticate()) throw new Exception("Unauthorized request.");
-    //             switch ($this->params[0]) {
+    //             switch ($params[0]) {
     //                 case 'settings':
     //                     $data = [
     //                         'property_id' => $param['propertyId'],
