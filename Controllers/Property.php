@@ -111,7 +111,10 @@ class Property extends Controller
 
             if (!$this->authenticateUser($param['token'], $userId)) throw new Exception("Authentication failed.");
 
-            $stmt = $this->execute($this->join('property', '*', ("INNER JOIN favourite  ON property._id = favourite.property_id WHERE NOT property.user_id = '" . $userId . "' AND favourite.user_id = '" . $userId . "'")));
+            // $stmt = $this->execute($this->join('property', '*', ("INNER JOIN favourite  ON property._id = favourite.property_id WHERE NOT property.user_id = '" . $userId . "' AND favourite.user_id = '" . $userId . "' AND property.privated = 0 AND property.property_status = 1 ORDER BY property.created DESC")));
+            $stmt = $this->execute($this->join('property', '*', ("p, 
+            propertysettings s, favourite f WHERE p._id = s.property_id AND 
+            p._id = f.property_id AND NOT p.user_id = '" . $userId . "' AND f.user_id = '" . $userId . "' AND p.privated = 0 AND p.property_status = 1 ORDER BY p.created DESC")));
             $this->resolve(json_encode($stmt->fetchAll()), 200);
         } catch (Exception $err) {
             $this->reject('{
@@ -228,9 +231,43 @@ class Property extends Controller
                                 "propertyId": "' . $id . '",
                                 "message": "The advertisement saved successfully."
                             }', 201);
-            $this->addLog("Property addtion succesfull", "add-property-success");
+            $this->addLog($id . " Property addtion succesfull", "add-property-success");
         } catch (Exception $err) {
             $this->addLog("Property addtion failed", "add-property-failed", (string)$err->getMessage());
+            $this->reject('{
+             "status": "500",
+             "error": "true",
+             "message": "' . $err->getMessage() . '"
+             }
+         }', 200);
+        }
+    }
+
+    //Save properties
+    public function SaveSettings($params, $param)
+    {
+        try {
+            $userId = (string)$param['userId'];
+
+            if (!$this->authenticateUser($param['token'], $userId)) throw new Exception("Authentication failed.");
+
+            $data = [
+                'property_id' => $param['propertyId'],
+                'boost' => (bool)$param['boost'] ? 1 : 0,
+                'schedule' => (bool)$param['schedule'] ? 1 : 0,
+                'schedule_date' => $param['scheduleDate'],
+                'schedule_time' => $param['scheduleTime'],
+                'sharing' => (bool)$param['sharing'] ? 1 : 0,
+            ];
+            $this->execute($this->save('propertysettings', $data));
+            $this->execute($this->update('property', ['privated' => (bool)$param['privated'] ? 1 : 0], ("_id = '{$param['propertyId']}'")));
+
+            $this->resolve('{
+                                "message": "Property Settings Applied."
+                            }', 200);
+            $this->addLog($param['propertyId'] . " Property settings added succesfull", "save-property-settings-success");
+        } catch (Exception $err) {
+            $this->addLog("Property settings addtion failed", "save-property-settings-failed", (string)$err->getMessage());
             $this->reject('{
              "status": "500",
              "error": "true",
