@@ -24,7 +24,6 @@ class PropertyType extends Controller
                     "status": "500",
                     "error": "true",
                     "message": "' . $err->getMessage() . '"
-                }
             }', 200);
         }
     } //End of GET

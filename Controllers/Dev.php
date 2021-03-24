@@ -33,7 +33,6 @@ class Dev extends Controller {
                 "data": {
                     "error": "true",
                     "message": "' . $err->getMessage() . '"
-                }
             }');
         }
             

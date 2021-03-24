@@ -28,7 +28,6 @@ class Cities extends Controller
                     "status": "500",
                     "error": "true",
                     "message": "' . $err->getMessage() . '"
-                }
             }', 200);
         }
     }
@@ -50,7 +49,6 @@ class Cities extends Controller
                     "status": "500",
                     "error": "true",
                     "message": "' . $err->getMessage() . '"
-                }
             }', 200);
         }
     } //End of GET
@@ -70,7 +68,6 @@ class Cities extends Controller
                     "status": "500",
                     "error": "true",
                     "message": "' . $err->getMessage() . '"
-                }
             }', 200);
         }
     }
