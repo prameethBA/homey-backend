@@ -9,57 +9,72 @@ use Core\Controller as Controller;
 
 class User extends Controller {
 
-    //SignUp method
-    public function post() {
-
+    //get user Name by Id
+    public function GetName($params)
+    {
         try {
-
-            if(isset($this->params[0])) {
-                switch ($this->params[0]) {
-                    // deactivate a user
-                    case 'deactivate':
-                        if(!$this->authenticateAdmin($param['userId'], $param['token'])) throw 'Unauthorized request';
-                        $this->execute($this->update('login',['user_status' =>  2/*2 for blocked*/],'user_id = ' . $this->params['1']));
-                        
-                        $this->resolve('{
-                            "status":"200",
-                            "action":"true",
-                            "message":"user blocked"
-                        }',200);
-
-                        break;
-
-                        // activate a user
-                    case 'activate':
-                        if(!$this->authenticateAdmin($param['userId'], $param['token'])) throw 'Unauthorized request';
-                        $this->execute($this->update('update',['user_status' =>  1/*1 for activate*/],'user_id = ' . $this->params['1']));
-                        
-                        $this->resolve('{
-                            "status":"200",
-                            "action":"true",
-                            "message":"user activated"
-                        }',200);
-
-
-                        break;
-    
-                    default:
-                        $this->reject('{
-                            "status": "400",
-                            "signup": "false",
-                            "message": "Invalid user type."
-                        }',200);
-                        //End of Default
-                }//End of Switch
-            } else throw "Invalid parameters";
-
+            $stmt = $this->execute($this->get('user', 'first_name as firstName, last_name as lastName', 'user_id=' . (int)$params[0]));
+            $this->resolve(json_encode($stmt->fetch()), 200);
         } catch (Exception $err) {
             $this->reject('{
-                "status": "500",
-                "error": "true",
-                "message": "' . $err->getMessage() . '"
-        }',200);
-        } //End of try catch
+             "status": "500",
+             "error": "true",
+             "message": "' . $err->getMessage() . '"
+         }', 200);
+        }
+    }
+
+    //SignUp method
+    // public function post() {
+
+    //     try {
+
+    //         if(isset($this->params[0])) {
+    //             switch ($this->params[0]) {
+    //                 // deactivate a user
+    //                 case 'deactivate':
+    //                     if(!$this->authenticateAdmin($param['userId'], $param['token'])) throw 'Unauthorized request';
+    //                     $this->execute($this->update('login',['user_status' =>  2/*2 for blocked*/],'user_id = ' . $this->params['1']));
+                        
+    //                     $this->resolve('{
+    //                         "status":"200",
+    //                         "action":"true",
+    //                         "message":"user blocked"
+    //                     }',200);
+
+    //                     break;
+
+    //                     // activate a user
+    //                 case 'activate':
+    //                     if(!$this->authenticateAdmin($param['userId'], $param['token'])) throw 'Unauthorized request';
+    //                     $this->execute($this->update('update',['user_status' =>  1/*1 for activate*/],'user_id = ' . $this->params['1']));
+                        
+    //                     $this->resolve('{
+    //                         "status":"200",
+    //                         "action":"true",
+    //                         "message":"user activated"
+    //                     }',200);
+
+
+    //                     break;
+    
+    //                 default:
+    //                     $this->reject('{
+    //                         "status": "400",
+    //                         "signup": "false",
+    //                         "message": "Invalid user type."
+    //                     }',200);
+    //                     //End of Default
+    //             }//End of Switch
+    //         } else throw "Invalid parameters";
+
+    //     } catch (Exception $err) {
+    //         $this->reject('{
+    //             "status": "500",
+    //             "error": "true",
+    //             "message": "' . $err->getMessage() . '"
+    //     }',200);
+        // } //End of try catch
 
         // $stmt = User::execute($this->get('user',"(email='{$username}' OR mobile='{$username}') AND password='{$password}'"));
 
@@ -91,7 +106,7 @@ class User extends Controller {
         //     }';
         // }
         
-    }//End of POST
+    // }//End of POST
 
     //Logout method
     

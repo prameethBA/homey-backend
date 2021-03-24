@@ -12,7 +12,7 @@ class Forum extends Controller
 {
 
 
-    //get own properties
+    //create new post
     public function Create($params, $param)
     {
         try {
@@ -20,19 +20,19 @@ class Forum extends Controller
 
             if (!$this->authenticateUser($param['token'], $userId)) throw new Exception("Authentication failed.");
 
-            
+
             $data = [
-                'user_id' => $userId ,
+                'user_id' => $userId,
                 'title' => $param['title'],
                 'content' => $param['content'],
             ];
 
-            $this->execute($this->save('forum',$data));
-            
+            $this->execute($this->save('forum', $data));
+
             $this->resolve('{
                 "action": "true",
                 "message": "Post created"
-            }',201);
+            }', 201);
         } catch (Exception $err) {
             $this->reject('{
              "status": "500",
@@ -41,6 +41,24 @@ class Forum extends Controller
          }', 200);
         }
     }
+
+    //get all posts
+    public function All()
+    {
+        try {
+
+            $stmt = $this->execute($this->getAll('forum', '*'));
+
+            $this->resolve(json_encode($stmt->fetchAll()), 200);
+        } catch (Exception $err) {
+            $this->reject('{
+             "status": "500",
+             "error": "true",
+             "message": "' . $err->getMessage() . '"
+         }', 200);
+        }
+    }
+
 
     public function post()
     {
@@ -57,7 +75,6 @@ class Forum extends Controller
                         switch ($this->params[1]) {
                             case 'all':
 
-                                $stmt = $this->execute($this->get('feed','_id as id', "property_id='{$param['propertyId']}'"));
                                 http_response_code(201);
                                 echo json_encode($stmt->fetchAll());
                                 break;
@@ -113,7 +130,7 @@ class Forum extends Controller
                 "status": "500",
                 "error": "true",
                 "message": "' . $err->getMessage() . '"
-        }',200);
+        }', 200);
         } //End of try catch
 
     } //End of post
