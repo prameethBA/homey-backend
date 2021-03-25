@@ -65,6 +65,28 @@ class AdminSummary extends Controller
     }
 
 
+    //get traffic data for chart
+    public function GetTraffic($params, $param)
+    {
+        try {
+            $userId = (string)$param['userId'];
+            if (!$this->authenticateAdmin($param['token'], $userId)) throw new Exception("Authentication failed.");
+
+            //visitors
+            $stmt = $this->execute($this->join('visitorcount', "DATE(created) AS date, COUNT(_id) as hits", "GROUP BY DATE(created) ORDER BY date"));
+            $this->resolve(json_encode($stmt->fetchAll()), 200);
+        } catch (Exception $err) {
+            $this->reject('{
+              "status": "500",
+              "error": "true",
+              "message": "' . $err->getMessage() . '"
+          }', 200);
+        }
+    }
+
+
+
+
 
     // public function post()
     // {
