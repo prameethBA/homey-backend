@@ -53,26 +53,14 @@ class User extends Controller
     //                 // deactivate a user
     //                 case 'deactivate':
     //                     if(!$this->authenticateAdmin($param['userId'], $param['token'])) throw 'Unauthorized request';
-    //                     $this->execute($this->update('login',['user_status' =>  2/*2 for blocked*/],'user_id = ' . $this->params['1']));
-
-    //                     $this->resolve('{
-    //                         "status":"200",
-    //                         "action":"true",
-    //                         "message":"user blocked"
-    //                     }',200);
+    //                     
 
     //                     break;
 
     //                     // activate a user
     //                 case 'activate':
     //                     if(!$this->authenticateAdmin($param['userId'], $param['token'])) throw 'Unauthorized request';
-    //                     $this->execute($this->update('update',['user_status' =>  1/*1 for activate*/],'user_id = ' . $this->params['1']));
-
-    //                     $this->resolve('{
-    //                         "status":"200",
-    //                         "action":"true",
-    //                         "message":"user activated"
-    //                     }',200);
+    //                     
 
 
     //                     break;

@@ -82,7 +82,7 @@ class AdminProperty extends Controller
         try {
             $userId = (string)$param['userId'];
             if (!$this->authenticateAdmin($param['token'], $userId)) throw new Exception("Authentication failed.");
-            $stmt = $this->execute($this->update('property', ['property_status' => 2], ("_id = '{$param['propertyId']}'")));
+            $this->execute($this->update('property', ['property_status' => 2], ("_id = '{$param['propertyId']}'")));
 
             $this->resolve('{
                             "status": "204",
@@ -91,6 +91,39 @@ class AdminProperty extends Controller
             $this->addLog($param['propertyId'] . " Rejected by " . $userId, "property-rejected");
         } catch (Exception $err) {
             $this->addLog(" Rejectiong request failed", "property-rejection-failed", (string)$err->getMessage());
+            $this->reject('{
+                "status": "500",
+                "error": "true",
+                "message": "' . $err->getMessage() . '"
+            }', 200);
+        }
+    }
+
+    // Search the property
+    public function Search($params, $param)
+    {
+        try {
+            // $district = isset($param['district']) ? (int)($param['district']) : 0;
+            // $city = isset($param['city']) ? (int)($param['city']) : 0;
+            // $propertyType = isset($param['propertype']) ? (int)($param['propertype']) : 0;
+
+            // if ($district == 0) $district = "";
+            // else $district = "AND district_id = " . $district;
+
+            // if ($city == 0) $city = "";
+            // else $city = "AND city_id = " . $city;
+
+            // if ($propertyType == 0) $propertyType = "";
+            // else $propertyType = "AND property_type_id = " . $propertyType;
+
+            $stmt = $this->execute($this->join('property', '*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id 
+                    WHERE (property.title LIKE '%{$params[0]}%' 
+                        OR property.description LIKE '%{$params[0]}%') 
+                    AND property.privated = 0 
+                        ORDER BY property.created 
+                        DESC")));
+            $this->resolve(json_encode($stmt->fetchAll()), 200);
+        } catch (Exception $err) {
             $this->reject('{
                 "status": "500",
                 "error": "true",
