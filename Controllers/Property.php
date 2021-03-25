@@ -341,7 +341,6 @@ class Property extends Controller
               "status": "500",
               "error": "true",
               "message": "' . $err->getMessage() . '"
-              }
           }', 200);
         }
     }
@@ -379,7 +378,86 @@ class Property extends Controller
               "status": "500",
               "error": "true",
               "message": "' . $err->getMessage() . '"
-              }
+          }', 200);
+        }
+    }
+
+    //Filter property public
+    public function Filter($params, $param)
+    {
+        try {
+            $district = isset($param['district']) ? (int)($param['district']) : 0;
+            $city = isset($param['city']) ? (int)($param['city']) : 0;
+
+            if ($district == 0) $district = "";
+            else $district = "AND district_id = " . $district;
+
+            if ($city == 0) $city = "";
+            else $city = "AND city_id = " . $city;
+
+            $browse  = 'AND (';
+            foreach ($param['browse'] as $key => $value) {
+                $browse .= (int)$value == 1 ? 'property_type_id =' . (int)$key . ' ' : '';
+            }
+
+
+            $stmt = $this->execute($this->join('property', '*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id 
+                WHERE (property.title LIKE '%{$params[0]}%' 
+                    OR property.description LIKE '%{$params[0]}%') 
+                AND property.privated = 0 
+                AND property.property_status = 1 
+                 {$district}
+                 {$city}
+                    ORDER BY property.created 
+                    DESC")));
+            $this->resolve(json_encode($stmt->fetchAll()), 200);
+        } catch (Exception $err) {
+            $this->reject('{
+              "status": "500",
+              "error": "true",
+              "message": "' . $err->getMessage() . '"
+          }', 200);
+        }
+    }
+
+    //filter own properties
+    public function FilterOwn($params, $param)
+    {
+        try {
+            $userId = (string)$param['userId'];
+
+            if (!$this->authenticateUser($param['token'], $userId)) throw new Exception("Authentication failed.");
+            //filter filter option switch
+            switch ($params[0]) {
+                case 'boosted':
+                    $stmt = $this->execute($this->join('property', '*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.user_id = '{$userId}' AND propertysettings.boost = 1 ORDER BY property.created DESC")));
+                    break;
+                case 'pending':
+                    $stmt = $this->execute($this->join('property', '*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.user_id = '{$userId}' AND property.property_status = 0 ORDER BY property.created DESC")));
+                    break;
+                case 'private':
+                    $stmt = $this->execute($this->join('property', '*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.user_id = '{$userId}' AND property.privated = 1 ORDER BY property.created DESC")));
+                    break;
+                case 'public':
+                    $stmt = $this->execute($this->join('property', '*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.user_id = '{$userId}' AND property.privated = 0 ORDER BY property.created DESC")));
+                    break;
+                case 'rejected':
+                    $stmt = $this->execute($this->join('property', '*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.user_id = '{$userId}' AND property.property_status = 2 ORDER BY property.created DESC")));
+                    break;
+                case 'blocked':
+                    $stmt = $this->execute($this->join('property', '*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.user_id = '{$userId}' AND property.property_status = 3 ORDER BY property.created DESC")));
+                    break;
+                default:
+                    $stmt = $this->execute($this->join('property', '*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.user_id = '{$userId}' ORDER BY property.created DESC")));
+                    break;
+            } //End of filter option switch
+
+            $this->resolve(json_encode($stmt->fetchAll()), 200);
+        } catch (Exception $err) {
+            $this->reject('{
+              "status": "500",
+              "error": "true",
+              "message": "' . $err->getMessage() . '"
           }', 200);
         }
     }
@@ -510,40 +588,7 @@ class Property extends Controller
     //                     break;
     //                 case 'filter':
     //                     //2nd switch
-    //                     switch ($params[2]) {
-
-    //                         case 'own':
-    //                             $userId = $param['userId'];
-    //                             $token = $param['token'];
-    //                             if (!$this->authenticateUser($userId, $token)) throw new Exception("Authentication failed. Unauthorized request.");
-    //                             //filter filter option switch
-    //                             switch ($params[3]) {
-    //                                 case 'boosted':
-    //                                     $stmt = $this->execute($this->join('property', '*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.user_id = '{$userId}' AND propertysetting.boosted = 1 ORDER BY property.created DESC")));
-    //                                     break;
-    //                                 case 'pending':
-    //                                     $stmt = $this->execute($this->join('property', '*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.user_id = '{$userId}' AND property.property_status = 0 ORDER BY property.created DESC")));
-    //                                     break;
-    //                                 case 'private':
-    //                                     $stmt = $this->execute($this->join('property', '*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.user_id = '{$userId}' AND property.privated = 1 ORDER BY property.created DESC")));
-    //                                     break;
-    //                                 case 'public':
-    //                                     $stmt = $this->execute($this->join('property', '*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.user_id = '{$userId}' AND property.privated = 0 ORDER BY property.created DESC")));
-    //                                     break;
-    //                                 case 'rejected':
-    //                                     $stmt = $this->execute($this->join('property', '*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.user_id = '{$userId}' AND property.property_status = 2 ORDER BY property.created DESC")));
-    //                                     break;
-    //                                 case 'blocked':
-    //                                     $stmt = $this->execute($this->join('property', '*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.user_id = '{$userId}' AND property.property_status = 3 ORDER BY property.created DESC")));
-    //                                     break;
-    //                                 default:
-    //                                     $stmt = $this->execute($this->join('property', '*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.user_id = '{$userId}' ORDER BY property.created DESC")));
-    //                                     break;
-    //                             } //End of filter option switch
-
-    //                             $this->resolve(json_encode($stmt->fetchAll()), 200);
-    //                             break;
-    //                     } //End of second switch
+    //                     
     //                     break;
     //                 case 'reserved':
     //                     switch ($params[1]) {
