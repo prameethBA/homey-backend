@@ -5,9 +5,11 @@ namespace Controllers;
 use Exception;
 
 require_once('Core/Controller.php');
+
 use Core\Controller as Controller;
 
-class User extends Controller {
+class User extends Controller
+{
 
     //get user Name by Id
     public function GetName($params)
@@ -24,6 +26,23 @@ class User extends Controller {
         }
     }
 
+    //count visitors
+    public function CountNew()
+    {
+        try {
+            $ip = $_SERVER['HTTP_CLIENT_IP'] ?: ($_SERVER['HTTP_X_FORWARDED_FOR'] ?: $_SERVER['REMOTE_ADDR']);
+            $this->execute($this->save('visitorcount', ['ip' => (string)$ip, 'detail' => "new user"]));
+            $this->resolve('{"count":"incremented"}', 200);
+        } catch (Exception $err) {
+            $this->reject('{
+              "status": "500",
+              "error": "true",
+              "message": "' . $err->getMessage() . '"
+          }', 200);
+        }
+    }
+
+
     //SignUp method
     // public function post() {
 
@@ -35,7 +54,7 @@ class User extends Controller {
     //                 case 'deactivate':
     //                     if(!$this->authenticateAdmin($param['userId'], $param['token'])) throw 'Unauthorized request';
     //                     $this->execute($this->update('login',['user_status' =>  2/*2 for blocked*/],'user_id = ' . $this->params['1']));
-                        
+
     //                     $this->resolve('{
     //                         "status":"200",
     //                         "action":"true",
@@ -48,7 +67,7 @@ class User extends Controller {
     //                 case 'activate':
     //                     if(!$this->authenticateAdmin($param['userId'], $param['token'])) throw 'Unauthorized request';
     //                     $this->execute($this->update('update',['user_status' =>  1/*1 for activate*/],'user_id = ' . $this->params['1']));
-                        
+
     //                     $this->resolve('{
     //                         "status":"200",
     //                         "action":"true",
@@ -57,7 +76,7 @@ class User extends Controller {
 
 
     //                     break;
-    
+
     //                 default:
     //                     $this->reject('{
     //                         "status": "400",
@@ -74,40 +93,40 @@ class User extends Controller {
     //             "error": "true",
     //             "message": "' . $err->getMessage() . '"
     //     }',200);
-        // } //End of try catch
+    // } //End of try catch
 
-        // $stmt = User::execute($this->get('user',"(email='{$username}' OR mobile='{$username}') AND password='{$password}'"));
+    // $stmt = User::execute($this->get('user',"(email='{$username}' OR mobile='{$username}') AND password='{$password}'"));
 
-        // if($stmt->rowCount() == 1) {
-        //     $result = $stmt->fetch();
-        //     $payload = "{
-        //         id: " . $result['user_id'] . ",
-        //         email: '" . $result['email'] . "'
-        //     }";
-        //     $this->setToken($payload);
-        //     http_response_code(201);
-        //     echo $resolve = '{
-        //         "data" : {
-        //             "login": "true",
-        //             "token": "' . $this->getToken() . '",
-        //             "message": "Login Succesfull"
-        //         }
-        //     }';
+    // if($stmt->rowCount() == 1) {
+    //     $result = $stmt->fetch();
+    //     $payload = "{
+    //         id: " . $result['user_id'] . ",
+    //         email: '" . $result['email'] . "'
+    //     }";
+    //     $this->setToken($payload);
+    //     http_response_code(201);
+    //     echo $resolve = '{
+    //         "data" : {
+    //             "login": "true",
+    //             "token": "' . $this->getToken() . '",
+    //             "message": "Login Succesfull"
+    //         }
+    //     }';
 
-        //     $this->update('user',['access_token' => $this->getToken(), "next" =>"val"], "user_id = {$result['user_id']}");
-            
-        // } else {
-        //     http_response_code(404);
-        //     echo $reject = '{
-        //         "data": {
-        //             "login": "false",
-        //             "message": "Login failed! <br> Invalid Email, Mobile or Password."
-        //         }
-        //     }';
-        // }
-        
+    //     $this->update('user',['access_token' => $this->getToken(), "next" =>"val"], "user_id = {$result['user_id']}");
+
+    // } else {
+    //     http_response_code(404);
+    //     echo $reject = '{
+    //         "data": {
+    //             "login": "false",
+    //             "message": "Login failed! <br> Invalid Email, Mobile or Password."
+    //         }
+    //     }';
+    // }
+
     // }//End of POST
 
     //Logout method
-    
+
 }
