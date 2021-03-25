@@ -48,6 +48,104 @@ class AdminUsers extends Controller
         }
     }
 
+    //get all users 
+    public function AllUsers($params, $param)
+    {
+        try {
+            $userId = (string)$param['userId'];
+            if (!$this->authenticateAdmin($param['token'], $userId)) throw new Exception("Authentication failed.");
+            $stmt = $this->execute($this->join(
+                'login',
+                [
+                    'user.user_id as userId',
+                    'login.email',
+                    'login.mobile',
+                    'login.user_status as status',
+                    'user.first_name as firstName',
+                    'user.last_name as lastName'
+                ],
+                (", user WHERE login.user_id = user.user_id AND login.user_type = 0")
+            ));
+
+            $this->resolve(json_encode($stmt->fetchAll()), 200);
+        } catch (Exception $err) {
+            $this->reject('{
+                "status": "500",
+                "error": "true",
+                "message": "' . $err->getMessage() . '"
+            }', 200);
+        }
+    }
+
+    //deactivate user 
+    public function Deactivate($params, $param)
+    {
+        try {
+            $userId = (string)$param['userId'];
+            if (!$this->authenticateAdmin($param['token'], $userId)) throw new Exception("Authentication failed.");
+            $this->execute($this->update('login', ['user_status' =>  2/*2 for deactivated*/], 'user_id = ' . $params['0']));
+
+            $this->resolve('{
+                                "status":"200",
+                                "action":"true",
+                                "message":"user deactivated"
+                            }', 200);
+            $this->addLog($params['0'] . " deactivated by " . $userId, "user-deactivated");
+        } catch (Exception $err) {
+            $this->reject('{
+                "status": "500",
+                "error": "true",
+                "message": "' . $err->getMessage() . '"
+            }', 200);
+        }
+    }
+
+    //Active user 
+    public function Activate($params, $param)
+    {
+        try {
+            $userId = (string)$param['userId'];
+            if (!$this->authenticateAdmin($param['token'], $userId)) throw new Exception("Authentication failed.");
+            $this->execute($this->update('login', ['user_status' =>  1/*1 for activate*/], 'user_id = ' . $params['0']));
+
+            $this->resolve('{
+                                    "status":"200",
+                                    "action":"true",
+                                    "message":"user activated"
+                                }', 200);
+            $this->addLog($params['0'] . " activated by " . $userId, "user-activated");
+        } catch (Exception $err) {
+            $this->reject('{
+                  "status": "500",
+                  "error": "true",
+                  "message": "' . $err->getMessage() . '"
+              }', 200);
+        }
+    }
+
+     //Block user 
+     public function Ban($params, $param)
+     {
+         try {
+             $userId = (string)$param['userId'];
+             if (!$this->authenticateAdmin($param['token'], $userId)) throw new Exception("Authentication failed.");
+             $this->execute($this->update('login', ['user_status' =>  4/*4 for Ban  */], 'user_id = ' . $params['0']));
+ 
+             $this->resolve('{
+                                     "status":"200",
+                                     "action":"true",
+                                     "message":"user banned permanently"
+                                 }', 200);
+             $this->addLog($params['0'] . " permanently banned by " . $userId, "user-banned");
+         } catch (Exception $err) {
+             $this->reject('{
+                   "status": "500",
+                   "error": "true",
+                   "message": "' . $err->getMessage() . '"
+               }', 200);
+         }
+     }
+
     // public function post()
     // {
     //     try {
@@ -56,19 +154,7 @@ class AdminUsers extends Controller
     //             switch ($this->params[0]) {
     //                 case 'all-users':
 
-    //                     $stmt = $this->execute(Login::join(
-    //                         [
-    //                             'user.user_id as userId',
-    //                             'login.email',
-    //                             'login.mobile',
-    //                             'login.user_status as status',
-    //                             'user.first_name as firstName',
-    //                             'user.last_name as lastName'
-    //                         ],
-    //                         (", user WHERE login.user_id = user.user_id AND login.user_type = 0")
-    //                     ));
-
-    //                     $this->resolve(json_encode($stmt->fetchAll()), 200);
+    //                    
     //                     break;
 
     //                 case 'all-admins':
