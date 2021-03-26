@@ -84,6 +84,8 @@ class AdminUsers extends Controller
         try {
             $userId = (string)$param['userId'];
             if (!$this->authenticateAdmin($param['token'], $userId)) throw new Exception("Authentication failed.");
+            $userType = (isset($params[0]) && $params[0] == 'admin') ? 1 : 0;
+
             $stmt = $this->execute($this->join(
                 'login',
                 [
@@ -96,18 +98,18 @@ class AdminUsers extends Controller
                 ],
                 ", user 
                 WHERE login.user_id = user.user_id 
-                AND login.user_type = 0 
+                AND login.user_type = {$userType} 
                 AND (
-                    user.first_name LIKE '%{$params[0]}%'
-                    OR user.last_name LIKE '%{$params[0]}%'
-                    OR login.email LIKE '%{$params[0]}%'
-                    OR login.mobile LIKE '%{$params[0]}%'
-                    OR user.nic LIKE '%{$params[0]}%'
-                    OR user.address1 LIKE '%{$params[0]}%'
-                    OR user.address2 LIKE '%{$params[0]}%'
-                    OR user.address3 LIKE '%{$params[0]}%'
-                    OR user.city LIKE '%{$params[0]}%'
-                    OR user.district LIKE '%{$params[0]}%'
+                    user.first_name LIKE '%{$params[1]}%'
+                    OR user.last_name LIKE '%{$params[1]}%'
+                    OR login.email LIKE '%{$params[1]}%'
+                    OR login.mobile LIKE '%{$params[1]}%'
+                    OR user.nic LIKE '%{$params[1]}%'
+                    OR user.address1 LIKE '%{$params[1]}%'
+                    OR user.address2 LIKE '%{$params[1]}%'
+                    OR user.address3 LIKE '%{$params[1]}%'
+                    OR user.city LIKE '%{$params[1]}%'
+                    OR user.district LIKE '%{$params[1]}%'
                 )"
             ));
 
@@ -196,28 +198,28 @@ class AdminUsers extends Controller
         }
     }
 
-     //Block user 
-     public function Ban($params, $param)
-     {
-         try {
-             $userId = (string)$param['userId'];
-             if (!$this->authenticateAdmin($param['token'], $userId)) throw new Exception("Authentication failed.");
-             $this->execute($this->update('login', ['user_status' =>  4/*4 for Ban  */], 'user_id = ' . $params['0']));
- 
-             $this->resolve('{
+    //Block user 
+    public function Ban($params, $param)
+    {
+        try {
+            $userId = (string)$param['userId'];
+            if (!$this->authenticateAdmin($param['token'], $userId)) throw new Exception("Authentication failed.");
+            $this->execute($this->update('login', ['user_status' =>  4/*4 for Ban  */], 'user_id = ' . $params['0']));
+
+            $this->resolve('{
                                      "status":"200",
                                      "action":"true",
                                      "message":"user banned permanently"
                                  }', 200);
-             $this->addLog($params['0'] . " permanently banned by " . $userId, "user-banned");
-         } catch (Exception $err) {
-             $this->reject('{
+            $this->addLog($params['0'] . " permanently banned by " . $userId, "user-banned");
+        } catch (Exception $err) {
+            $this->reject('{
                    "status": "500",
                    "error": "true",
                    "message": "' . $err->getMessage() . '"
                }', 200);
-         }
-     }
+        }
+    }
 
     // public function post()
     // {

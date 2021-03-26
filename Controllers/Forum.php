@@ -47,9 +47,34 @@ class Forum extends Controller
     {
         try {
 
-            $stmt = $this->execute($this->getAll('forum', '*'));
+            $stmt = $this->execute($this->join('forum', '*', "ORDER BY created DESC"));
 
             $this->resolve(json_encode($stmt->fetchAll()), 200);
+        } catch (Exception $err) {
+            $this->reject('{
+             "status": "500",
+             "error": "true",
+             "message": "' . $err->getMessage() . '"
+         }', 200);
+        }
+    }
+
+    //create new post
+    public function Remove($params, $param)
+    {
+        try {
+            $userId = (string)$param['userId'];
+
+            // if (!$this->authenticateUser($param['token'], $userId)) throw new Exception("Authentication failed.");
+            if (!$this->authenticateAdmin($param['token'], $userId))
+                if (!$this->authenticateUser($param['token'], $userId)) throw new Exception("Authentication failed.");
+
+            $this->execute($this->delete('forum', '_id = ' . (int)$params[0]));
+
+            $this->resolve('{
+                "action": "true",
+                "message": "Post deleted"
+            }', 200);
         } catch (Exception $err) {
             $this->reject('{
              "status": "500",
