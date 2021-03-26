@@ -96,6 +96,7 @@ class Login extends Controller
                     "message": "Database error! Contact administration."
                 }', 200);
             } else {
+                //Write Raw SQL query
                 // $this->exec($this->update("login", ['login_attempt' => 'login_attempt + 1'], "email='{$userName}' OR mobile='{$userName}"));
                 $this->addLog($userName . " loging failed.", "invalid-login", "Login failed! due to Invalid Email, Mobile, Password or Blocked");
                 $this->reject('{

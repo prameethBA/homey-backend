@@ -37,7 +37,7 @@ class Controller extends Token
         return md5(time() . sha1($key . $this->uniqueKeyString));
     }
 
-    protected function sendMail($receiver = [], $subject = 'Message From Admin@homey.lk', $message = "homey.lk")
+    protected function sendMail($receiver = [], $subject = 'Message From no-reply@homey.lk', $message = "homey.lk")
     {
         // Multiple recipients
         $to = is_string($receiver) ? $receiver : implode(', ', $select);
@@ -48,7 +48,7 @@ class Controller extends Token
 
         // Additional headers
         // $headers = 'To: Mary <mary@example.com>, Kelly <kelly@example.com>';
-        $headers[] = 'From: Homey.lk <admin@homey.lk>';
+        $headers[] = 'From: Homey.lk <no-reply@homey.lk>';
         // $headers = 'Cc: birthdayarchive@example.com';
         // $headers = 'Bcc: birthdaycheck@example.com';
 
