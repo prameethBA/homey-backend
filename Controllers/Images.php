@@ -48,7 +48,7 @@ class Images extends Controller
         }
     }
 
-    public function ProfileSave($a, $param)
+    public function ProfileSave($params, $param)
     {
         try {
             $userId = (string)$param['userId'];
