@@ -64,6 +64,7 @@ class Feedback extends Controller
 
             if (!$this->authenticateUser($param['token'], $userId)) throw new Exception("Authentication failed.");
             $data = [
+                //anonymous == 0 means has userId 
                 'user_id' => (int)$param['anonymous'] == 0 ? $param['userId'] : 0,
                 'property_id' => $propertyId,
                 'feedback' => $param['feedback']
@@ -121,7 +122,7 @@ class Feedback extends Controller
         try {
             $userId = (string)$param['userId'];
 
-            if (!$this->authenticateUser($param['token'], $userId)) throw new Exception("Authentication failed.");
+            if (!$this->authenticateAdmin($param['token'], $userId)) throw new Exception("Authentication failed.");
 
             $stmt = $this->execute($this->getAll('report', '*'));
 
@@ -136,87 +137,87 @@ class Feedback extends Controller
     }
 
 
-    public function post()
-    {
-        try {
-            if (isset($this->params[0])) {
-                if (!$this->authenticate()) throw new Exception("Unautherized request.");
-                switch ($this->params[0]) {
-                    case 'add':
+    // public function post()
+    // {
+    //     try {
+    //         if (isset($this->params[0])) {
+    //             if (!$this->authenticate()) throw new Exception("Unautherized request.");
+    //             switch ($this->params[0]) {
+    //                 case 'add':
 
 
-                        break;
-                    case 'get':
+    //                     break;
+    //                 case 'get':
 
-                        switch ($this->params[1]) {
-                            case 'all':
+    //                     switch ($this->params[1]) {
+    //                         case 'all':
 
 
-                                break;
-                            default:
-                                $data = [
-                                    'feedback.feedback as feedback',
-                                    'feedback.created as created',
-                                    'feedback.user_id as userId',
-                                    'user.first_name as firstName',
-                                    'user.last_name as lastName'
-                                ];
-                                $stmt = $this->execute($this->join('feedback', $data, "LEFT JOIN user ON feedback.user_id=user._id WHERE feedback._id='{$this->params[1]}'"));
+    //                             break;
+    //                         default:
+    //                             $data = [
+    //                                 'feedback.feedback as feedback',
+    //                                 'feedback.created as created',
+    //                                 'feedback.user_id as userId',
+    //                                 'user.first_name as firstName',
+    //                                 'user.last_name as lastName'
+    //                             ];
+    //                             $stmt = $this->execute($this->join('feedback', $data, "LEFT JOIN user ON feedback.user_id=user._id WHERE feedback._id='{$this->params[1]}'"));
 
-                                $this->resolve(json_encode($stmt->fetch()), 201);
-                                break;
-                        }
-                        break;
+    //                             $this->resolve(json_encode($stmt->fetch()), 201);
+    //                             break;
+    //                     }
+    //                     break;
 
-                    case 'report':
+    //                 case 'report':
 
-                        switch ($this->params[1]) {
-                            case 'save':
+    //                     switch ($this->params[1]) {
+    //                         case 'save':
 
-                                $data = [
-                                    'user_id' => $param['userId'],
-                                    'property_id' => $param['propertyId'],
-                                    'reason' => $param['reason'],
-                                    'message' => $param['message']
-                                ];
+    //                             $data = [
+    //                                 'user_id' => $param['userId'],
+    //                                 'property_id' => $param['propertyId'],
+    //                                 'reason' => $param['reason'],
+    //                                 'message' => $param['message']
+    //                             ];
 
-                                $stmt = $this->execute($this->save('report', $data));
+    //                             $stmt = $this->execute($this->save('report', $data));
 
-                                $this->reject('{
-                                    "action": "true",
-                                    "message": "Property reported."
-                                }', 201);
+    //                             $this->reject('{
+    //                                 "action": "true",
+    //                                 "message": "Property reported."
+    //                             }', 201);
 
-                                break;
-                            case 'all':
-                                $stmt = $this->execute($this->getAll('report'));
-                                $this->resolve(json_encode($stmt->fetchAll()), 200);
-                                break;
-                        }
-                        break;
+    //                             break;
+    //                         case 'all':
+    //                             $stmt = $this->execute($this->getAll('report'));
+    //                             $this->resolve(json_encode($stmt->fetchAll()), 200);
+    //                             break;
+    //                     }
+    //                     break;
 
-                    default:
-                        throw new Exception("Invalid Request");
-                }
-            } else throw new Exception("Invalid Parmeters");
-        } catch (Exception $err) {
+    //                 default:
+    //                     throw new Exception("Invalid Request");
+    //             }
+    //         } else throw new Exception("Invalid Parmeters");
+    //     } catch (Exception $err) {
 
-            $this->reject('{
-                "status": "500",
-                "error": "true",
-                "message": "' . $err->getMessage() . '"
-        }', 200);
-        } //End of try catch
+    //         $this->reject('{
+    //             "status": "500",
+    //             "error": "true",
+    //             "message": "' . $err->getMessage() . '"
+    //     }', 200);
+    //     } //End of try catch
 
-    } //End of post
+    // } //End of post
 
-    // Authenticate User 
-    private function authenticate()
-    {
-        if (isset($param['userId'], $param['token'])) {
-            if ($this->authenticateUser($param['userId'], $param['token'])) return true;
-            else return false;
-        } else return false;
-    } //end of authenticateUser()
+    // // Authenticate User 
+    // private function authenticate()
+    // {
+    //     if (isset($param['userId'], $param['token'])) {
+    //         if ($this->authenticateUser($param['userId'], $param['token'])) return true;
+    //         else return false;
+    //     } else return false;
+    // } //end of authenticateUser()
 
 }//End of Class
