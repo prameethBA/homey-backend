@@ -43,11 +43,14 @@ class Forum extends Controller
     }
 
     //get all posts
-    public function All()
+    public function All($params)
     {
         try {
 
-            $stmt = $this->execute($this->join('forum', '*', "ORDER BY created DESC"));
+            if (isset($params[0]))
+                $stmt = $this->execute($this->get('forum', '*', " user_id = " . (int)$params[0] . " ORDER BY created DESC"));
+            else
+                $stmt = $this->execute($this->join('forum', '*', "ORDER BY created DESC"));
 
             $this->resolve(json_encode($stmt->fetchAll()), 200);
         } catch (Exception $err) {
@@ -59,7 +62,22 @@ class Forum extends Controller
         }
     }
 
-    //create new post
+    //get comments 
+    public function GetComments($params, $param)
+    {
+        try {
+            $stmt = $this->execute($this->get('forumcomment', '*', "forum_id=" . (int)$params[0]));
+            $this->resolve(json_encode($stmt->fetchAll()), 200);
+        } catch (Exception $err) {
+            $this->reject('{
+             "status": "500",
+             "error": "true",
+             "message": "' . $err->getMessage() . '"
+         }', 200);
+        }
+    }
+
+    //Removev post
     public function Remove($params, $param)
     {
         try {
@@ -75,6 +93,33 @@ class Forum extends Controller
                 "action": "true",
                 "message": "Post deleted"
             }', 200);
+        } catch (Exception $err) {
+            $this->reject('{
+             "status": "500",
+             "error": "true",
+             "message": "' . $err->getMessage() . '"
+         }', 200);
+        }
+    }
+
+    //Add new comment
+    public function AddNewComment($params, $param)
+    {
+        try {
+            $userId = (string)$param['userId'];
+
+            if (!$this->authenticateUser($param['token'], $userId)) throw new Exception("Authentication failed.");
+
+            $this->execute($this->save('forumcomment', [
+                'user_id' => $userId,
+                'forum_id' => $param['forumId'],
+                'comment' => $param['comment'],
+            ]));
+
+            $this->resolve('{
+                "action": "true",
+                "message": "New comment added"
+            }', 201);
         } catch (Exception $err) {
             $this->reject('{
              "status": "500",
