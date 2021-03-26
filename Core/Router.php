@@ -11,7 +11,7 @@ if (isset($_SERVER["HTTP_ORIGIN"])) {
     header("Access-Control-Allow-Origin: *");
 }
 
-// header("Access-Control-Allow-Credentials: true");
+header("Access-Control-Allow-Credentials: true");
 // header("Access-Control-Max-Age: 600");    // cache for 10 minutes
 
 if ($_SERVER["REQUEST_METHOD"] == "OPTIONS") {

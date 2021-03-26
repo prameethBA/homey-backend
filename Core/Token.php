@@ -34,7 +34,7 @@ class Token extends Model
         if ($stmt->rowCount() == 1) {
             $this->execute($this->update('login', ['access_token' => $this->timevalue], 'user_id=' . $userId));
             $preInfo = base64_encode($this->header) . "." . base64_encode($this->payload);
-            $info = base64_encode($this->header) . "." . base64_encode($this->payload) . "." . md5($this->SECRET . $this->timevalue);
+            $info = $preInfo . "." . md5($this->SECRET . $this->timevalue);
             $this->signature = md5($info);
 
             $this->token = $preInfo . "." . $this->signature;

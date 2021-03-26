@@ -12,7 +12,7 @@ class Signup extends Controller
 {
 
 
-    public function User($a, $param)
+    public function User($params, $param)
     {
         try {
 
@@ -41,30 +41,26 @@ class Signup extends Controller
                 include_once($_SERVER['DOCUMENT_ROOT'] . '/assets/email-confirmation.php');
 
                 if (!$this->sendMail($email, $subject, $message)) {
-                    http_response_code(202);
                     $this->addLog($userId . " email sending failed.", "new-user-confirmation-mail-failed", "Confirmation email sending failed");
-
-                    die($reject  = '{
+                    $this->reject('{
                         "signup": "true",
                         "message": "User account succesfully created. But confirmation email sent was failed. Try again later with email <b>' . $email . '<b> ."
-                    }');
+                    }', 202);
                 }
 
-                http_response_code(201);
-                echo $resolve  = '{
+                $this->resolve('{
                     "signup": "true",
                     "message": "User account succesfully created. An email was sent to <b>' . $email . '<b> ."
-                }';
+                }', 201);
                 $this->addLog($userId . " confirmation mail sent to " . $email, "confirmation-mail-sent");
             } else {
-                http_response_code(200);
                 $this->addLog($email . " already exists", "email-exists", 'Attepmt to sign up for existing email address');
 
-                die($reject  = '{
+                $this->reject('{
                     "status": "409",
                     "signup": "false",
                     "message": "An account with the given email already exits."
-                }');
+                }', 200);
             }
         } catch (Exception $err) {
             $this->addLog("A signup attempt failed", "signup-attepmt-failed", (string)$err->getMessage());
@@ -77,10 +73,10 @@ class Signup extends Controller
     } //End of User()
 
 
-    public function Confirm($a, $param)
+    public function Confirm($params, $param)
     {
         try {
-            if (!isset($param['hash'], $param['userId'])) throw new Exception ("Incorrect request");
+            if (!isset($param['hash'], $param['userId'])) throw new Exception("Incorrect request");
             $hash = $param['hash'];
             $userId = (int)base64_decode($param['userId']); //derive userId
             $stmt = $this->execute($this->get('hash', 'user_id', "user_id = '{$userId}' AND hash = '{$hash}'"));
