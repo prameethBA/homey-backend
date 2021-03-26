@@ -30,9 +30,9 @@ class AdminSummary extends Controller
             $result['visitor']['totalCount'] = $stmt->fetch()['count'];
 
             //Ads
-            $stmt = $this->execute($this->get('visitorcount', "COUNT(_id) as count", "MONTH(created) = MONTH(CURDATE())"));
+            $stmt = $this->execute($this->get('property', "COUNT(_id) as count", "MONTH(created) = MONTH(CURDATE())"));
             $result['ads']['count'] = $stmt->fetch()['count'];
-            $stmt = $this->execute($this->get('visitorcount', "COUNT(_id) as count"));
+            $stmt = $this->execute($this->get('property', "COUNT(_id) as count"));
             $result['ads']['totalCount'] = $stmt->fetch()['count'];
 
             //registerd users

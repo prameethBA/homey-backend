@@ -66,7 +66,18 @@ class Forum extends Controller
     public function GetComments($params, $param)
     {
         try {
-            $stmt = $this->execute($this->get('forumcomment', '*', "forum_id=" . (int)$params[0]));
+            $stmt = $this->execute($this->join(
+                'forumcomment',
+                'f.user_id as user_id,
+            f.created as created,
+            f.comment as comment,
+            u.first_name as firstName,
+            u.last_name as lastName
+            ',
+                "f, user u
+            WHERE u.user_id = f.user_id 
+            AND f.forum_id=" . (int)$params[0]
+            ));
             $this->resolve(json_encode($stmt->fetchAll()), 200);
         } catch (Exception $err) {
             $this->reject('{
