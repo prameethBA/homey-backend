@@ -48,9 +48,9 @@ class Forum extends Controller
         try {
 
             if (isset($params[0]))
-                $stmt = $this->execute($this->get('forum', '*', " user_id = " . (int)$params[0] . " ORDER BY created DESC"));
+                $stmt = $this->execute($this->get('forum', '*', " user_id = " . (int)$params[0]));
             else
-                $stmt = $this->execute($this->join('forum', '*', "ORDER BY created DESC"));
+                $stmt = $this->execute($this->get('forum', '*'));
 
             $this->resolve(json_encode($stmt->fetchAll()), 200);
         } catch (Exception $err) {
@@ -74,7 +74,7 @@ class Forum extends Controller
             u.first_name as firstName,
             u.last_name as lastName
             ',
-                "f, user u
+                "f INNER JOIN user u
             WHERE u.user_id = f.user_id 
             AND f.forum_id=" . (int)$params[0]
             ));
