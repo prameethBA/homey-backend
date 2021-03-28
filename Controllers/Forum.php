@@ -71,6 +71,7 @@ class Forum extends Controller
                 'f.user_id as user_id,
             f.created as created,
             f.comment as comment,
+            f._id as id,
             u.first_name as firstName,
             u.last_name as lastName
             ',
@@ -112,6 +113,33 @@ class Forum extends Controller
          }', 200);
         }
     }
+
+
+    //Removev comment
+    public function RemoveComment($params, $param)
+    {
+        try {
+            $userId = (string)$param['userId'];
+
+            // if (!$this->authenticateUser($param['token'], $userId)) throw new Exception("Authentication failed.");
+            if (!$this->authenticateAdmin($param['token'], $userId))
+                if (!$this->authenticateUser($param['token'], $userId)) throw new Exception("Authentication failed.");
+
+            $this->execute($this->delete('forumcomment', '_id = ' . (int)$params[0]));
+
+            $this->resolve('{
+                "action": "true",
+                "message": "Comment deleted"
+            }', 200);
+        } catch (Exception $err) {
+            $this->reject('{
+             "status": "500",
+             "error": "true",
+             "message": "' . $err->getMessage() . '"
+         }', 200);
+        }
+    }
+
 
     //Add new comment
     public function AddNewComment($params, $param)
