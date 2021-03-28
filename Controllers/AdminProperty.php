@@ -13,7 +13,7 @@ class AdminProperty extends Controller
 {
 
 
-    //get traffic data for chart
+    //get pending approvals
     public function PendingApproval($params, $param)
     {
         try {
@@ -43,6 +43,42 @@ class AdminProperty extends Controller
 
                 $this->resolve(json_encode($stmt->fetch()), 200);
             }
+        } catch (Exception $err) {
+            $this->reject('{
+                "status": "500",
+                "error": "true",
+                "message": "' . $err->getMessage() . '"
+            }', 200);
+        }
+    }
+
+    //get reported property
+
+    //get pending approvals
+    public function Reported($params, $param)
+    {
+        try {
+            $userId = (string)$param['userId'];
+            if (!$this->authenticateAdmin($param['token'], $userId)) throw new Exception("Authentication failed.");
+            $data = [
+                'price',
+                'title',
+                'rental_period as rentalPeriod',
+                'key_money as keyMoney',
+                'minimum_period as minimumPeriod',
+                'available_from as availableFrom',
+                'description',
+                'location',
+                'created',
+                'user_id as userId',
+                'facilities',
+            ];
+            // 'city_id',
+            // 'property_type_id',
+
+            $stmt = $this->execute($this->get('property', $data, ("_id = '{$param['id']}'")));
+
+            $this->resolve(json_encode($stmt->fetch()), 200);
         } catch (Exception $err) {
             $this->reject('{
                 "status": "500",
@@ -131,6 +167,45 @@ class AdminProperty extends Controller
             }', 200);
         }
     }
+
+    //  //get property details
+    //  public function PendingApproval($params, $param)
+    //  {
+    //      try {
+    //          $userId = (string)$param['userId'];
+    //          if (!$this->authenticateAdmin($param['token'], $userId)) throw new Exception("Authentication failed.");
+    //          if (isset($params[0]) && $params[0] == 'summary') {
+    //              $stmt = $this->execute($this->get('property', ['_id', 'title', 'user_id', 'created'], ("property_status = 0 ORDER BY created")));
+    //              $this->resolve(json_encode($stmt->fetchAll()), 200);
+    //          } else {
+    //              $data = [
+    //                  'price',
+    //                  'title',
+    //                  'rental_period as rentalPeriod',
+    //                  'key_money as keyMoney',
+    //                  'minimum_period as minimumPeriod',
+    //                  'available_from as availableFrom',
+    //                  'description',
+    //                  'location',
+    //                  'created',
+    //                  'user_id as userId',
+    //                  'facilities',
+    //              ];
+    //              // 'city_id',
+    //              // 'property_type_id',
+
+    //              $stmt = $this->execute($this->get('property', $data, ("_id = '{$param['id']}' AND property_status = 0")));
+
+    //              $this->resolve(json_encode($stmt->fetch()), 200);
+    //          }
+    //      } catch (Exception $err) {
+    //          $this->reject('{
+    //              "status": "500",
+    //              "error": "true",
+    //              "message": "' . $err->getMessage() . '"
+    //          }', 200);
+    //      }
+    //  }
 
 
     // public function post()

@@ -136,6 +136,25 @@ class Feedback extends Controller
         }
     }
 
+    //get report by report id 
+    public function GetReport($params, $param)
+    {
+        try {
+            $userId = (string)$param['userId'];
+
+            if (!$this->authenticateAdmin($param['token'], $userId)) throw new Exception("Authentication failed.");
+
+            $stmt = $this->execute($this->get('report', '*', "_id=" . (int)$param['id']));
+
+            $this->resolve(json_encode($stmt->fetch()), 200);
+        } catch (Exception $err) {
+            $this->reject('{
+             "status": "500",
+             "error": "true",
+             "message": "' . $err->getMessage() . '"
+         }', 200);
+        }
+    }
 
     // public function post()
     // {
