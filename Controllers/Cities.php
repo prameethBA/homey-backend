@@ -4,72 +4,99 @@ namespace Controllers;
 
 use Exception;
 
-require_once('Core/BaseController.php');
-use Core\BaseController as BaseController;
-require_once('Models/Cities.php');
-use Models\Cities as City;
+require_once('Core/Controller.php');
+
+use Core\Controller as Controller;
 
 require_once('Core/DB/DB.php');
+
 use Core\DB\DB as DB;
 
-class Cities extends BaseController {
+class Cities extends Controller
+{
 
-    public function __construct($params, $secureParams) {
-        parent::__construct($params, $secureParams);
-        new City();
+    public function All()
+    {
+        try {
+            $stmt = $this->execute($this->getAll('cities', ['_id', 'name_en as name']));
+
+            $this->resolve(json_encode($stmt->fetchAll()), 200);
+        } catch (Exception $err) {
+
+            $this->reject('{
+                "data": {
+                    "status": "500",
+                    "error": "true",
+                    "message": "' . $err->getMessage() . '"
+            }', 200);
+        }
     }
 
-    public function get() {
-        try {
-            if(isset($this->params[0], $this->params[1])) {
-                if($this->params[0] == 'districtId') $stmt = DB::execute(City::get(['_id', 'name_en as city'], ("district_id = {$this->params[1]}")));
-                else throw new Exception("Invalid parameter");
-            } else if(isset($this->params[0])) throw new Exception("Invalid parameter");
-            else $stmt = DB::execute(City::getAll(['_id', 'name_en as name']));
-            
-            http_response_code(200);
-            echo $resolve = json_encode($stmt->fetchAll());
+    //get nearest city according to location
 
-        } catch(Exception $err) {
-            http_response_code(500);
-            die($reject = '{
+    public function GetNearestCity($params, $param)
+    {
+        try {
+            $ltd = (float)$param['ltd'];
+            $lng = (float)$param['lng'];
+            $stmt = $this->execute($this->getHaving('cities', ['district_id as district', 'name_en as city', '(6371 * ACOS(COS(RADIANS(' . $ltd . ')) * COS(RADIANS(latitude)) * COS(RADIANS(longitude) - RADIANS(' . $lng . ')) + SIN(RADIANS(' . $ltd . ')) * SIN(RADIANS(latitude)))) AS distance'], ("distance < 25 ORDER BY distance"), 5));
+
+            $this->resolve(json_encode($stmt->fetchAll()), 200);
+        } catch (Exception $err) {
+
+            $this->reject('{
                 "data": {
+                    "status": "500",
                     "error": "true",
                     "message": "' . $err->getMessage() . '"
-                }
-            }');
+            }', 200);
         }
-            
-    }//End of GET
+    } //End of GET
 
-    public function post() {
+
+    public function GetDistrict($param)
+    {
         try {
-            if(isset($this->params[0])) {
+            if (isset($params[0])) throw new Exception("Invalid parameters");
+            $distrcitId = (int)$param[0];
+            $stmt = $this->execute($this->get('cities', ['_id', 'name_en as city'], ("district_id = {$distrcitId}")));
+            $this->resolve(json_encode($stmt->fetchAll()), 200);
+        } catch (Exception $err) {
 
-                switch ($this->params[0]) {
-                    case 'nearest-city':
-                        $ltd = (double)$this->secureParams['ltd'];
-                        $lng = (double)$this->secureParams['lng'];
-
-                        $stmt = DB::execute(City::getHaving(['district_id as district', 'name_en as city', '(6371 * ACOS(COS(RADIANS(' . $ltd . ')) * COS(RADIANS(latitude)) * COS(RADIANS(longitude) - RADIANS(' . $lng . ')) + SIN(RADIANS(' . $ltd . ')) * SIN(RADIANS(latitude)))) AS distance'], ("distance < 25 ORDER BY distance"), 5));
-
-                        http_response_code(200);
-                        echo $resolve = json_encode($stmt->fetchAll());
-                }
-
-            } else throw new Exception("Invalid parameter");
-            
-
-        } catch(Exception $err) {
-            http_response_code(500);
-            die($reject = '{
+            $this->reject('{
                 "data": {
+                    "status": "500",
                     "error": "true",
                     "message": "' . $err->getMessage() . '"
-                }
-            }');
+            }', 200);
         }
-            
-    }//End of POST
+    }
+
+    // public function post()
+    // {
+    //     try {
+    //         if (isset($this->params[0])) {
+
+    //             switch ($this->params[0]) {
+    //                 case 'nearest-city':
+    //                     $ltd = (float)$param['ltd'];
+    //                     $lng = (float)$param['lng'];
+
+    //                     $stmt = $this->execute($this->getHaving('city', ['district_id as district', 'name_en as city', '(6371 * ACOS(COS(RADIANS(' . $ltd . ')) * COS(RADIANS(latitude)) * COS(RADIANS(longitude) - RADIANS(' . $lng . ')) + SIN(RADIANS(' . $ltd . ')) * SIN(RADIANS(latitude)))) AS distance'], ("distance < 25 ORDER BY distance"), 5));
+
+    //                     $this->resolve(json_encode($stmt->fetchAll()), 200);
+
+    //             }
+    //         } else throw new Exception("Invalid parameter");
+    //     } catch (Exception $err) {
+
+    //         $this->reject('{
+    //             "data": {
+    //                 "error": "true",
+    //                 "message": "' . $err->getMessage() . '"
+    //             }
+    //         }',500);
+    //     }
+    // } //End of POST
 
 }//End of Class

@@ -1,0 +1,5 @@
+[23-Mar-2021 15:01:21 America/New_York] PHP Notice:  Trying to access array offset on value of type bool in /home/homefbhr/dev.homey.lk/Controllers/Payment.php on line 62
+[23-Mar-2021 15:01:21 America/New_York] PHP Notice:  Trying to access array offset on value of type bool in /home/homefbhr/dev.homey.lk/Controllers/Payment.php on line 63
+[23-Mar-2021 15:07:05 America/New_York] PHP Notice:  Trying to access array offset on value of type bool in /home/homefbhr/dev.homey.lk/Controllers/Payment.php on line 63
+[23-Mar-2021 15:14:15 America/New_York] PHP Notice:  Trying to access array offset on value of type bool in /home/homefbhr/dev.homey.lk/Controllers/Payment.php on line 63
+[23-Mar-2021 15:16:46 America/New_York] PHP Notice:  Trying to access array offset on value of type bool in /home/homefbhr/dev.homey.lk/Controllers/Payment.php on line 63

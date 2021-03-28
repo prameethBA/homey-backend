@@ -10,10 +10,10 @@ if(file_exists($controllerFile)) {
    
     require_once($controllerFile);
     $controllerPath = "Controllers\\" . $router->getController();
-    $controller = new $controllerPath($router->getParameters(),$router->getHeaderParameters());
-    if(method_exists($controller,$router->getRequest())) {
-        $method = $router->getRequest();
-        $controller->{$method}();
+    $controller = new $controllerPath();
+    if(method_exists($controller,$router->getMethod())) {
+        $method = $router->getMethod();
+        $controller->{$method}($router->getParameters(), $router->getHeaderParameters());
     } else {
         http_response_code(406);
         die('{

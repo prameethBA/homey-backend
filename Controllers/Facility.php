@@ -4,41 +4,29 @@ namespace Controllers;
 
 use Exception;
 
-require_once('Core/BaseController.php');
-use Core\BaseController as BaseController;
-require_once('Models/Facilities.php');
-use Models\Facilities as Facilities;
+require_once('Core/Controller.php');
 
-require_once('Core/DB/DB.php');
-use Core\DB\DB as DB;
+use Core\Controller as Controller;
 
-class Facility extends BaseController {
+class Facility extends Controller
+{
 
-    public function __construct($params, $secureParams) {
-        parent::__construct($params, $secureParams);
-        new Facilities();
-    }
-
-    public function get() {
+    public function All()
+    {
         try {
-            $stmt = DB::execute(Facilities::getAll());
-            
-            http_response_code(200);
-            echo $resolve = '{
-                "data":' . json_encode($stmt->fetchAll()) . '
-            }
-            ';
+            $stmt = $this->execute($this->getAll('facilities', "*"));
 
-        } catch(Exception $err) {
-            http_response_code(500);
-            die($reject = '{
+
+            $this->resolve(json_encode($stmt->fetchAll()), 200);
+        } catch (Exception $err) {
+
+            $this->reject('{
                 "data": {
+                    "status": "500",
                     "error": "true",
                     "message": "' . $err->getMessage() . '"
-                }
-            }');
+            }', 200);
         }
-            
-    }//End of GET
+    } //End of GET
 
 }//End of Class

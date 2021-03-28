@@ -60,13 +60,13 @@ class DB extends Config{
     }
 
 
-    // Execute select
-    public static function image($sql) {
-        $stmt = self::connect()->prepare($sql);
-        $stmt->execute();
-        $stmt->setFetchMode(PDO::FETCH_BOUND);
-        return $stmt;
-    }
+    // // Execute select
+    // public static function image($sql) {
+    //     $stmt = self::connect()->prepare($sql);
+    //     $stmt->execute();
+    //     $stmt->setFetchMode(PDO::FETCH_BOUND);
+    //     return $stmt;
+    // }
 
     // Excucute update and delete 
 
