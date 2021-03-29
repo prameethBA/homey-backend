@@ -114,6 +114,8 @@ class Property extends Controller
             $stmt = $this->execute($this->join('property', '*', ("p, 
             propertysettings s, favourite f WHERE p._id = s.property_id AND 
             p._id = f.property_id AND NOT p.user_id = '" . $userId . "' AND f.user_id = '" . $userId . "' AND p.privated = 0 AND p.property_status = 1 ORDER BY p.created DESC")));
+            //Privated == 0 means 'public', //property_status==1 means approved by Admins
+
             $this->resolve(json_encode($stmt->fetchAll()), 200);
         } catch (Exception $err) {
             $this->reject('{
