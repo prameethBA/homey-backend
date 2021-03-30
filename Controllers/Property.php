@@ -17,7 +17,7 @@ class Property extends Controller
     public function All($param)
     {
         try {
-            $stmt = $this->execute($this->join('property', '*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.privated = 0 AND property.property_status = 1 ORDER BY property.created DESC")));
+            $stmt = $this->execute($this->join('property', '*', ("INNER JOIN propertysettings ON property._id = propertysettings.property_id WHERE property.privated = 0 AND property.property_status = 1 AND propertysettings.reserved = 0 ORDER BY property.created DESC")));
             $this->resolve(json_encode($stmt->fetchAll()), 200);
         } catch (Exception $err) {
             $this->reject('{
@@ -138,7 +138,8 @@ class Property extends Controller
                                         p, propertysettings s, propertyreserved r  
                                             WHERE p._id = s.property_id 
                                             AND p._id = r.property_id
-                                            AND r.user_id = '{$userId}' 
+                                            AND r.user_id = '{$userId}'
+                                            AND NOT p.user_id = '{$userId}'
                                         ")));
             $this->resolve(json_encode($stmt->fetchAll()), 200);
         } catch (Exception $err) {
@@ -281,7 +282,7 @@ class Property extends Controller
 
                 $stmt = $this->execute($this->get("property", '*', "_id='{$param['propertyId']}'"));
                 $result['property'] = $stmt->fetch();
-                
+
                 //include mail for send a copy
                 require_once("./assets/email-copy.php");
 
