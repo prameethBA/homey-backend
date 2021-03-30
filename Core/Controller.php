@@ -37,10 +37,10 @@ class Controller extends Token
         return md5(time() . sha1($key . $this->uniqueKeyString));
     }
 
-    protected function sendMail($receiver = [], $subject = 'Message From no-reply@homey.lk', $message = "homey.lk")
+    protected function sendMail($receiver = [], $message = "homey.lk", $subject = 'Message From no-reply@homey.lk')
     {
         // Multiple recipients
-        $to = is_string($receiver) ? $receiver : implode(', ', $select);
+        $to = is_string($receiver) ? $receiver : implode(', ', $receiver);
 
         // To send HTML mail, the Content-type header must be set
         $headers[] = 'MIME-Version: 1.0';
@@ -53,8 +53,7 @@ class Controller extends Token
         // $headers = 'Bcc: birthdaycheck@example.com';
 
         // Mail it
-        mail($to, $subject, $message, implode("\r\n", $headers));
-        return true;
+        return mail($to, $subject, $message, implode("\r\n", $headers));
     }
 
     protected function addLog($message, $type, $description = ' ')

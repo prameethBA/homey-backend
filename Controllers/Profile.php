@@ -47,16 +47,41 @@ class Profile extends Controller
     }
 
     //Update Profile
-    public function UpdateProfile($a, $param)
+    public function UpdateProfile($params, $param)
     {
         try {
             $userId = (int)$param['userId'];
             $token = (string)$param['token'];
             if (!$this->authenticateUser($token, $userId)) throw new Exception("Authentication failed.");
+
+            $stmt = $this->execute($this->get("login", 'COUNT(mobile) as count', "mobile ='{$param['mobile']}' AND NOT user_id=" . $userId));
+            if ($stmt->fetch()['count'] >= 1) throw new Exception("Another account owns this mobile number");
+
+            $stmt = $this->execute($this->get("login", 'COUNT(email) as count', "email ='{$param['email']}' AND NOT user_id=" . $userId));
+            $mailCount = $stmt->fetch()['count'];
+            if ($mailCount >= 1) throw new Exception("Another account owns this newly entered Email number");
+            else if ($mailCount == 1) {
+                //include confirmation mail file
+                include_once($_SERVER['DOCUMENT_ROOT'] . '/assets/email-confirmation.php');
+
+                if (!$this->sendMail($email, $message, $subject)) {
+                    $this->addLog($userId . " email sending failed.", "confirmation-mail-on-mail-update-failed", "Confirmation email sending failed");
+                    $this->reject('{
+                        "signup": "true",
+                        "message": "Confirmation email sent was failed. Try again later with email <b>' . $email . '<b> ."
+                    }', 202);
+                } else {
+                    $this->addLog($userId . " confirmation mail sent to " . $param['email'], "confirmation-mail-sent-on-mail-update");
+                    $result['emailUpdate'] = true;
+                }
+            }
+
+
             $loginData = [
                 'email' => $param['email'],
                 'mobile' => $param['mobile'] == '' ? NULL : $param['mobile'],
             ];
+
 
             $userData = [
                 'first_name' => $param['firstName'],
@@ -70,10 +95,18 @@ class Profile extends Controller
                 'dob' => $param['dob'],
             ];
 
+            //update user status to unconfirm if user changed email address
+            if ($result['emailUpdate'])
+                $this->execute($this->update('login', ['user_status' => 0], ("user_status = '{$userId}'")));
+
             $this->execute($this->update('login', $loginData, ("user_id = '{$userId}'")));
             $this->execute($this->update('user', $userData, ("user_id = '{$userId}'")));
 
-            $this->resolve('{
+            if ($result['emailUpdate'])
+                $this->resolve('{
+                                "message" : "Profile update successfully.You have change the email address and you need to confirm the email address to continue with the system."
+                            }', 201);
+            else $this->resolve('{
                                 "message" : "Profile update successfully"
                             }', 201);
         } catch (Exception $err) {
