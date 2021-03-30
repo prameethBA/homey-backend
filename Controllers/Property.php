@@ -192,7 +192,7 @@ class Property extends Controller
                 'minimum_period' => (int)$param['minimumPeriod'],
                 'available_from' => $param['availableFrom'],
                 'location' => json_encode($param['location']),
-                'property_type_id' => $param['propertyType'],
+                'property_type_id' => (int)$param['propertyTypeId'],
                 'description' => $param['description'],
                 'district_id' => $param['district'], //This is unnecceary, can be removed
                 'city_id' => $param['city'],
@@ -249,22 +249,47 @@ class Property extends Controller
 
             if (!$this->authenticateUser($param['token'], $userId)) throw new Exception("Authentication failed.");
 
+            $nowDate = gmdate("Y-m-d");
+            $nowTime = gmdate("H:i:s");
+
             $data = [
                 'property_id' => $param['propertyId'],
                 'boost' => (bool)$param['boost'] ? 1 : 0,
                 'schedule' => (bool)$param['schedule'] ? 1 : 0,
-                'schedule_date' => $param['scheduleDate'],
-                'schedule_time' => $param['scheduleTime'],
+                'schedule_date' => (bool)$params['schedule'] ? $param['scheduleDate'] : $nowDate,
+                'schedule_time' => (bool)$params['schedule'] ? $param['scheduleTime'] : $nowTime,
                 'sharing' => (bool)$param['sharing'] ? 1 : 0,
+                'individuals' => (int)$param['individuals']
             ];
+
+
+
             $this->execute($this->save('propertysettings', $data));
             $this->execute($this->update('property', ['privated' => (bool)$param['privated'] ? 1 : 0], ("_id = '{$param['propertyId']}'")));
 
             $this->resolve('{
-                                "status": "500",
-                                "message": "Property Settings Applied."
-                            }', 201);
+                "status": "201",
+                "message": "Property Settings Applied."
+            }', 201);
             $this->addLog($param['propertyId'] . " Property settings added succesfull", "save-property-settings-success");
+
+            //send the copy of add as email
+
+            if ((bool)$param['sendCopy']) {
+                $stmt = $this->execute($this->get("login", 'email', "user_id=" . (int)$userId));
+                $result['email'] = $stmt->fetch()['email'];
+
+                $stmt = $this->execute($this->get("property", '*', "_id='{$param['propertyId']}'"));
+                $result['property'] = $stmt->fetch();
+                
+                //include mail for send a copy
+                require_once("./assets/email-copy.php");
+
+                if ($this->sendMail($result['email'], $message))
+                    $this->addLog("Copy of property sent as a email", "copy-sent-email-success");
+                else
+                    $this->addLog("Copy of property has not senf to the email", "copy-sent-email-failed");
+            }
         } catch (Exception $err) {
             $this->addLog("Property settings addtion failed", "save-property-settings-failed", (string)$err->getMessage());
             $this->reject('{
