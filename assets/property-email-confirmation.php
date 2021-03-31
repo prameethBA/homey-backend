@@ -297,7 +297,7 @@ $message = '<!DOCTYPE html>
             </tr>
             <tr>
                 <td class="property-details" style="display: flex;justify-content: center;color: #0d9b00; 
-                font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;">
+                font-family: \'Lucida Sans\', \'Lucida Sans Regular\', \'Lucida Grande\', \'Lucida Sans Unicode\', Geneva, Verdana, sans-serif;">
                     <div class="details" style="display: flex;flex-direction: column;justify-content: center;
                     font-size: larger;padding-bottom: 10px;">
                         <div class="column" style="padding-bottom: 1em;">Property Title : Nice House in matara</div>

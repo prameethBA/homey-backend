@@ -1,7 +1,5 @@
 <?php
 
-namespace assets;
-
 $message = '
 <!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
@@ -257,10 +255,9 @@ a{
             	<tr>
             		<td>
             			<div class="text" style="padding: 0 3em; text-align: center;">
-            				<h2>
-                      Everyone Deserves the Opportunity of a Home.
-                      it\'s just a touch away.</h2>
-            				<p><a href="#" class="btn btn-primary">Click Here!</a></p>
+            				<p>
+								' . $content . '
+							</p>
             			</div>
             		</td>
             	</tr>
