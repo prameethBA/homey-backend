@@ -40,7 +40,7 @@ class Signup extends Controller
                 //include confirmation mail file
                 include_once($_SERVER['DOCUMENT_ROOT'] . '/assets/email-confirmation.php');
 
-                if (!$this->sendMail($email, $subject, $message)) {
+                if (!$this->sendMail($email, $message, $subject)) {
                     $this->addLog($userId . " email sending failed.", "new-user-confirmation-mail-failed", "Confirmation email sending failed");
                     $this->reject('{
                         "signup": "true",
