@@ -1,5 +1,13 @@
-[23-Mar-2021 15:01:21 America/New_York] PHP Notice:  Trying to access array offset on value of type bool in /home/homefbhr/dev.homey.lk/Controllers/Payment.php on line 62
-[23-Mar-2021 15:01:21 America/New_York] PHP Notice:  Trying to access array offset on value of type bool in /home/homefbhr/dev.homey.lk/Controllers/Payment.php on line 63
-[23-Mar-2021 15:07:05 America/New_York] PHP Notice:  Trying to access array offset on value of type bool in /home/homefbhr/dev.homey.lk/Controllers/Payment.php on line 63
-[23-Mar-2021 15:14:15 America/New_York] PHP Notice:  Trying to access array offset on value of type bool in /home/homefbhr/dev.homey.lk/Controllers/Payment.php on line 63
-[23-Mar-2021 15:16:46 America/New_York] PHP Notice:  Trying to access array offset on value of type bool in /home/homefbhr/dev.homey.lk/Controllers/Payment.php on line 63
+[31-Mar-2021 00:06:53 America/New_York] PHP Notice:  Undefined index: rentalperiod in /home/homefbhr/dev.homey.lk/Controllers/Property.php on line 190
+[31-Mar-2021 00:06:55 America/New_York] PHP Notice:  Undefined index: rentalperiod in /home/homefbhr/dev.homey.lk/Controllers/Property.php on line 190
+[31-Mar-2021 00:06:55 America/New_York] PHP Notice:  Undefined index: rentalperiod in /home/homefbhr/dev.homey.lk/Controllers/Property.php on line 190
+[31-Mar-2021 00:06:55 America/New_York] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near '5581239c18c0acd720be6ec706468363' for key 'PRIMARY'')' at line 1 in /home/homefbhr/dev.homey.lk/Core/DB/DB.php:57
+Stack trace:
+#0 /home/homefbhr/dev.homey.lk/Core/DB/DB.php(57): PDOStatement->execute()
+#1 /home/homefbhr/dev.homey.lk/Core/Controller.php(64): Core\DB\DB::execute('INSERT INTO log...')
+#2 /home/homefbhr/dev.homey.lk/Controllers/Property.php(236): Core\Controller->addLog('Property addtio...', 'add-property-fa...', 'SQLSTATE[23000]...')
+#3 /home/homefbhr/dev.homey.lk/index.php(16): Controllers\Property->AddNew(Array, Array)
+#4 {main}
+  thrown in /home/homefbhr/dev.homey.lk/Core/DB/DB.php on line 57
+[31-Mar-2021 00:07:25 America/New_York] PHP Notice:  Undefined index: schedule in /home/homefbhr/dev.homey.lk/Controllers/Property.php on line 260
+[31-Mar-2021 00:07:25 America/New_York] PHP Notice:  Undefined index: schedule in /home/homefbhr/dev.homey.lk/Controllers/Property.php on line 261

@@ -84,6 +84,25 @@ class AdminSummary extends Controller
         }
     }
 
+    //get logs
+    public function GetLogs($params, $param)
+    {
+        try {
+            $userId = (string)$param['userId'];
+            if (!$this->authenticateAdmin($param['token'], $userId)) throw new Exception("Authentication failed.");
+
+            //logs
+            $stmt = $this->execute($this->join('logs', "*", "ORDER BY created DESC"));
+            $this->resolve(json_encode($stmt->fetchAll()), 200);
+        } catch (Exception $err) {
+            $this->reject('{
+              "status": "500",
+              "error": "true",
+              "message": "' . $err->getMessage() . '"
+          }', 200);
+        }
+    }
+
 
 
 

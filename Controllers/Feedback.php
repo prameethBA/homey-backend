@@ -124,7 +124,7 @@ class Feedback extends Controller
 
             if (!$this->authenticateAdmin($param['token'], $userId)) throw new Exception("Authentication failed.");
 
-            $stmt = $this->execute($this->getAll('report', '*'));
+            $stmt = $this->execute($this->get('report', '*', "status = 0"));
 
             $this->resolve(json_encode($stmt->fetchAll()), 200);
         } catch (Exception $err) {
@@ -147,6 +147,46 @@ class Feedback extends Controller
             $stmt = $this->execute($this->get('report', '*', "_id=" . (int)$param['id']));
 
             $this->resolve(json_encode($stmt->fetch()), 200);
+        } catch (Exception $err) {
+            $this->reject('{
+             "status": "500",
+             "error": "true",
+             "message": "' . $err->getMessage() . '"
+         }', 200);
+        }
+    }
+
+    //get report by report id 
+    public function DeleteReport($params, $param)
+    {
+        try {
+            $userId = (string)$param['userId'];
+
+            if (!$this->authenticateAdmin($param['token'], $userId)) throw new Exception("Authentication failed.");
+
+            $stmt = $this->execute($this->delete('report', "_id=" . (int)$params[0]));
+
+            $this->resolve('{"message": "deleted"}', 201);
+        } catch (Exception $err) {
+            $this->reject('{
+             "status": "500",
+             "error": "true",
+             "message": "' . $err->getMessage() . '"
+         }', 200);
+        }
+    }
+
+    //get report by report id 
+    public function IgnoreReport($params, $param)
+    {
+        try {
+            $userId = (string)$param['userId'];
+
+            if (!$this->authenticateAdmin($param['token'], $userId)) throw new Exception("Authentication failed.");
+
+            $stmt = $this->execute($this->update('report', ['status' => 1] , "_id=" . (int)$params[0]));
+
+            $this->resolve('{"message": "ignored    "}', 201);
         } catch (Exception $err) {
             $this->reject('{
              "status": "500",
