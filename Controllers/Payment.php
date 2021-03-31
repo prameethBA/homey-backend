@@ -114,9 +114,9 @@ class Payment extends Controller
                 "order_id = '{$_POST['order_id']}'"
             ));
 
-            $stmt = $this->execute($this->get('payment', "user_id as userId", "order_id = '" . (string)$_POST['order_id'] . "'"));
+            $stmt = $this->execute($this->get('payment', "user_id", "order_id = '" . (string)$_POST['order_id'] . "'"));
 
-            $payeeId = (int)$stmt->fetch()['userId']; //payee ID
+            $payeeId = (int)($stmt->fetch()['user_id']); //payee ID
             $this->execute($this->save('notification', ['user_id' => $payeeId, 'message' => (string)$_POST['custom_1'] . " Reserve successful"]));
 
             //property owner id
@@ -147,15 +147,14 @@ class Payment extends Controller
             $stmt = $this->execute($this->get('login', 'email', "user_id=" . (int)$payeeId));
             $ownerEmail = $stmt->fetch()['email'];
 
-
             $content = "Your property <a href='https://homey.lk/property/{$_POST['custom_1']}'>{$_POST['custom_1']} - Click here to view</a> has been reserved by {$payeeName}, Email : {$payeeEmail}, Mobile: {$payeeMobile}";
             //include email
-            include("/assets/email-common.php");
+            require("/assets/email-common.php");
             $this->sendMail($ownerEmail, $message, 'Property reserved - Payment approved at Homey.lk'); //semd email to property owner
 
             $content = "Your payment on <a href='https://homey.lk/property/{$_POST['custom_1']}'>{$_POST['custom_1']} - Click here to view</a> has been approved.<br>Thank you for deal with Homey.lk";
-            //include email
-            include("/assets/email-common.php");
+            //require email
+            require("/assets/email-common.php");
             $this->sendMail($ownerEmail, $message, 'Property reserved - Payment approved at Homey.lk'); //semd email to payee
 
 
