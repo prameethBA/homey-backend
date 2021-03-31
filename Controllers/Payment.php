@@ -93,35 +93,64 @@ class Payment extends Controller
     public function Notify()
     {
         try {
-            $this->addLog(" resquest payment gateway request on ", "payment-gatway-request", "json_encode");
+            // $this->addLog(" resquest payment gateway request on ", "payment-gatway-request", "json_encode");
 
-            // $this->addLog((string)$_POST['order_id'] . " payment successfull as " . (string)$_POST['payment_id'], "payment-success");
 
-            $this->execute($this->update([
+            $this->execute($this->update(
                 'payment',
-                'payment_id' => $_POST['payment_id'],
-                'payhere_amount' => $_POST['payhere_amount'],
-                'payhere_currency' => $_POST['payhere_currency'],
-                'status_code' => $_POST['status_code'],
-                'payment_type' => $_POST['custom_2'],
-                'status_message' => $_POST['status_message'],
-                'method' => $_POST['method'],
-                'card_holder_name' => $_POST['card_holder_name'],
-                'card_no' => $_POST['card_no'],
-                'card_expiry' => $_POST['card_expiry'],
-                'recurring' => $_POST['recurring'],
-            ], "order_id = '{$_POST['order_id']}'"));
+                [
+                    'payment_id' => $_POST['payment_id'],
+                    'payhere_amount' => $_POST['payhere_amount'],
+                    'payhere_currency' => $_POST['payhere_currency'],
+                    'status_code' => $_POST['status_code'],
+                    'payment_type' => $_POST['custom_2'],
+                    'status_message' => $_POST['status_message'],
+                    'method' => $_POST['method'],
+                    'card_holder_name' => $_POST['card_holder_name'],
+                    'card_no' => $_POST['card_no'],
+                    'card_expiry' => $_POST['card_expiry'],
+                    'recurring' => $_POST['recurring'],
+                ],
+                "order_id = '{$_POST['order_id']}'"
+            ));
 
             $stmt = $this->execute($this->get('payment', "user_id as userId", "order_id = '{$_POST['order_id']}'"));
 
+            $payeeId = $stmt->fetch()['userId'];//payee ID
+
+            //property owner id
+            $stmt = $this->execute($this->get('property', "user_id as userId", "_id = '{$_POST['custom_1']}'"));
+            $propertyOwnerId = $stmt->fetch()['userId'];//payee ID
+
+            //saved for reserved
             $this->execute($this->save('propertyreserved', [
                 'property_id' => $_POST['custom_1'],
-                'user_id' => $stmt->fetch()['userId']
+                'user_id' => $payeeId
             ]));
 
+            //update property setting as reserved = 1
             $this->execute($this->update('propertysettings', [
                 'reserved' => 1
             ], "property_id='{$_POST['custom_1']}'"));
+
+            //send mail to payee
+            $stmt = $this->execute($this->get('login', 'email, mobile', "user_id=" . (int)$userId));
+            $payeeEmail = $stmt->fetch()['email'];
+            $payeeMobile = $stmt->fetch()['mobile'];
+
+            $stmt = $this->execute($this->get('user', 'first_name, last_name', "user_id=" . (int)$userId));
+            $payeeName = $stmt->fetch()['first_name'] . " " . $stmt->fetch()['last_name'];;
+            //get owner details
+            $stmt = $this->execute($this->get('login', 'email', "user_id=" . (int)$userId));
+            $ownerEmail = $stmt->fetch()['email'];
+            
+
+            $content = "Your property <a href='https://homey.lk/property/{$_POST['custom_1']}'>{$_POST['custom_1']} - Click here to view</a> has been reserved by {$payeeName}, Email : {$payeeEmail}, Mobile: {$payeeMobile}";
+
+            //include email
+            $this->sendMail($ownerEmail,$content, 'Property reserved - Payment approved at Homey.lk');
+
+            $this->addLog((string)$_POST['order_id'] . " payment successfull as " . (string)$_POST['payment_id'], "payment-success");
 
         } catch (Exception $err) {
             $this->addLog("CTRITICAL:Failed to add to the database.", "payment-record-adding-failed", (string)$err->getMessage());
@@ -205,7 +234,7 @@ class Payment extends Controller
                         break;
 
                     case 'notify':
-                        
+
                         // $fp = fopen('data.txt', 'a'); //opens file in append mode  
                         // fwrite($fp, ' this is additional text');
                         // fwrite($fp, PropertyReserved::save([
