@@ -1,7 +1,5 @@
 <?php
 
-namespace assets;
-
 $message = '<!DOCTYPE html>
 <html>
 <head>

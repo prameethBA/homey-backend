@@ -187,7 +187,7 @@ class Property extends Controller
                 'user_id' => $userId,
                 'title' => $param['title'],
                 'location' => $location,
-                'rental_period' => $param['rentalperiod'],
+                'rental_period' => $param['rentalPeriod'],
                 'price' => (int)$param['price'],
                 'key_money' => (int)$param['keyMoney'],
                 'minimum_period' => (int)$param['minimumPeriod'],
@@ -233,7 +233,8 @@ class Property extends Controller
                             }', 201);
             $this->addLog($id . " Property addtion succesfull", "add-property-success");
         } catch (Exception $err) {
-            $this->addLog("Property addtion failed", "add-property-failed", (string)$err->getMessage());
+            $errMessage = (string)$err->getMessage();
+            $this->addLog("Property addtion failed", "add-property-failed", "{$errMessage}");
             $this->reject('{
              "status": "500",
              "error": "true",

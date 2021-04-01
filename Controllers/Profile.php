@@ -150,6 +150,24 @@ class Profile extends Controller
         }
     }
 
+    // login logs
+    public function GetLoginLogs($a, $param)
+    {
+        try {
+            $userId = (int)$param['userId'];
+            $token = (string)$param['token'];
+            if (!$this->authenticateUser($token, $userId)) throw new Exception("Authentication failed.");
+            $stmt = $this->execute($this->get('logs', '*', ("message LIKE '{$userId} logged in.' AND type LIKE 'login-%' ORDER BY created DESC LIMIT 10")));
+            $this->resolve(json_encode($stmt->fetchAll()), 200);
+        } catch (Exception $err) {
+            $this->reject('{
+                             "status": "500",
+                             "error": "true",
+                             "message": "' . $err->getMessage() . '"
+                     }', 200);
+        }
+    }
+
     // public function post()
     // {
     //     try {
