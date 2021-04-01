@@ -25,6 +25,7 @@ class Forum extends Controller
                 'user_id' => $userId,
                 'title' => $param['title'],
                 'content' => $param['content'],
+                'url' => $param['url'],
             ];
 
             $this->execute($this->save('forum', $data));
@@ -71,6 +72,7 @@ class Forum extends Controller
                 'f.user_id as user_id,
             f.created as created,
             f.comment as comment,
+            f.url as url,
             f._id as id,
             u.first_name as firstName,
             u.last_name as lastName
@@ -153,6 +155,7 @@ class Forum extends Controller
                 'user_id' => $userId,
                 'forum_id' => $param['forumId'],
                 'comment' => $param['comment'],
+                'url' => $param['url'],
             ]));
 
             $this->resolve('{
